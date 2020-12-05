@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+ <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="TX US Senate Election 2018 Dot Density"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+
+    <!--
+  ArcGIS API for JavaScript, https://js.arcgis.com
+  For more information about the visualization-dot-density sample, read the original sample description at developers.arcgis.com.
+  https://developers.arcgis.com/javascript/latest/sample-code/visualization-dot-density/index.html
+  -->
+<title>TX US Senate Election 2018 Dot Density</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.17/esri/themes/light/main.css"
+    />
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script src="https://js.arcgis.com/4.17/"></script>
+
+    <script>
+      require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/DotDensityRenderer",
+        "esri/widgets/Legend",
+        "esri/widgets/Bookmarks",
+        "esri/widgets/Expand"
+      ], function (
+        WebMap,
+        MapView,
+        FeatureLayer,
+        DotDensityRenderer,
+        Legend,
+        Bookmarks,
+        Expand
+      ) {
+        const map = new WebMap({
+          portalItem: {
+            id: "3582b744bba84668b52a16b0b6942544"
+          }
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          zoom: 9,
+          center: [-96.792223, 32.783693],
+		  map: map,
+          highlightOptions: {
+            fillOpacity: 0,
+            color: [50, 50, 50]
+          },
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              position: "top-right",
+              breakpoint: false
+            }
+          },
+          constraints: {
+            maxScale: 35000
+          }
+        });
+		view.when(function() {
+            // Listen to mouse move event
+            view.on("pointer-move", function(evt) {
+              var loc = evt.mapPoint;
+              view.hitTest(evt).then(function(response) {
+                if (response.results.length > 0) {
+                  view.popup.open({
+                    features: [response.results[0].graphic],
+                    location: loc
+                  })
+                }
+				else {
+                  if (view_2d.popup.visible) {
+                    view_2d.popup.close();
+                  }
+                } 
+			  })
+		   })
+		});
+                
+                 
+              
+            
+
+        view.when().then(function () {
+          const dotDensityRenderer = new DotDensityRenderer({
+            dotValue: 1,
+            outline: null,
+			dotBlendingEnabled: true,
+            referenceScale: 100000,
+            legendOptions: {
+              unit: "Vote(s)"
+            },
+            attributes: [
+              {
+                field: "O_Rourke",
+                color: "#00b6f1",
+                label: "O'Rourke (D)"
+              },
+              {
+                field: "Cruz",
+                color: "#f23c3f",
+                label: "Cruz (R)"
+              }
+            ]
+          });
+
+          // Add renderer to the layer and define a popup template
+          const url =
+            "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/TX_US_Senate_2018_Precinct_Results_V2/FeatureServer";
+          const layer = new FeatureLayer({
+            url: url,
+            minScale: 20000000,
+            maxScale: 35000,
+            title: "Texas US Senate Election 2018 Dot Density Results by Voting Precinct",
+            popupTemplate: {
+              title: "Precinct #{Precinct} Results",
+              content: [
+                {
+                  type: "fields",
+                  fieldInfos: [
+                    {
+                      fieldName: "O_Rourke",
+                      label: "O'Rourke",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "Cruz",
+                      label: "Cruz",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            renderer: dotDensityRenderer
+          });
+
+          map.add(layer);
+
+          view.ui.add(
+            [
+              new Expand({
+                view: view,
+                content: new Legend({ view: view }),
+                group: "top-left",
+                expanded: true
+              }),
+              new Expand({
+                view: view,
+                content: new Bookmarks({ view: view }),
+                group: "top-left"
+              })
+            ],
+            "top-left"
+          );
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
