@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta
-      name="TX US Senate Election 2018 Dot Density"
+      name="2020 US Presidential Election Results Dot Density Map"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
 
@@ -12,7 +12,7 @@
   For more information about the visualization-dot-density sample, read the original sample description at developers.arcgis.com.
   https://developers.arcgis.com/javascript/latest/sample-code/visualization-dot-density/index.html
   -->
-<title>TX US Senate Election 2018 Dot Density</title>
+<title>2020 US Presidential Election Results Dot Density Map</title>
 
     <link
       rel="stylesheet"
@@ -58,8 +58,8 @@
 
         const view = new MapView({
           container: "viewDiv",
-          zoom: 9,
-          center: [-96.792223, 32.783693],
+          zoom: 4,
+          center: [-98.554210, 37.813620],
 		  map: map,
           highlightOptions: {
             fillOpacity: 0,
@@ -111,43 +111,41 @@
             },
             attributes: [
               {
-                field: "O_Rourke",
+                field: "G20PREDBID",
                 color: "#00b6f1",
-                label: "O'Rourke (D)"
+                label: "Biden (D)"
               },
               {
-                field: "Cruz",
+                field: "G20PRERTRU",
                 color: "#f23c3f",
-                label: "Cruz (R)"
+                label: "Trump (R)"
               }
             ]
           });
 
           // Add renderer to the layer and define a popup template
-          const url =
-            "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/TX_US_Senate_2018_Precinct_Results_V2/FeatureServer";
           const layer = new FeatureLayer({
-            url: url,
-            minScale: 20000000,
+            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020%20Presidential%20Election/FeatureServer";
+            minScale: 200000000,
             maxScale: 35000,
-            title: "Texas US Senate Election 2018 Dot Density Results by Voting Precinct",
+            title: "2020 US Presidential Election Dot Density Results by Voting Precinct",
             popupTemplate: {
-              title: "Precinct #{Precinct} Results",
+              title: "Precinct/County Results",
               content: [
                 {
                   type: "fields",
                   fieldInfos: [
                     {
-                      fieldName: "O_Rourke",
-                      label: "O'Rourke",
+                      fieldName: "G20PREDBID",
+                      label: "Biden",
                       format: {
                         digitSeparator: true,
                         places: 0
                       }
                     },
                     {
-                      fieldName: "Cruz",
-                      label: "Cruz",
+                      fieldName: "G20PRERTRU",
+                      label: "Trump",
                       format: {
                         digitSeparator: true,
                         places: 0
