@@ -75,27 +75,7 @@
             maxScale: 35000
           }
         });
-        view.when(function() {
-            // Listen to mouse move event
-            view.on("pointer-move", function(evt) {
-              var loc = evt.mapPoint;
-              view.hitTest(evt).then(function(response) {
-                if (response.results.length > 0) {
-                  view.popup.open({
-                    features: [response.results[0].graphic],
-                    location: loc
-                   })
-                 }
-		 else {
-                  if (view_2d.popup.visible) {
-                    view_2d.popup.close();
-                   }
-                 } 
-	      })
-	   })
-	});
-	view.when().then(function() {
-          const dotDensityRenderer = new DotDensityRenderer({
+        const dotDensityRenderer = new DotDensityRenderer({
             dotValue: 1,
             outline: null,
 			dotBlendingEnabled: true,
@@ -116,6 +96,27 @@
               }
             ]
           });
+	view.when(function() {
+            // Listen to mouse move event
+            view.on("pointer-move", function(evt) {
+              var loc = evt.mapPoint;
+              view.hitTest(evt).then(function(response) {
+                if (response.results.length > 0) {
+                  view.popup.open({
+                    features: [response.results[0].graphic],
+                    location: loc
+                   })
+                 }
+		 else {
+                  if (view_2d.popup.visible) {
+                    view_2d.popup.close();
+                   }
+                 } 
+	      })
+	   })
+	});
+	view.when().then(function() {
+          return dotDensityRenderer,
         const layer = new FeatureLayer({
             url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
             minScale: 200000000,
