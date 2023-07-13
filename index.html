@@ -162,25 +162,7 @@
           },
           renderer: dotDensityRenderer
          });
-        });
-	map.add(layer);
-         view.ui.add(
-            [
-              new Expand({
-                view: view,
-                content: new Legend({ view: view }),
-                group: "top-left",
-                expanded: true
-              }),
-              new Expand({
-                view: view,
-                content: new Bookmarks({ view: view }),
-                group: "top-left"
-              })
-            ],
-            "top-left"
-          );
-	      view.when().then(function() {
+        view.when().then(function() {
             // Listen to mouse move event
             view.on("pointer-move", function(evt) {
               var loc = evt.mapPoint;
@@ -199,6 +181,24 @@
 	          })
 		   })
 		});
+	});
+	map.add(layer);
+        view.ui.add(
+            [
+              new Expand({
+                view: view,
+                content: new Legend({ view: view }),
+                group: "top-left",
+                expanded: true
+              }),
+              new Expand({
+                view: view,
+                content: new Bookmarks({ view: view }),
+                group: "top-left"
+              })
+            ],
+            "top-left"
+          );
 	});
     </script>
   </head>
