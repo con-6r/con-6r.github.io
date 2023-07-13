@@ -75,27 +75,6 @@
             maxScale: 35000
           }
         });
-        const dotDensityRenderer = new DotDensityRenderer({
-            dotValue: 1,
-            outline: null,
-			dotBlendingEnabled: true,
-            referenceScale: 100000,
-            legendOptions: {
-              unit: "Vote(s)"
-            },
-            attributes: [
-              {
-                field: "G20PREDBID",
-                color: "#00b6f1",
-                label: "Biden (D)"
-              },
-              {
-                field: "G20PRERTRU",
-                color: "#f23c3f",
-                label: "Trump (R)"
-              }
-            ]
-          });
 	view.when(function() {
             // Listen to mouse move event
             view.on("pointer-move", function(evt) {
@@ -116,7 +95,27 @@
 	   })
 	});
 	view.when().then(function() {
-          return dotDensityRenderer,
+          const dotDensityRenderer = new DotDensityRenderer({
+            dotValue: 1,
+            outline: null,
+	    dotBlendingEnabled: true,
+            referenceScale: 100000,
+            legendOptions: {
+              unit: "Vote(s)"
+            },
+            attributes: [
+              {
+                field: "G20PREDBID",
+                color: "#00b6f1",
+                label: "Biden (D)"
+              },
+              {
+                field: "G20PRERTRU",
+                color: "#f23c3f",
+                label: "Trump (R)"
+              }
+            ]
+          });
         const layer = new FeatureLayer({
             url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
             minScale: 200000000,
