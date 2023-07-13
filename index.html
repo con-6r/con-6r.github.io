@@ -125,7 +125,7 @@
 
           // Add renderer to the layer and define a popup template
           const layer = new FeatureLayer({
-            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_US_Presidential_Election_Results/FeatureServer",
+            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
             minScale: 200000000,
             maxScale: 35000,
             title: "2020 US Presidential Election Dot Density Results by Voting Precinct",
@@ -137,23 +137,23 @@
                   fieldInfos: [
                     {
                       fieldName: "PCTBID",
-                      label: "<b>% Biden</b>",
+                      label: "<b>Biden</b>",
                       format: {
                         digitSeparator: true,
                         places: 0
                       }
                     },
+		    {
+                      fieldName: "G20PREDBID",
+                      label: "Votes",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }   
+		    },
                     {
                       fieldName: "PCTTRU",
-                      label: "<b>% Trump</b>",
-                      format: {
-                        digitSeparator: true,
-                        places: 0
-                      }
-                    },
-                    {
-                      fieldName: "G20PREDBID",
-                      label: "Votes for Biden",
+                      label: "<b>Trump</b>",
                       format: {
                         digitSeparator: true,
                         places: 0
@@ -161,12 +161,28 @@
                     },
                     {
                       fieldName: "G20PRERTRU",
-                      label: "Votes for Trump",
+                      label: "Votes",
                       format: {
                         digitSeparator: true,
                         places: 0
                       }
-                    }
+                    },
+		    {
+		      fieldName: "Total_Other",
+		      label: "<b>Other</b>",
+		      format: {
+			digitSeparator: true,
+			places: 0
+		       }
+		     },
+		     {
+		       fieldName: "PCTOTH",
+		       label: "Votes",
+		       format {
+			 digitSeparator: true,
+			 places: 0
+		       }
+		     },
                   ]
                 }
               ]
