@@ -75,7 +75,7 @@
             maxScale: 35000
           }
         });
-        view.when(function() {
+        view.when().then(function() {
           const dotDensityRenderer = new DotDensityRenderer({
             dotValue: 1,
             outline: null,
@@ -162,7 +162,7 @@
           },
           renderer: dotDensityRenderer
          });
-        view.when().then(function() {
+        view.when(function() {
             // Listen to mouse move event
             view.on("pointer-move", function(evt) {
               var loc = evt.mapPoint;
@@ -176,10 +176,10 @@
 				else {
                   if (view_2d.popup.visible) {
                     view_2d.popup.close();
-                  }
-                } 
+                     }
+                    } 
 	          })
-		   })
+		 })
 		});
 	});
 	map.add(layer);
