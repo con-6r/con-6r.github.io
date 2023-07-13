@@ -51,11 +51,10 @@
         Expand
       ) {
         const map = new WebMap({
-          portalItem: {
-            id: "3582b744bba84668b52a16b0b6942544"
-          }
+        portalItem: {
+          id: "3582b744bba84668b52a16b0b6942544"
+         }
         });
-
         const view = new MapView({
           container: "viewDiv",
           zoom: 4,
@@ -76,31 +75,7 @@
             maxScale: 35000
           }
         });
-		view.when(function() {
-            // Listen to mouse move event
-            view.on("pointer-move", function(evt) {
-              var loc = evt.mapPoint;
-              view.hitTest(evt).then(function(response) {
-                if (response.results.length > 0) {
-                  view.popup.open({
-                    features: [response.results[0].graphic],
-                    location: loc
-                  })
-                }
-				else {
-                  if (view_2d.popup.visible) {
-                    view_2d.popup.close();
-                  }
-                } 
-			  })
-		   })
-		});
-                
-                 
-              
-            
-
-        view.when().then(function () {
+        view.when(function() {
           const dotDensityRenderer = new DotDensityRenderer({
             dotValue: 1,
             outline: null,
@@ -122,9 +97,8 @@
               }
             ]
           });
-
-          // Add renderer to the layer and define a popup template
-          const layer = new FeatureLayer({
+        });
+        const layer = new FeatureLayer({
             url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
             minScale: 200000000,
             maxScale: 35000,
@@ -181,18 +155,16 @@
 		      format: {
 			digitSeparator: true,
 			places: 0
-		      }
-		    },
-                  ]
-                }
+		       }
+		     },
+                   ]
+                 }
               ]
-            },
-            renderer: dotDensityRenderer
-          });
-
-          map.add(layer);
-
-          view.ui.add(
+          },
+          renderer: dotDensityRenderer
+        });
+	map.add(layer);
+         view.ui.add(
             [
               new Expand({
                 view: view,
@@ -208,8 +180,26 @@
             ],
             "top-left"
           );
-        });
-      });
+	      view.when().then(function() {
+            // Listen to mouse move event
+            view.on("pointer-move", function(evt) {
+              var loc = evt.mapPoint;
+              view.hitTest(evt).then(function(response) {
+                if (response.results.length > 0) {
+                  view.popup.open({
+                    features: [response.results[0].graphic],
+                    location: loc
+                  })
+                }
+				else {
+                  if (view_2d.popup.visible) {
+                    view_2d.popup.close();
+                  }
+                } 
+	          })
+		   })
+		});
+     });
     </script>
   </head>
 
