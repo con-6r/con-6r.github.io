@@ -90,10 +90,10 @@
                   if (view_2d.popup.visible) {
                     view_2d.popup.close();
                    }
-                  } 
-	        })
-	       })
-	      });
+                 } 
+	      })
+	   })
+	});
 	view.when().then(function() {
           const dotDensityRenderer = new DotDensityRenderer({
             dotValue: 1,
@@ -181,9 +181,8 @@
           },
           renderer: dotDensityRenderer
          });
-	});
-	map.add(layer);
-        view.ui.add(
+	 map.add(layer);
+         view.ui.add(
             [
               new Expand({
                 view: view,
@@ -200,6 +199,7 @@
             "top-left"
           );
 	});
+      });
     </script>
   </head>
 
