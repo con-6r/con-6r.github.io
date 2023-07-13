@@ -137,32 +137,47 @@
                   fieldInfos: [
 		    {
                       fieldName: "PCTBID",
-                    }, 
-		    {
-                      fieldName: "PCTTRU",
-                    }, 
-		    {
-                      fieldName: "PCTOTH",
+		      label: "<b>% Biden</b>",
+		      format: {
+			digitSeparator: true,
+			places: 0
+		      }
                     }, 
 	            {
                       fieldName: "G20PREDBID",
-                      label: "<b>Biden: {PCTBID}%</b>",
+                      label: "Votes",
                       format: {
                         digitSeparator: true,
                         places: 0
                       }   
 		    },
+		    {
+                      fieldName: "PCTTRU",
+		      label: "<b>% Trump</b>",
+		      format: {
+			digitSeparator: true,
+			places: 0
+		      }
+                    }, 
                     {
                       fieldName: "G20PRERTRU",
-                      label: "<b>Trump: {PCTTRU}%</b>",
+                      label: "Votes",
                       format: {
                         digitSeparator: true,
                         places: 0
                       }
                     },
 		    {
+                      fieldName: "PCTOTH",
+		      label: "<b>% Other</b>",
+		      format: {
+			digitSeparator: true,
+			places: 0
+		      }
+                    }, 
+		    {
 		      fieldName: "Total_Othe",
-		      label: "<b>Other: {PCTOTH}%</b>",
+		      label: "Votes",
 		      format: {
 			digitSeparator: true,
 			places: 0
