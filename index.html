@@ -118,7 +118,6 @@
           });
         const layer = new FeatureLayer({
             url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
-	    outFields: ["PCTBID","G20PREDBID","PCTTRU","G20PRERTRU","PCTOTH","Total_Othe"];
             minScale: 200000000,
             maxScale: 35000,
             title: "2020 US Presidential Election Dot Density Results by Voting Precinct",
@@ -130,7 +129,7 @@
                   fieldInfos: [
 		    {
                       fieldName: "PCTBID",
-		      label: "<b>% Biden</b>",
+		      label: "% <span style='font-weight: bold;'>Biden</span>",
 		      format: {
 			digitSeparator: true,
 			places: 0
