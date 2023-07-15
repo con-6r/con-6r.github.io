@@ -144,10 +144,10 @@
 
                   // Update the infoDiv
                   infoDiv.innerHTML = 
-                    "<h2 style='color: black;'>Precinct Results</h2>" +
-                    "<span style='color: dodgerblue;'>Biden: </span><b style='color: black;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
-                    "<span style='color: red;'>Trump: </span><b style='color: black;'>" + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU.toLocaleString() + " votes)<br>" +
-                    "<span style='color: dimgray;'>Other: </span><b style='color: black;'>" + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
+                    "<span style='color: black; font-size: 1.2em;'>Precinct Results</span><br>" +
+                    "<b style='color: dodgerblue;'>Biden:</b> <b style='color: black;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
+                    "<b style='color: red;'>Trump:</b> <b style='color: black;'>" + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU.toLocaleString() + " votes)<br>" +
+                    "<b style='color: dimgray;'>Other:</b> <b style='color: black;'>" + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
                   
                   // Show the infoDiv
                   infoDiv.style.display = 'block';
