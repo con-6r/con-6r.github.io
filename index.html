@@ -16,6 +16,18 @@
       height: 100%;
       width: 100%;
     }
+
+    /* Add this for the custom popup */
+    #infoDiv {
+      display: none;
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: #fff;
+      padding: 10px;
+      z-index: 99;
+      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+    }
   </style>
 
   <script src="https://js.arcgis.com/4.17/"></script>
@@ -62,6 +74,8 @@
         }
       });
 
+      let currentPrecinctID = null;  // Initialize currentPrecinctID
+
       view.when().then(function () {
         // Load the feature layer
         const layer = new FeatureLayer({
@@ -69,72 +83,10 @@
           minScale: 200000000,
           maxScale: 35000,
           title: "2020 US Presidential Election Dot Density Results by Voting Precinct",
-          outFields: ["PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]
+          outFields: ["FID", "PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]  // Removed Precinct_Name
         });
 
         map.add(layer);
-
-        const template = new PopupTemplate({
-          title: "Precinct Results",
-          content: [
-            {
-              type: "fields",
-              fieldInfos: [
-                {
-                  fieldName: "PCTBID_S",
-                  label: "<b>% Biden</b>",
-                  format: {
-                    digitSeparator: true,
-                    places: 0
-                  }
-                },
-                {
-                  fieldName: "PCTTRU_S",
-                  label: "<b>% Trump</b>",
-                  format: {
-                    digitSeparator: true,
-                    places: 0
-                  }
-                },
-                {
-                  fieldName: "PCTOTH_S",
-                  label: "<b>% Other</b>",
-                  format: {
-                    digitSeparator: true,
-                    places: 0
-                  }
-                },
-                {
-                  fieldName: "G20PREDBID",
-                  label: "Biden Vote Total",
-                  format: {
-                    digitSeparator: true,
-                    places: 0
-                  }
-                },
-                {
-                  fieldName: "G20PRERTRU",
-                  label: "Trump Vote Total",
-                  format: {
-                    digitSeparator: true,
-                    places: 0
-                  }
-                },
-                
-                {
-                  fieldName: "Total_Othe",
-                  label: "Other Vote Total",
-                  format: {
-                    digitSeparator: true,
-                    places: 0
-                  }
-                }
-              ]
-            }
-          ]
-        });
-
-        layer.popupTemplate = template;
 
         view.whenLayerView(layer).then(function (layerView) {
           // Create the dot density renderer and apply it to the layer
@@ -166,13 +118,7 @@
           view.on("pointer-move", eventHandler);
 
           let highlight;
-          view.popup = new Popup({
-            dockEnabled: true,
-            dockOptions: {
-              position: "top-right",
-              breakpoint: false
-            }
-          });
+          const infoDiv = document.getElementById('infoDiv');
 
           function eventHandler(event) {
             const screenPoint = {
@@ -180,34 +126,41 @@
               y: event.y
             };
 
-            view.hitTest(screenPoint).then(getGraphics);
-          }
+            view.hitTest(screenPoint).then(function(response) {
+              if (response.results.length > 0) {
+                const graphic = response.results[0].graphic;
+                const featureID = graphic.attributes.FID;  // Use the FID attribute
 
-          function getGraphics(response) {
-            if (response.results.length > 0) {
-              const graphic = response.results[0].graphic;
+                if (featureID !== currentPrecinctID) {
+                  currentPrecinctID = featureID;
 
-              if (highlight && highlight.graphic === graphic) {
-                return;
+                  if (highlight) {
+                    highlight.remove();
+                    highlight = null;
+                  }
+
+                  highlight = layerView.highlight(graphic);
+
+                  // Update the infoDiv
+                  infoDiv.innerHTML = 
+                    "<b style='color: dodgerblue;'>Biden: " + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID + " votes)<br>" +
+                    "<b style='color: red;'>Trump: " + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU + " votes)<br>" +
+                    "<b style='color: dimgray;'>Other: " + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe + " votes)";
+                  
+                  // Show the infoDiv
+                  infoDiv.style.display = 'block';
+                }
+              } else {
+                if (highlight) {
+                  highlight.remove();
+                  highlight = null;
+                }
+                currentPrecinctID = null;
+                
+                // Hide the infoDiv
+                infoDiv.style.display = 'none';
               }
-
-              if (highlight) {
-                highlight.remove();
-                highlight = null;
-              }
-
-              highlight = layerView.highlight(graphic);
-              view.popup.open({
-                features: [graphic],
-                location: event.mapPoint
-              });
-            } else {
-              if (highlight) {
-                highlight.remove();
-                highlight = null;
-              }
-              view.popup.close();
-            }
+            });
           }
         });
       });
@@ -234,5 +187,6 @@
 
 <body>
   <div id="viewDiv"></div>
+  <div id="infoDiv"></div>  <!-- Add this for the custom popup -->
 </body>
 </html>
