@@ -21,8 +21,8 @@
     #infoDiv {
       display: none;
       position: fixed;
-      top: 30px;
-      right: 25px;
+      top: 70px;
+      right: 20px;
       background-color: #fff;
       padding: 10px;
       margin: 5px;
@@ -44,7 +44,8 @@
       "esri/widgets/Bookmarks",
       "esri/widgets/Expand",
       "esri/PopupTemplate",
-      "esri/widgets/Popup"
+      "esri/widgets/Popup",
+      "esri/widgets/Search"
     ], function (
       WebMap,
       MapView,
@@ -54,8 +55,17 @@
       Bookmarks,
       Expand,
       PopupTemplate,
-      Popup
+      Popup,
+      Search
     ) {
+      const searchWidget = new Search({
+        view: view
+      });
+
+      view.ui.add(searchWidget, {
+        position: "top-right"
+      });
+      
       const map = new WebMap({
         portalItem: {
           id: "3582b744bba84668b52a16b0b6942544"
@@ -128,7 +138,7 @@
               y: event.y
             };
 
-            view.hitTest(screenPoint, { tolerance: 10 }).then(function(response) {
+            view.hitTest(screenPoint, { tolerance: 20 }).then(function(response) {
               if (response.results.length > 0) {
                 const graphic = response.results[0].graphic;
                 const featureID = graphic.attributes.FID;  // Use the FID attribute
@@ -145,7 +155,7 @@
 
                   // Update the infoDiv
                   infoDiv.innerHTML = 
-                    "<span style='color: black; font-size: 1.2em;'>Precinct Results</span><br>" +
+                    "<span style='color: black; font-size: 1.2em;'>Precinct Results</span><br><br>" +
                     "<b style='color: black;'>Biden:</b> <b style='color: dodgerblue;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
                     "<b style='color: black;'>Trump:</b> <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU.toLocaleString() + " votes)<br>" +
                     "<b style='color: black;'>Other:</b> <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
