@@ -139,7 +139,7 @@
               y: event.y
             };
 
-            view.hitTest(screenPoint, { tolerance: 20 }).then(function(response) {
+            view.hitTest(screenPoint, { tolerance: 30 }).then(function(response) {
               if (response.results.length > 0) {
                 const graphic = response.results[0].graphic;
                 const featureID = graphic.attributes.FID;  // Use the FID attribute
