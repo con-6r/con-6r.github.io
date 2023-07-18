@@ -213,19 +213,15 @@
             });
           }
         });
-
-        const searchWidget = new Search({
-          view: view,
-          locationEnabled: false,
-          popupEnabled: false
-        });
-
-        view.ui.add(searchWidget, {
-          position: "top-right"
-        });
         
-          view.ui.add(
+        view.ui.add(
           [
+            new Search({
+              view: view,
+              locationEnabled: false,
+              popupEnabled: false,
+              group: "top-right"
+            }),
             new Expand({
               view: view,
               content: new Legend({ view: view }),
