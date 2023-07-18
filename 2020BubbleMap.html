@@ -82,6 +82,17 @@
 
       view.when().then(function () {
         // Create the layer for the bubbles
+        const voteMarginLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          minScale: 200000000,
+          maxScale: 35000,
+          title: "Vote Margin by Precinct",
+          outFields: ["*"]
+        });
+        
+        // Add the bubble layer to the map
+        map.add(voteMarginLayer);
+        
         const precinctLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 200000000,
@@ -91,17 +102,6 @@
         });
 
         map.add(precinctLayer);
-
-        const voteMarginLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
-          minScale: 200000000,
-          maxScale: 35000,
-          title: "Vote Margin by Precinct",
-          outFields: ["*"]
-        });
-
-        // Add the bubble layer to the map
-        map.add(voteMarginLayer);
 
         // Create the symbol for the bubbles
        const voteMarginSymbol = new SimpleMarkerSymbol({
@@ -178,7 +178,7 @@
               y: event.y
             };
 
-            view.hitTest(screenPoint, { tolerance: 20}).then(function(response) {
+            view.hitTest(screenPoint, { tolerance: 30}).then(function(response) {
               if (response.results.length > 0) {
                 const graphic = response.results[0].graphic;
                 const featureID = graphic.attributes.FID;  // Use the FID attribute
@@ -223,15 +223,24 @@
         view.ui.add(searchWidget, {
           position: "top-right"
         });
-
-        const legendExpand = new Expand({
-          view: view,
-          content: new Legend({ view: view }),
-          group: "top-left",
-          expanded: true
-        });
-
-        view.ui.add(legendExpand, "top-left");
+        
+          view.ui.add(
+          [
+            new Expand({
+              view: view,
+              content: new Legend({ view: view }),
+              group: "top-left",
+              expanded: true
+            }),
+            new Expand({
+              view: view,
+              content: new Bookmarks({ view: view }),
+              group: "top-left"
+            })
+          ],
+          "top-left"
+        );
+        
       });
     });
   </script>
