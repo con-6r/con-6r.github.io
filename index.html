@@ -78,14 +78,6 @@
           maxScale: 35000
         }
       });
-
-      const searchWidget = new Search({
-        view: view
-      });
-
-      view.ui.add(searchWidget, {
-        position: "top-right"
-      });
       
       let currentPrecinctID = null;  // Initialize currentPrecinctID
 
@@ -181,6 +173,12 @@
 
       view.ui.add(
         [
+          new Search({
+            view: view,
+            locationEnabled: false,
+            popupEnabled: false,
+            group: "top-right"
+          }),  
           new Expand({
             view: view,
             content: new Legend({ view: view }),
