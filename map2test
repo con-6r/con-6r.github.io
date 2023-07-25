@@ -325,8 +325,8 @@
             ],
             "top-left"
           );
-        
         });
+      });
     </script>
   </head>
 
