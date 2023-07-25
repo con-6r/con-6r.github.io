@@ -26,7 +26,7 @@
       padding: 10px;
       z-index: 99;
       font-family: "Lacuna", sans-serif;
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
     }
   </style>
 
@@ -78,142 +78,250 @@
         }
       });
 
-      let currentPrecinctID = null;  // Initialize currentPrecinctID
+      let currentPrecinctID = null;
+      let currentCountyID = null;
+
+      let PrecinctLayerView = null;
+      let CountyLayerView = null;
 
       view.when().then(function () {
-        // Create the layer for the bubbles
-        const voteMarginLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+        const countyLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
           minScale: 200000000,
-          maxScale: 35000,
-          title: "Vote Margin by Precinct",
+          maxScale: 2500000,
+          title: "",
           outFields: ["*"]
         });
-        
-        // Add the bubble layer to the map
-        map.add(voteMarginLayer);
-        
+
+        map.add(countyLayer);
+
+        view.whenLayerView(countyLayer).then(function (layerView) {
+           CountyLayerView = layerView;
+        });
+
         const precinctLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
-          minScale: 200000000,
-          maxScale: 35000,
+          minScale: 2500000,
+          maxScale: 18000,
           title: "",
           outFields: ["*"]
         });
 
         map.add(precinctLayer);
 
-        // Create the symbol for the bubbles
-       const voteMarginSymbol = new SimpleMarkerSymbol({
+        view.whenLayerView(precinctLayer).then(function (layerView) {
+          PrecinctLayerView = layerView;
+        });
+      
+        const voteCountyLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          minScale: 200000000,
+          maxScale: 2500000,
+          title: "Vote Margin by County (or County Equivalent)",
+          outFields: ["*"]
+        }); 
+
+        map.add(voteCountyLayer);
+
+        const voteMarginLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          minScale: 2500000,
+          maxScale: 18000,
+          title: "Vote Margin by Precinct",
+          outFields: ["*"]
+        });
+          
+        map.add(voteMarginLayer);
+          
+        const voteMarginSymbol = new SimpleMarkerSymbol({
           outline: {
             color: "rgba(0, 0, 0, 0)",
             width: 0
           }
         });
-
-      view.whenLayerView(precinctLayer).then(function (layerView) {
-       // Create the renderer for the bubbles
-       const precRenderer = new SimpleRenderer({
-        type: "simple",
-        symbol: {
-          type: "simple-fill",
-          style: "none",
-          outline: {
-            width: 0,
-            color: "grey"
-          }
-         }
-       });
-
-        const voteMarginRenderer = new SimpleRenderer({
-          symbol: voteMarginSymbol,
-          visualVariables: [
-            {
-              type: "size",
-              field: "BID_TRU",
-              stops: [
-                { value: 1, size: 2 },
-                { value: 210, size: 4 },
-                { value: 520, size: 6 },
-                { value: 1041, size: 8 },
-                { value: 2074, size: 10 },
-                { value: 13000, size: 12 },
-                { value: -1, size: 2 },
-                { value: -210, size: 4 },
-                { value: -520, size: 6 },
-                { value: -1041, size: 8 },
-                { value: -2074, size: 10 },
-                { value: -13000, size: 12 },
-              ],
-              legendOptions: {
-                title: "# of Biden Votes minus # of Trump Votes"
+          
+	      const countRenderer = new SimpleRenderer({
+            type: "simple",
+            symbol: {
+              type: "simple-fill",
+              style: "none",
+              outline: {
+                width: 0,
+                color: "grey"
               }
-            },
-            {
-              type: "color",
-              field: "BID_TRU",
-              legendOptions: {
-                showLegend: false
-              },
-              stops: [
-                { value: -1, color: [204, 10, 18, 0.33] },
-                { value: 1, color: [37, 66, 143, 0.33] }
-              ]
-            }
-          ]
+           }
         });
 
-        precinctLayer.renderer = precRenderer;
-        voteMarginLayer.renderer = voteMarginRenderer;
+	      const precRenderer = new SimpleRenderer({
+            type: "simple",
+            symbol: {
+              type: "simple-fill",
+              style: "none",
+              outline: {
+                width: 0,
+                color: "grey"
+              }
+            }
+         });
 
-        // Add the pointer and highlight logic after the layer is fully loaded
-        view.on("pointer-move", eventHandler);
+         const voteCountyRenderer = new SimpleRenderer({
+            symbol: voteMarginSymbol,
+            visualVariables: [
+              {
+                type: "size",
+                field: "BID_TRU",
+                stops: [
+                  { value: 14, size: 1 },
+		              { value: 100000, size: 23 },
+		              { value: 1883355, size: 90 },
+                  { value: -14, size: 1 },
+		              { value: -100000, size: 23 },
+		              { value: -1883355, size: 90 },
+                ],
+                legendOptions: {
+                  title: "Number of Biden (D) Votes minus Number of Trump (R) Votes"
+                }
+              },
+              {
+                type: "color",
+                field: "BID_TRU",
+                legendOptions: {
+                  showLegend: false
+                },
+                stops: [
+                  { value: -1, color: [204, 10, 18, 0.60] },
+                  { value: 1, color: [37, 66, 143, 0.60] }
+                ]
+              }
+            ]
+          });
+
+          const voteMarginRenderer = new SimpleRenderer({
+            symbol: voteMarginSymbol,
+            visualVariables: [
+              {
+                type: "size",
+                field: "BID_TRU",
+                stops: [
+                  { value: 1, size: 1 },
+                  { value: 685, size: 7 },
+                  { value: 12871, size: 26 },
+                  { value: -1, size: 1 },
+                  { value: -685, size: 7 },
+                  { value: -12871, size: 26 },
+                ],
+                legendOptions: {
+                  title: "Number of Biden (D) Votes minus Number of Trump (R) Votes"
+                }
+              },
+              {
+                type: "color",
+                field: "BID_TRU",
+                legendOptions: {
+                  showLegend: false
+                },
+                stops: [
+                  { value: -1, color: [204, 10, 18, 0.35] },
+                  { value: 1, color: [37, 66, 143, 0.35] }
+                ]
+              }
+            ]
+          });
+
+          countyLayer.renderer = countRenderer;
+          precinctLayer.renderer = precRenderer;
+          voteMarginLayer.renderer = voteMarginRenderer;
+          voteCountyLayer.renderer = voteCountyRenderer;
+
+          // Add the pointer and highlight logic after the layer is fully loaded
+          view.on("pointer-move", eventHandler);
+	        view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');
+	        let timeoutId;
 
-          function eventHandler(event) {
+	        view.on("pointer-move", function(event) {
+          // Clear the timeout if it exists
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+
+            // Set a timeout to run the eventHandler after a delay
+            timeoutId = setTimeout(function() {
+              eventHandler(event);
+            }, 10);  // 10 ms delay
+          });          
+
+	        function eventHandler(event) {
             const screenPoint = {
-              x: event.x,
-              y: event.y
+              include: [countyLayer, precinctLayer]
             };
 
-            view.hitTest(screenPoint, { tolerance: 30}).then(function(response) {
+            view.hitTest(event, screenPoint).then(function(response) {
               if (response.results.length > 0) {
                 const graphic = response.results[0].graphic;
-                const featureID = graphic.attributes.FID;  // Use the FID attribute
 
-                if (featureID !== currentPrecinctID) {
-                  currentPrecinctID = featureID;
+                let featureID;
+                if (graphic.layer === precinctLayer) {
+                  featureID = graphic.attributes.FID;  // Use the FID attribute for precincts
+                } else if (graphic.layer === countyLayer) {
+                  featureID = graphic.attributes.CountyFi_1;  // Use the CountyFi_1 attribute for counties
+                }
+
+                if (graphic.layer === precinctLayer && featureID !== currentPrecinctID) {
+        	        currentPrecinctID = featureID;
+      		      } else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
+        	        currentCountyID = featureID;
+      		      } else {
+                  // The feature under the mouse is the same as the last highlighted feature, so return
+                  return;
+                }
 
                   if (highlight) {
                     highlight.remove();
                     highlight = null;
                   }
-
-                  highlight = layerView.highlight(graphic);
-
-                  infoDiv.innerHTML = 
-                    "<span style='font-size: 1.2em;'>Precinct Results</span><br><br>" +
-                    "<b style='color: black;'>Biden:</b> <b style='color: darkblue;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
-                    "<b style='color: black;'>Trump:</b> <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU.toLocaleString() + " votes)<br>" +
-                    "<b style='color: black;'>Other:</b> <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
                   
-                  infoDiv.style.display = 'block';
-                }
-              } else {
-                if (highlight) {
-                  highlight.remove();
-                  highlight = null;
-                }
-                currentPrecinctID = null;
-                
-                infoDiv.style.display = 'none';
-              }
+                  let layerView;
+                  if (graphic.layer === precinctLayer) {
+                    layerView = PrecinctLayerView;
+                    currentPrecinctID = featureID;
+		                highlight = layerView.highlight(graphic);
+                    infoDiv.innerHTML = 
+                      "<b span style='font-size: 1.2em;'>Precinct Results</b></span><br><br>" +
+                      "<style='color: black;'>Biden: <b style='color: darkblue;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
+                      "<style='color: black;'>Trump: <b style='color: firebrick;'>" + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU.toLocaleString() + " votes)<br>" +
+                      "<style='color: black;'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
+                  } else if (graphic.layer === countyLayer) {
+                    layerView = CountyLayerView;
+                    currentCountyID = featureID;
+		                highlight = layerView.highlight(graphic);
+                    infoDiv.innerHTML = 
+                      "<b span style='font-size: 1.2em;'>" + graphic.attributes.county_nam + " Results</b><br><br>" +
+                      "<style='color: black;'>Biden: <b style='color: darkblue;'>" + graphic.attributes.PCTBID + "</b> (" + graphic.attributes.votes_dem.toLocaleString() + " votes)<br>" +
+                      "<style='color: black;'>Trump: <b style='color: firebrick;'>" + graphic.attributes.PCTTRU + "</b> (" + graphic.attributes.votes_gop.toLocaleString() + " votes)<br>" +
+                      "<style='color: black;'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
+                  }
+              
+                  if (layerView) {
+                    infoDiv.style.display = 'block';
+                  }
+                } else {
+                  if (highlight) {
+                    highlight.remove();
+                    highlight = null;
+                  }
+                  currentPrecinctID = null;
+                  currentCountyID = null;
+              
+                  infoDiv.style.display = 'none';
+                     
+ 	              }
             });
           }
         });
-        
+
         const searchWidget = new Search({
           view: view
         });
@@ -238,8 +346,7 @@
           ],
           "top-left"
         );
-        
-      });
+      //});
     });
   </script>
 </head>
