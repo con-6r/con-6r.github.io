@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>2020 US Presidential Election Bubble Map</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #infoDiv {
+        display: none;
+        position: fixed;
+        top: 55px;
+        right: 20px;
+        background-color: #fff;
+        padding: 10px;
+        z-index: 99;
+        font-family: "Lacuna", sans-serif;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+
+    <script src="https://js.arcgis.com/4.17/"></script>
+
+    <script>
+      require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/SimpleRenderer",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/widgets/Legend",
+        "esri/widgets/Bookmarks",
+        "esri/widgets/Expand",
+        "esri/PopupTemplate",
+        "esri/widgets/Popup",
+        "esri/widgets/Search"
+      ], function (
+        WebMap,
+        MapView,
+        FeatureLayer,
+        SimpleRenderer,
+        SimpleMarkerSymbol,
+        Legend,
+        Bookmarks,
+        Expand,
+        PopupTemplate,
+        Popup,
+        Search
+      ) {
+        const map = new WebMap({
+          portalItem: {
+            id: "3582b744bba84668b52a16b0b6942544"
+          }
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          zoom: 4,
+          center: [-98.554210, 37.813620],
+          map: map,
+          highlightOptions: {
+            fillOpacity: 0,
+            color: [50, 50, 50]
+          },
+          constraints: {
+            maxScale: 35000
+          }
+        });
+
+        let currentPrecinctID = null;
+        let currentCountyID = null;
+
+        let PrecinctLayerView = null;
+        let CountyLayerView = null;
+
+        view.when().then(function () {
+          const countyLayer = new FeatureLayer({
+            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+            minScale: 200000000,
+            maxScale: 12000000,
+            title: "",
+            outFields: ["*"]
+          });
+
+          map.add(countyLayer);
+
+          view.whenLayerView(countyLayer).then(function (layerView) {
+            CountyLayerView = layerView;
+          });
+
+          const precinctLayer = new FeatureLayer({
+            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+            minScale: 12000000,
+            maxScale: 35000,
+            title: "",
+            outFields: ["*"]
+          });
+
+          map.add(precinctLayer);
+
+          view.whenLayerView(precinctLayer).then(function (layerView) {
+            PrecinctLayerView = layerView;
+          });
+      
+          const voteCountyLayer = new FeatureLayer({
+            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+            minScale: 200000000,
+            maxScale: 12000000,
+            title: "Vote Margin by Precinct",
+            outFields: ["*"]
+          }); 
+
+          map.add(voteCountyLayer);
+
+          const voteMarginLayer = new FeatureLayer({
+            url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+            minScale: 12000000,
+            maxScale: 35000,
+            title: "Vote Margin by Precinct",
+            outFields: ["*"]
+          });
+          
+          // Add the bubble layer to the map
+          map.add(voteMarginLayer);
+          
+          // Create the symbol for the bubbles
+          const voteMarginSymbol = new SimpleMarkerSymbol({
+            outline: {
+              color: "rgba(0, 0, 0, 0)",
+              width: 0
+            }
+          });
+
+          view.whenLayerView(precinctLayer).then(function (layerView) {
+            // Create the renderer for the bubbles
+            const precRenderer = new SimpleRenderer({
+              type: "simple",
+              symbol: {
+                type: "simple-fill",
+                style: "none",
+                outline: {
+                  width: 0,
+                  color: "grey"
+                }
+              }
+            });
+
+            const voteCountyRenderer = new SimpleRenderer({
+              symbol: voteMarginSymbol,
+              visualVariables: [
+                {
+                  type: "size",
+                  field: "BID_TRU",
+                  stops: [
+                    { value: 1, size: 5 },
+                    { value: 50000, size: 10 },
+                    { value: 170000, size: 15 },
+                    { value: 360000, size: 20 },
+                    { value: 640000, size: 25 },
+                    { value: 2000000, size: 30 },
+                    { value: -1, size: 5 },
+                    { value: -50000, size: 10 },
+                    { value: -170000, size: 15 },
+                    { value: -360000, size: 20 },
+                    { value: -640000, size: 25 },
+                    { value: -2000000, size: 30 },
+                  ],
+                  legendOptions: {
+                    title: "# of Biden Votes minus # of Trump Votes"
+                  }
+                },
+                {
+                  type: "color",
+                  field: "BID_TRU",
+                  legendOptions: {
+                    showLegend: false
+                  },
+                  stops: [
+                    { value: -1, color: [204, 10, 18, 0.33] },
+                    { value: 1, color: [37, 66, 143, 0.33] }
+                  ]
+                }
+              ]
+            });
+
+            const voteMarginRenderer = new SimpleRenderer({
+              symbol: voteMarginSymbol,
+              visualVariables: [
+                {
+                  type: "size",
+                  field: "BID_TRU",
+                  stops: [
+                    { value: 1, size: 2 },
+                    { value: 200, size: 4 },
+                    { value: 500, size: 6 },
+                    { value: 1000, size: 8 },
+                    { value: 2000, size: 10 },
+                    { value: 13000, size: 12 },
+                    { value: -1, size: 2 },
+                    { value: -200, size: 4 },
+                    { value: -500, size: 6 },
+                    { value: -1000, size: 8 },
+                    { value: -2000, size: 10 },
+                    { value: -13000, size: 12 },
+                  ],
+                  legendOptions: {
+                    title: "# of Biden Votes minus # of Trump Votes"
+                  }
+                },
+                {
+                  type: "color",
+                  field: "BID_TRU",
+                  legendOptions: {
+                    showLegend: false
+                  },
+                  stops: [
+                    { value: -1, color: [204, 10, 18, 0.33] },
+                    { value: 1, color: [37, 66, 143, 0.33] }
+                  ]
+                }
+              ]
+            });
+
+            countyLayer.renderer = countRenderer;
+            precinctLayer.renderer = precRenderer;
+            voteMarginLayer.renderer = voteMarginRenderer;
+            voteCountyLayer.renderer = voteCountyRenderer;
+
+            // Add the pointer and highlight logic after the layer is fully loaded
+            view.on("pointer-move", eventHandler);
+
+            let highlight;
+            const infoDiv = document.getElementById('infoDiv');
+
+            function eventHandler(event) {
+              const screenPoint = {
+                x: event.x,
+                y: event.y
+              };
+
+              view.hitTest(screenPoint, { tolerance: 30}).then(function(response) {
+                if (response.results.length > 0) {
+                  const graphic = response.results[0].graphic;
+                  const featureID = graphic.attributes.FID;  // Use the FID attribute
+
+                  if (featureID !== currentPrecinctID) {
+                    currentPrecinctID = featureID;
+
+                    if (highlight) {
+                      highlight.remove();
+                      highlight = null;
+                    }
+              
+                    let layerView;
+                    highlight = layerView.highlight(graphic);
+                    if (graphic.layer === precinctLayer) {
+                      layerView = PrecinctLayerView;
+                      currentPrecinctID = featureID;
+                      infoDiv.innerHTML = 
+                        "<span style='font-size: 1.2em;'>Precinct Results</span><br><br>" +
+                        "<b style='color: black;'>Biden:</b> <b style='color: darkblue;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
+                        "<b style='color: black;'>Trump:</b> <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + graphic.attributes.G20PRERTRU.toLocaleString() + " votes)<br>" +
+                        "<b style='color: black;'>Other:</b> <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
+                    } else if (graphic.layer === countyLayer) {
+                      layerView = CountyLayerView;
+                      currentCountyID = featureID;
+                      infoDiv.innerHTML = 
+                        "<span style='font-size: 1.2em;'>County/County Equivalent Results</span><br><br>" +
+                        "<b style='color: black;'>Name:</b> <b>" + graphic.attributes.county_nam + "</b><br>" +
+                        "<b style='color: black;'>Biden:</b> <b style='color: darkblue;'>" + graphic.attributes.PCTBID + "</b> (" + graphic.attributes.votes_dem.toLocaleString() + " votes)<br>" +
+                        "<b style='color: black;'>Trump:</b> <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + graphic.attributes.votes_gop.toLocaleString() + " votes)<br>" +
+                        "<b style='color: black;'>Other:</b> <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + graphic.attributes.Total_Othe.toLocaleString() + " votes)";
+                    }
+              
+                    if (layerView) {
+                      infoDiv.style.display = 'block';
+                    }
+                  } else {
+                    if (highlight) {
+                      highlight.remove();
+                      highlight = null;
+                    }
+                    currentPrecinctID = null;
+                    currentCountyID = null;
+              
+                    infoDiv.style.display = 'none';
+                  }
+                }
+              });
+            }
+          });
+
+          const searchWidget = new Search({
+            view: view
+          });
+
+          view.ui.add(searchWidget, {
+            position: "top-right"
+          });
+        
+          view.ui.add(
+            [
+              new Expand({
+                view: view,
+                content: new Legend({ view: view }),
+                group: "top-left",
+                expanded: true
+              }),
+              new Expand({
+                view: view,
+                content: new Bookmarks({ view: view }),
+                group: "top-left"
+              })
+            ],
+            "top-left"
+          );
+        
+        });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="infoDiv"></div>
+  </body>
+</html>
