@@ -140,7 +140,7 @@
           }
         });
           
-	      const countRenderer = new SimpleRenderer({
+	const countRenderer = new SimpleRenderer({
             type: "simple",
             symbol: {
               type: "simple-fill",
@@ -152,7 +152,7 @@
            }
         });
 
-	      const precRenderer = new SimpleRenderer({
+	const precRenderer = new SimpleRenderer({
             type: "simple",
             symbol: {
               type: "simple-fill",
@@ -172,11 +172,11 @@
                 field: "BID_TRU",
                 stops: [
                   { value: 14, size: 1 },
-		              { value: 100000, size: 23 },
-		              { value: 1883355, size: 90 },
+		  { value: 100000, size: 23 },
+		  { value: 1883355, size: 90 },
                   { value: -14, size: 1 },
-		              { value: -100000, size: 23 },
-		              { value: -1883355, size: 90 },
+		  { value: -100000, size: 23 },
+		  { value: -1883355, size: 90 },
                 ],
                 legendOptions: {
                   title: "Number of Biden (D) Votes minus Number of Trump (R) Votes"
@@ -270,10 +270,10 @@
                 }
 
                 if (graphic.layer === precinctLayer && featureID !== currentPrecinctID) {
-        	        currentPrecinctID = featureID;
-      		      } else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
-        	        currentCountyID = featureID;
-      		      } else {
+        	  currentPrecinctID = featureID;
+      		} else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
+        	  currentCountyID = featureID;
+      		} else {
                   // The feature under the mouse is the same as the last highlighted feature, so return
                   return;
                 }
@@ -287,7 +287,7 @@
                   if (graphic.layer === precinctLayer) {
                     layerView = PrecinctLayerView;
                     currentPrecinctID = featureID;
-		                highlight = layerView.highlight(graphic);
+		    highlight = layerView.highlight(graphic);
                     infoDiv.innerHTML = 
                       "<b span style='font-size: 1.2em;'>Precinct Results</b></span><br><br>" +
                       "<style='color: black;'>Biden: <b style='color: darkblue;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
@@ -296,7 +296,7 @@
                   } else if (graphic.layer === countyLayer) {
                     layerView = CountyLayerView;
                     currentCountyID = featureID;
-		                highlight = layerView.highlight(graphic);
+		    highlight = layerView.highlight(graphic);
                     infoDiv.innerHTML = 
                       "<b span style='font-size: 1.2em;'>" + graphic.attributes.county_nam + " Results</b><br><br>" +
                       "<style='color: black;'>Biden: <b style='color: darkblue;'>" + graphic.attributes.PCTBID + "</b> (" + graphic.attributes.votes_dem.toLocaleString() + " votes)<br>" +
@@ -317,7 +317,7 @@
               
                   infoDiv.style.display = 'none';
                      
- 	              }
+ 	        }
             });
           }
         });
