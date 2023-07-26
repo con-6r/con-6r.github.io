@@ -317,18 +317,16 @@
             });
           }
         });
-
-        const searchWidget = new Search({
-          view: view
-        });
-
-        view.ui.add(searchWidget, {
-          position: "top-right"
-        });
         
         view.ui.add(
           [
-            new Expand({
+           new Expand({
+              view: view,
+              content: new Search({ view: view }),
+              group: "top-left",
+              expanded: false
+	   }),
+           new Expand({
               view: view,
               content: new Legend({ view: view }),
               group: "top-left",
