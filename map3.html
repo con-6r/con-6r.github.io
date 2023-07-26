@@ -80,7 +80,7 @@
           color: [50, 50, 50]
         },
         constraints: {
-          maxScale: 36
+          maxScale: 600
         }
       });
       
@@ -106,7 +106,7 @@
 	const precColLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 15000000,
-          maxScale: 36,
+          maxScale: 600,
           title: "2020 US Presidential Election Results by Voting Precinct",
           outFields: ["FID", "PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]  
         });
@@ -130,7 +130,7 @@
 	const precinctLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 9000000,
-          maxScale: 36,
+          maxScale: 600,
           title: "",
           outFields: ["FID", "PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]  
         });
