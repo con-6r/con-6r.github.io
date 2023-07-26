@@ -76,7 +76,7 @@
           color: [50, 50, 50]
         },
         constraints: {
-          maxScale: 36
+          maxScale: 600
         }
       });
 
@@ -104,7 +104,7 @@
         const precinctLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 2500000,
-          maxScale: 36,
+          maxScale: 600,
           title: "",
           outFields: ["*"]
         });
@@ -128,7 +128,7 @@
         const voteMarginLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 2500000,
-          maxScale: 36,
+          maxScale: 600,
           title: "Vote Margin by Precinct",
           outFields: ["*"]
         });
