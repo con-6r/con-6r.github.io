@@ -28,7 +28,7 @@
       margin: 5px;
       z-index: 99;
       font-family: "Avenir Next", sans-serif;
-      font-size: 18px;
+      font-size: 19px;
       box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
     }
   </style>
@@ -90,7 +90,7 @@
 
       view.when().then(function () {
         // Load the feature layer
-	      const precLayer = new FeatureLayer({
+	const precLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 200000000,
           maxScale: 18000,
@@ -100,7 +100,7 @@
 
         map.add(precLayer);
 
-	      const countyLayer = new FeatureLayer({
+	const countyLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
           minScale: 200000000,
           maxScale: 1500000,
@@ -114,7 +114,7 @@
            CountyLayerView = layerView;
         });
 
-	      const precinctLayer = new FeatureLayer({
+	const precinctLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
           minScale: 1500000,
           maxScale: 18000,
@@ -122,9 +122,9 @@
           outFields: ["FID", "PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]  // Removed Precinct_Name
         });
 
-	      map.add(precinctLayer);
+	map.add(precinctLayer);
 
-	      view.whenLayerView(precinctLayer).then(function (layerView) {
+	view.whenLayerView(precinctLayer).then(function (layerView) {
            PrecinctLayerView = layerView;
         });
 
@@ -135,26 +135,20 @@
             symbol: {
               type: "simple-fill",
               style: "none",
-              outline: {
-                width: 0,
-                color: "grey"
-              }
+              outline: null
             }
         }); 
 
-	      const precRenderer = new SimpleRenderer({
+	const precRenderer = new SimpleRenderer({
             type: "simple",
             symbol: {
               type: "simple-fill",
               style: "none",
-              outline: {
-                width: 0,
-                color: "grey"
-              }
+              outline: null
             }
         }); 
 
-	      const dotDensityRenderer = new DotDensityRenderer({
+	const dotDensityRenderer = new DotDensityRenderer({
             dotValue: 1,
             outline: null,
             dotBlendingEnabled: true,
@@ -177,17 +171,17 @@
           });
 
           countyLayer.renderer = countRenderer;
-	        precinctLayer.renderer = precRenderer;
-	        precLayer.renderer = dotDensityRenderer;
+	  precinctLayer.renderer = precRenderer;
+	  precLayer.renderer = dotDensityRenderer;
 
           view.on("pointer-move", eventHandler);
-	        view.on("pointer-down", eventHandler);
+	  view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');
-	        let timeoutId;
+	  let timeoutId;
 
-	        view.on("pointer-move", function(event) {
+	  view.on("pointer-move", function(event) {
           // Clear the timeout if it exists
             if (timeoutId) {
               clearTimeout(timeoutId);
@@ -199,7 +193,7 @@
             }, 10);  // 10 ms delay
           });          
 
-	        function eventHandler(event) {
+	  function eventHandler(event) {
             const screenPoint = {
               include: [countyLayer, precinctLayer]
             };
@@ -216,10 +210,10 @@
                 }
 
                 if (graphic.layer === precinctLayer && featureID !== currentPrecinctID) {
-        	          currentPrecinctID = featureID;
-      		      } else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
-        	          currentCountyID = featureID;
-      		      } else {
+        	  currentPrecinctID = featureID;
+      		} else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
+        	  currentCountyID = featureID;
+      		} else {
                   // The feature under the mouse is the same as the last highlighted feature, so return
                   return;
                 }
@@ -233,7 +227,7 @@
                   if (graphic.layer === precinctLayer) {
                     layerView = PrecinctLayerView;
                     currentPrecinctID = featureID;
-		                highlight = layerView.highlight(graphic);
+		    highlight = layerView.highlight(graphic);
                     infoDiv.innerHTML = 
                       "<b span style='font-size: 1.2em;'>Precinct Results</b></span><br><br>" +
                       "<style='color: black;'>Biden: <b style='color: dodgerblue;'>" + graphic.attributes.PCTBID_S + "</b> (" + graphic.attributes.G20PREDBID.toLocaleString() + " votes)<br>" +
@@ -242,7 +236,7 @@
                   } else if (graphic.layer === countyLayer) {
                     layerView = CountyLayerView;
                     currentCountyID = featureID;
-		                highlight = layerView.highlight(graphic);
+		    highlight = layerView.highlight(graphic);
                     infoDiv.innerHTML = 
                       "<b span style='font-size: 1.2em;'>" + graphic.attributes.county_nam + " Results</b><br><br>" +
                       "<style='color: black;'>Biden: <b style='color: dodgerblue;'>" + graphic.attributes.PCTBID + "</b> (" + graphic.attributes.votes_dem.toLocaleString() + " votes)<br>" +
@@ -262,7 +256,7 @@
                   currentCountyID = null;
               
                   infoDiv.style.display = 'none';        
- 	            }
+ 	        }
             });
           }
         });
