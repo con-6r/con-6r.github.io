@@ -100,7 +100,7 @@
 	const countColLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
           minScale: 200000000,
-          maxScale: 15000000,
+          maxScale: 20000000,
           title: "2020 US Presidential Election Results by County",
           outFields: ["FID", "PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]  
         });
@@ -109,7 +109,7 @@
 
 	const precColLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
-          minScale: 15000000,
+          minScale: 20000000,
           maxScale: 300,
           title: "2020 US Presidential Election Results by Voting Precinct",
           outFields: ["FID", "PCTBID_S", "G20PREDBID", "PCTTRU_S", "G20PRERTRU", "PCTOTH_S", "Total_Othe"]  
@@ -173,7 +173,7 @@
 	const bubbleCountyLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
           minScale: 200000000,
-          maxScale: 2500000,
+          maxScale: 2000000,
           title: "Net Vote Margin by County",
           outFields: ["*"]
         }); 
@@ -182,7 +182,7 @@
 
         const bubblePrecinctLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
-          minScale: 2500000,
+          minScale: 2000000,
           maxScale: 300,
           title: "Net Vote Margin by Precinct",
           outFields: ["*"]
