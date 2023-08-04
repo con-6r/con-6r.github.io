@@ -345,6 +345,7 @@
             valueExpression: `
               var dem_votes = $feature.G16PREDCLI;
               var gop_votes = $feature.G16PRERTRU;
+	      var other_votes = $feature.Total_Othe;
               var total_votes = $feature.Total_Vote;
 
               if (total_votes == 0) {
@@ -352,13 +353,21 @@
               } else if (dem_votes == gop_votes) {
                   return -1;  // For exact ties
               } else if (dem_votes > gop_votes) {
-                  return (dem_votes / total_votes) * 100;  // Biden won
+                  return (dem_votes / total_votes) * 100;  // Clinton won
+	      } else if (other_votes > dem_votes + gop_votes) {
+                  return (other_votes / total_votes) * 100000; // McMullin or other won
               } else {
                   return -((gop_votes / total_votes) * 100);  // Trump won
               }
             `,
             classBreakInfos: [
-                { minValue: 0, maxValue: 0, label: "No Votes", symbol: { type: "simple-fill", color: [248, 249, 249, 0.8], outline: null }},
+		{ minValue: 90000, maxValue: 100000, label: "≤100% Other", symbol: { type: "simple-fill", color: [81, 40, 137, 0.8], outline: null }},
+		{ minValue: 80000, maxValue: 90000, label: "≤90% Other", symbol: { type: "simple-fill", color: [116, 50, 150, 0.8], outline: null }},
+		{ minValue: 70000, maxValue: 80000, label: "≤80% Other", symbol: { type: "simple-fill", color: [151, 61, 164, 0.8], outline: null }},
+		{ minValue: 60000, maxValue: 70000, label: "≤70% Other", symbol: { type: "simple-fill", color: [185, 71, 177, 0.8], outline: null }},
+		{ minValue: 50000, maxValue: 60000, label: "≤60% Other", symbol: { type: "simple-fill", color: [220, 82, 191, 0.8], outline: null }},    
+		{ minValue: 1000, maxValue: 50000, label: "≤50% Other", symbol: { type: "simple-fill", color: [255, 92, 204, 0.8], outline: null }},
+		{ minValue: 0, maxValue: 0, label: "No Votes", symbol: { type: "simple-fill", color: [248, 249, 249, 0.8], outline: null }},
 		{ minValue: -100, maxValue: -90, label: "≤100% Trump (R)", symbol: { type: "simple-fill", color: [159, 38, 41, 0.8], outline: null }},
                 { minValue: -90, maxValue: -80, label: "≤90% Trump (R)", symbol: { type: "simple-fill", color: [201, 49, 53, 0.8], outline: null }},
                 { minValue: -80, maxValue: -70, label: "≤80% Trump (R)", symbol: { type: "simple-fill", color: [219, 113, 113, 0.8], outline: null }},
