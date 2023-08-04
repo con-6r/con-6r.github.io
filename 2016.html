@@ -354,7 +354,7 @@
                   return -1;  // For exact ties
               } else if (dem_votes > gop_votes) {
                   return (dem_votes / total_votes) * 100;  // Clinton won
-	      } else if (other_votes > dem_votes && other_votes > gop_votes) {
+	      } else if ((other_votes > dem_votes) && (other_votes > gop_votes)) {
                   return (other_votes / total_votes) * 100000; // McMullin or other won
               } else {
                   return -((gop_votes / total_votes) * 100);  // Trump won
