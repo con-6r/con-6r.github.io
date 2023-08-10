@@ -134,6 +134,32 @@
 
 	map.add(dotLayer);
 
+	const bubbleCountyLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          minScale: 200000000,
+          maxScale: 2500000,
+          title: "Net Vote Margin by County",
+          outFields: ["*"]
+        }); 
+
+        const bubblePrecinctLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          minScale: 2500000,
+          maxScale: 300,
+          title: "Net Vote Margin by Precinct",
+          outFields: ["*"]
+        });
+	
+	const bubbleGroupLayer = new GroupLayer({
+          title: "Bubble Layer",
+          visible: false,
+          visibilityMode: "inherited",
+          layers: [bubbleCountyLayer, bubblePrecinctLayer],
+          listMode: "hide-children"
+        });
+	
+	map.add(bubbleGroupLayer);
+
 	const countyLayer = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
           minScale: 200000000,
@@ -166,32 +192,6 @@
            PrecinctLayerView = layerView;
         });
 	
-	const bubbleCountyLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
-          minScale: 200000000,
-          maxScale: 2500000,
-          title: "Net Vote Margin by County",
-          outFields: ["*"]
-        }); 
-
-        const bubblePrecinctLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
-          minScale: 2500000,
-          maxScale: 300,
-          title: "Net Vote Margin by Precinct",
-          outFields: ["*"]
-        });
-	
-	const bubbleGroupLayer = new GroupLayer({
-          title: "Bubble Layer",
-          visible: false,
-          visibilityMode: "inherited",
-          layers: [bubbleCountyLayer, bubblePrecinctLayer],
-          listMode: "hide-children"
-        });
-	
-	map.add(bubbleGroupLayer);
-
 	// Highlight layers renderer
 	const countRenderer = new SimpleRenderer({
             type: "simple",
