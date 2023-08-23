@@ -690,12 +690,16 @@
                 label: "Other"
               }
             ],
-            backgroundSymbol: { // polygon fill behind pie chart
-              color: [0, 0, 0, 0],
-              outline: null
+            backgroundFillSymbol: {
+              // polygon fill behind pie chart
+              color: [127, 127, 127, 0.2],
+              outline: {
+                width: 1,
+                color: [255, 255, 255, 0.3]
+              }
             },
             outline: {
-              width: 0.5,
+              width: 1.5,
               color: "grey"
             },
             visualVariables: [
