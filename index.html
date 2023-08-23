@@ -1390,8 +1390,8 @@
 	  countColLayer.renderer = countColRenderer;
 	  precColLayer.renderer = precColRenderer;
 
-          view.on("pointer-move", eventHandler);
-	  view.on("pointer-down", eventHandler);
+          view.on("pointer-move" | "pointer-down", eventHandler);
+	  //view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');
