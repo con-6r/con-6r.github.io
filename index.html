@@ -5,7 +5,7 @@
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>Election Visualizations</title>
 
-  <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css" />
+  <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css" />
 
   <style>
     html,
@@ -32,7 +32,7 @@
     }
   </style>
 
-  <script src="https://js.arcgis.com/4.24/"></script>
+  <script src="https://js.arcgis.com/4.27/"></script>
 
   <script>
     require([
@@ -1866,7 +1866,7 @@
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
 
-          view.on("pointer-move" || "pointer-down", eventHandler);
+          view.on("pointer-move", eventHandler);
 	  //view.on("pointer-down", eventHandler);
 
           let highlight;
