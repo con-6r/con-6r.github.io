@@ -48,6 +48,7 @@
       "esri/renderers/PieChartRenderer",
       "esri/widgets/Legend",
       "esri/widgets/LayerList",
+      "esri/core/promiseUtils",
       "esri/widgets/Expand",
       "esri/PopupTemplate",
       "esri/widgets/Popup",
@@ -65,6 +66,7 @@
       PieChartRenderer,
       Legend,
       LayerList,
+      promiseUtils,
       Expand,
       PopupTemplate,
       Popup,
@@ -1860,24 +1862,13 @@
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
 
-          view.on("pointer-move", eventHandler);
+          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
+	      
+          view.on("pointer-move", debouncedEventHandler);
 	  view.on("pointer-down", eventHandler);
 
           let highlight;
-          const infoDiv = document.getElementById('infoDiv');
-	  let timeoutId;
-
-	  view.on("pointer-move", function(event) {
-          // Clear the timeout if it exists
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-            }
-
-            // Set a timeout to run the eventHandler after a delay
-            timeoutId = setTimeout(function() {
-              eventHandler(event);
-            }, 10);  // 10 ms delay
-          });          
+          const infoDiv = document.getElementById('infoDiv');      
 
 	  function eventHandler(event) {
             const screenPoint = {
