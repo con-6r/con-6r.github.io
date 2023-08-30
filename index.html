@@ -1862,14 +1862,27 @@
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
 
-          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
+          //const debouncedEventHandler = promiseUtils.debounce(eventHandler);
 	      
-          view.on("pointer-move", debouncedEventHandler);
+          view.on("pointer-move", eventHandler);
 	  view.on("pointer-down", eventHandler);
 
           let highlight;
-          const infoDiv = document.getElementById('infoDiv');      
+          const infoDiv = document.getElementById('infoDiv');  
+	  let timeoutId;
 
+	  view.on("pointer-move", function(event) {
+          // Clear the timeout if it exists
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+
+            // Set a timeout to run the eventHandler after a delay
+            timeoutId = setTimeout(function() {
+              eventHandler(event);
+            }, 100);  // 100 ms delay
+          });        
+	      
 	  function eventHandler(event) {
             const screenPoint = {
               include: [stateLayer16, countyLayer16, precinctLayer16, stateLayer, countyLayer, precinctLayer]
