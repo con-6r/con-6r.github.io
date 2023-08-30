@@ -1869,19 +1869,19 @@
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');  
-	  let timeoutId;
+	  //let timeoutId;
 
-	  view.on("pointer-move", function(event) {
+	  //view.on("pointer-move", function(event) {
           // Clear the timeout if it exists
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-            }
+            //if (timeoutId) {
+              //clearTimeout(timeoutId);
+            //}
 
             // Set a timeout to run the eventHandler after a delay
-            timeoutId = setTimeout(function() {
-              eventHandler(event);
-            }, 10);  // 10 ms delay
-          });        
+            //timeoutId = setTimeout(function() {
+              //eventHandler(event);
+            //}, 10);  // 10 ms delay
+          //});        
 	      
 	  function eventHandler(event) {
             const screenPoint = {
