@@ -1862,26 +1862,38 @@
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
 
-          //const debouncedEventHandler = promiseUtils.debounce(eventHandler);
-	      
-          view.on("pointer-move", eventHandler);
+          let currentPromise;
+
+          function debouncePromise(func) {
+            return function(...args) {
+              if (currentPromise && !currentPromise.isFulfilled()) {
+                return currentPromise;
+              }
+
+    	  currentPromise = promiseUtils.createResolved(func.apply(this, args));
+    	    return currentPromise;
+  	    };
+	  }
+
+          const debouncedEventHandler = debouncePromise(eventHandler);
+          view.on("pointer-move", debouncedEventHandler);
 	  view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');  
 	  let timeoutId;
 
-	  view.on("pointer-move", function(event) {
+	  //view.on("pointer-move", function(event) {
           // Clear the timeout if it exists
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-            }
+            //if (timeoutId) {
+              //clearTimeout(timeoutId);
+            //}
 
             // Set a timeout to run the eventHandler after a delay
-            timeoutId = setTimeout(function() {
-              eventHandler(event);
-            }, 200);  // 200 ms delay
-          });        
+            //timeoutId = setTimeout(function() {
+              //eventHandler(event);
+            //}, 200);  // 200 ms delay
+          //});        
 	      
 	  function eventHandler(event) {
             const screenPoint = {
