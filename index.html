@@ -1862,7 +1862,19 @@
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
 
-          //view.on("pointer-move", eventHandler);
+          function debounce(func, delay) {
+  	    let inDebounce;
+              return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(inDebounce);
+                inDebounce = setTimeout(() => func.apply(context, args), delay);
+              };
+            }
+
+          const debouncedEventHandler = debounce(eventHandler, 200);
+
+          view.on("pointer-move", debouncedEventHandler);
 	  view.on("pointer-down", eventHandler);
 
           let highlight;
