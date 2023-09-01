@@ -1862,21 +1862,7 @@
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
 
-          let currentPromise;
-
-          function debouncePromise(func) {
-            return function(...args) {
-              if (currentPromise && !currentPromise.isFulfilled()) {
-                return currentPromise;
-              }
-
-    	  currentPromise = promiseUtils.createResolved(func.apply(this, args));
-    	    return currentPromise;
-  	    };
-	  }
-
-          const debouncedEventHandler = debouncePromise(eventHandler);
-          view.on("pointer-move", debouncedEventHandler);
+          view.on("pointer-move", eventHandler);
 	  view.on("pointer-down", eventHandler);
 
           let highlight;
