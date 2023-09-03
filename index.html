@@ -501,7 +501,7 @@
         });
 
 	const precinctLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 4500000,
           maxScale: 300,
 	  legendEnabled: false,
@@ -539,7 +539,7 @@
         });
 	
 	const precinctLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 4500000,
           maxScale: 300,
 	  legendEnabled: false,
@@ -1937,7 +1937,7 @@
                     // Get the vote counts for each candidate
 		    var clintonVotes = graphic.attributes.G20PREDBID;
                     var trumpVotes = graphic.attributes.G20PRERTRU;
-                    var otherVotes = graphic.attributes.Total_Othe;
+                    var otherVotes = graphic.attributes.TotOth20;
 
                     // Determine which candidate has the most votes
                     var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
@@ -1948,10 +1948,10 @@
                     var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
 
                     infoDiv.innerHTML = 
-                      "<b style='font-size: 1.2em;'>Precinct Results</b><br>" +
+                      "<b style='font-size: 1.2em;'>Block Group Results</b><br>" +
                       "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID_S + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
+                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
                   } else if (graphic.layer === countyLayer) {
                     layerView = CountyLayerView;
                     currentCountyID = featureID;
@@ -2003,7 +2003,7 @@
                     // Get the vote counts for each candidate
 		    var clintonVotes = graphic.attributes.G16PREDCLI;
                     var trumpVotes = graphic.attributes.G16PRERTRU;
-                    var otherVotes = graphic.attributes.Total_Othe;
+                    var otherVotes = graphic.attributes.TotOth16;
 
                     // Determine which candidate has the most votes
                     var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
@@ -2014,10 +2014,10 @@
                     var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
 
                     infoDiv.innerHTML = 
-                      "<b style='font-size: 1.2em;'>Precinct Results</b><br>" +
+                      "<b style='font-size: 1.2em;'>Block Group Results</b><br>" +
                       "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI_S + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
+                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
                   } else if (graphic.layer === countyLayer16) {
                     layerView = CountyLayerView16;
                     currentCountyID16 = featureID;
