@@ -774,11 +774,11 @@
                   field: "CLI_TRU",
                   stops: [
                     { value: 1, size: 1 },
-                    { value: 400, size: 9 },
-                    { value: 7000, size: 27 },
+                    { value: 1750, size: 10 },
+                    { value: 7000, size: 18 },
                     { value: -1, size: 1 },
-                    { value: -400, size: 9 },
-                    { value: -7000, size: 27 },
+                    { value: -1750, size: 10 },
+                    { value: -7000, size: 18 },
                   ],
                   legendOptions: {
                     title: "Number of Clinton (D) Votes minus Number of Trump (R) Votes"
@@ -1375,11 +1375,11 @@
                 field: "BID_TRU",
                 stops: [
                   { value: 1, size: 1 },
-                  { value: 400, size: 9 },
-                  { value: 7000, size: 27 },
+                  { value: 1750, size: 10 },
+                  { value: 7000, size: 18 },
                   { value: -1, size: 1 },
-                  { value: -400, size: 9 },
-                  { value: -7000, size: 27 },
+                  { value: -1750, size: 10 },
+                  { value: -7000, size: 18 },
                 ],
                 legendOptions: {
                   title: "Number of Biden (D) Votes minus Number of Trump (R) Votes"
@@ -1894,17 +1894,17 @@
 
                 let featureID;
                 if (graphic.layer === precinctLayer) {
-                  featureID = graphic.attributes.BGID;  // Use the FID attribute for precincts
+                  featureID = graphic.attributes.BGID;  // Use the BGID attribute for precincts
                 } else if (graphic.layer === countyLayer) {
-                  featureID = graphic.attributes.CountyFi_1;  // Use the CountyFi_1 attribute for counties
+                  featureID = graphic.attributes.C1NID;  // Use the C1NID attribute for counties
                 } else if (graphic.layer === stateLayer) {
-                  featureID = graphic.attributes.snid20;  // Use the snid attribute for states
+                  featureID = graphic.attributes.SNID;  // Use the SNID attribute for states
                 } else if (graphic.layer === precinctLayer16) {
-                  featureID = graphic.attributes.BGID;  // Use the pnid attribute for precincts
+                  featureID = graphic.attributes.BGID;  // Use the BGID attribute for precincts
                 } else if (graphic.layer === countyLayer16) {
-                  featureID = graphic.attributes.cnid16;  // Use the cnid attribute for counties
+                  featureID = graphic.attributes.C2NID;  // Use the C2NID attribute for counties
                 } else if (graphic.layer === stateLayer16) {
-                  featureID = graphic.attributes.snid16;  // Use the snid attribute for states
+                  featureID = graphic.attributes.SNID;  // Use the SNID attribute for states
                 } 
 
                 if (graphic.layer === precinctLayer && featureID !== currentPrecinctID) {
