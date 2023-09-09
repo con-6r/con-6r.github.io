@@ -188,6 +188,94 @@
           listMode: "show"
         });
 
+	const dotLayer162 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 300,
+          title: "2016",
+          outFields: ["*"]  // Removed Precinct_Name
+        }); 
+
+	const stateColLayer163 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 20000000,
+          title: "US Presidential Election Results by State",
+          outFields: ["*"]
+        });
+
+	const countColLayer163 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 2500000,
+          title: "US Presidential Election Results by County",
+          outFields: ["*"]  
+        });
+
+	const precColLayer163 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 2500000,
+          maxScale: 300,
+          title: "US Presidential Election Results by Census Block Group",
+          outFields: ["*"]  
+        });
+
+        const dotcolGroupLayer16 = new GroupLayer({
+          title: "2016",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateColLayer163, countColLayer163, precColLayer163, dotLayer162],
+          listMode: "hide-children"
+        });
+
+	const dotLayer2 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 300,
+          title: "2020",
+          outFields: ["*"]  // Removed Precinct_Name
+        });
+
+	const stateColLayer3 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 20000000,
+          title: "US Presidential Election Results by State",
+          outFields: ["*"]
+        });
+
+	const countColLayer3 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 2500000,
+          title: "US Presidential Election Results by County",
+          outFields: ["*"]  
+        });
+
+	const precColLayer3 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 2500000,
+          maxScale: 300,
+          title: "US Presidential Election Results by Census Block Group",
+          outFields: ["*"]  
+        });
+
+	const dotcolGroupLayer = new GroupLayer({
+          title: "2020",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateColLayer3, countColLayer3, precColLayer3, dotLayer2],
+          listMode: "hide-children"
+        });
+
+	const dotcolallGroupLayer = new GroupLayer({
+          title: "Dot Density Layer",
+          visible: false,
+          visibilityMode: "exclusive",
+          layers: [dotcolGroupLayer16, dotcolGroupLayer],
+          listMode: "show"
+        }); 
+
 	const dotLayer16 = new FeatureLayer({
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 80000000,
@@ -552,7 +640,7 @@
           title: "Layers",
           visible: true,
           visibilityMode: "exclusive",
-          layers: [swingGroupLayer, dotGroupLayer, allpieGroupLayer, colbuballGroupLayer, bubGroupLayer, chorGroupLayer],
+          layers: [swingGroupLayer, allpieGroupLayer, dotcolallGroupLayer, dotGroupLayer, colbuballGroupLayer, bubGroupLayer, chorGroupLayer],
           listMode: "show"
         });
 	
@@ -793,11 +881,19 @@
         high16.visible = false;
         high20.visible = false;
 	highSwing.visible = true;
+      } else if (layer === dotcolGroupLayer && dotcolallGroupLayer.visible) {
+	high20.visible = true;
+	high16.visible = false;
+	highSwing.visible = false;
+      } else if (layer === dotcolGroupLayer16 && dotcolallGroupLayer.visible) {
+	high16.visible = true;
+	high20.visible = false;
+	highSwing.visible = false;
       }
     }
 
     // Watch the visibility property of the main group layers
-    [swingGroupLayer, chorGroupLayer, dotGroupLayer, allpieGroupLayer, colbuballGroupLayer, bubGroupLayer].forEach(groupLayer => {
+    [swingGroupLayer, chorGroupLayer, allpieGroupLayer, dotcolallGroupLayer, dotGroupLayer, colbuballGroupLayer, bubGroupLayer].forEach(groupLayer => {
       groupLayer.watch("visible", function(newValue, oldValue, property, object) {
         if (newValue === true) {
             // When a main group layer becomes visible, check its child layers and update the highlight layer
@@ -2282,12 +2378,16 @@
 	  bubblePrecinctLayer162.renderer = precinctBubbleRenderer16;
 	  bubbleCountyLayer162.renderer = countyBubbleRenderer16;
 	  dotLayer16.renderer = dotDensityRenderer16;
+	  dotLayer162.renderer = dotDensityRenderer16;
           stateColLayer16.renderer = stateColRenderer16;
 	  countColLayer16.renderer = countColRenderer16;
 	  precColLayer16.renderer = precColRenderer16;
 	  stateColLayer162.renderer = stateColRenderer162;
 	  countColLayer162.renderer = countColRenderer162;
 	  precColLayer162.renderer = precColRenderer162;
+	  stateColLayer163.renderer = stateColRenderer162;
+	  countColLayer163.renderer = countColRenderer162;
+	  precColLayer163.renderer = precColRenderer162;
 	  stateLayer.renderer = stateRenderer;
 	  countyLayer.renderer = countRenderer;
 	  precinctLayer.renderer = precRenderer;
@@ -2301,12 +2401,16 @@
 	  bubbleCountyLayer2.renderer = countyBubbleRenderer;         
 	  bubbleStateLayer2.renderer = stateBubbleRenderer;
 	  dotLayer.renderer = dotDensityRenderer;
+	  dotLayer2.renderer = dotDensityRenderer;
 	  stateColLayer.renderer = stateColRenderer;
 	  countColLayer.renderer = countColRenderer;
 	  precColLayer.renderer = precColRenderer;
 	  stateColLayer2.renderer = stateColRenderer2;
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
+	  stateColLayer3.renderer = stateColRenderer2;
+	  countColLayer3.renderer = countColRenderer2;
+	  precColLayer3.renderer = precColRenderer2;
 	  stateSwingLayer.renderer = stateSwingRenderer;
 	  countySwingLayer.renderer = countSwingRenderer;
 	  precinctSwingLayer.renderer = precSwingRenderer;
