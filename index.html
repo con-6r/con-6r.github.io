@@ -2614,7 +2614,7 @@
 					}
 
 					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + " Results</b>" +
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Results</b>" +
 					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
 					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
 					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
@@ -2791,7 +2791,7 @@
 					}
 
 					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + " Results</b>" +
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Results</b>" +
 					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
 					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU16 + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
 					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH16 + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
@@ -2988,7 +2988,7 @@
 					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
 
 					infoDiv.innerHTML = 
-						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.county_nam + " Shift 2016-2020</div>" +
+						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Shift 2016-2020</div>" +
 						"<table style='width: 100%;'>" +
 						"    <thead>" +
 						"        <tr>" +
