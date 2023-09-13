@@ -47,6 +47,7 @@
       "esri/renderers/DotDensityRenderer",
       "esri/widgets/Legend",
       "esri/widgets/LayerList",
+      "esri/core/promiseUtils",
       "esri/widgets/Expand",
       "esri/PopupTemplate",
       "esri/widgets/Popup",
@@ -63,6 +64,7 @@
       DotDensityRenderer,
       Legend,
       LayerList,
+      promiseUtils,
       Expand,
       PopupTemplate,
       Popup,
@@ -96,6 +98,9 @@
       let currentCountyID16 = null;
       let currentStateID = null;
       let currentStateID16 = null;
+	  let currentPrecinctSwingID = null;
+      let currentCountySwingID = null;
+      let currentStateSwingID = null;
 
       let PrecinctLayerView = null;
       let CountyLayerView = null;
@@ -103,11 +108,174 @@
       let CountyLayerView16 = null;
       let StateLayerView = null;
       let StateLayerView16 = null;
+	  let PrecinctSwingLayerView = null;
+      let CountySwingLayerView = null;
+      let StateSwingLayerView = null;
 
       view.when().then(function () {
+	  
+	const stateSwing = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 20000000,
+          title: "2016-2020 State Vote Shift",
+          outFields: ["*"]
+        });
+
+	const countSwing = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 9000000,
+          title: "2016-2020 County Vote Shift",
+          outFields: ["*"]  
+        });
+
+	const precSwing = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 9000000,
+          maxScale: 300,
+          title: "2016-2020 Census Block Group Vote Shift",
+          outFields: ["*"]  
+        });
+
+	const swingGroup = new GroupLayer({
+          title: "2016-2020 Vote Shift",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateSwing, countSwing, precSwing],
+          listMode: "hide-children"
+        });
+
+        const stateSwingPCT = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 20000000,
+          title: "2016-2020 State % Shift",
+          outFields: ["*"]
+        });
+
+	const countSwingPCT = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 9000000,
+          title: "2016-2020 County % Shift",
+          outFields: ["*"]  
+        });
+
+	const precSwingPCT = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 9000000,
+          maxScale: 300,
+          title: "2016-2020 Census Block Group % Shift",
+          outFields: ["*"]  
+        });
+
+	const pctSwingGroup = new GroupLayer({
+          title: "2016-2020 % Shift",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateSwingPCT, countSwingPCT, precSwingPCT],
+          listMode: "hide-children"
+        });
+
+	const swingGroupLayer = new GroupLayer({
+          title: "2016-2020 Shift Layer",
+          visible: true,
+          visibilityMode: "exclusive",
+          layers: [swingGroup, pctSwingGroup],
+          listMode: "show"
+        });
+
+	const dotLayer162 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 300,
+          title: "Dot Density Legend",
+          outFields: ["*"]  // Removed Precinct_Name
+        }); 
+
+	const stateColLayer163 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 20000000,
+          title: "US Presidential Election Results by State",
+          outFields: ["*"]
+        });
+
+	const countColLayer163 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 2500000,
+          title: "US Presidential Election Results by County",
+          outFields: ["*"]  
+        });
+
+	const precColLayer163 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 2500000,
+          maxScale: 300,
+          title: "US Presidential Election Results by Census Block Group",
+          outFields: ["*"]  
+        });
+
+        const dotcolGroupLayer16 = new GroupLayer({
+          title: "2016",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateColLayer163, countColLayer163, precColLayer163, dotLayer162],
+          listMode: "hide-children"
+        });
+
+	const dotLayer2 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 300,
+          title: "Dot Density Legend",
+          outFields: ["*"]  // Removed Precinct_Name
+        });
+
+	const stateColLayer3 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+          minScale: 80000000,
+          maxScale: 20000000,
+          title: "US Presidential Election Results by State",
+          outFields: ["*"]
+        });
+
+	const countColLayer3 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 2500000,
+          title: "US Presidential Election Results by County",
+          outFields: ["*"]  
+        });
+
+	const precColLayer3 = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 2500000,
+          maxScale: 300,
+          title: "US Presidential Election Results by Census Block Group",
+          outFields: ["*"]  
+        });
+
+	const dotcolGroupLayer = new GroupLayer({
+          title: "2020",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateColLayer3, countColLayer3, precColLayer3, dotLayer2],
+          listMode: "hide-children"
+        });
+
+	const dotcolallGroupLayer = new GroupLayer({
+          title: "Choropleth + Dot Density Layer",
+          visible: false,
+          visibilityMode: "exclusive",
+          layers: [dotcolGroupLayer16, dotcolGroupLayer],
+          listMode: "show"
+        }); 
 
 	const dotLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 80000000,
           maxScale: 300,
           title: "2016",
@@ -115,7 +283,7 @@
         }); 
 
 	const dotLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 80000000,
           maxScale: 300,
           title: "2020",
@@ -139,7 +307,7 @@
         });
        
 	const bubbleCountyLayer162 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_County_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 2500000,
           title: "Net Vote Margin by County",
@@ -147,10 +315,10 @@
         }); 
 
         const bubblePrecinctLayer162 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 2500000,
           maxScale: 300,
-          title: "Net Vote Margin by Precinct",
+          title: "Net Vote Margin by Census Block Group",
           outFields: ["*"]
         });
 
@@ -163,7 +331,7 @@
         });
 
 	const countColLayer162 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_County_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 2500000,
           title: "US Presidential Election Results by County",
@@ -171,10 +339,10 @@
         });
 
 	const precColLayer162 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 2500000,
           maxScale: 300,
-          title: "US Presidential Election Results by Voting Precinct",
+          title: "US Presidential Election Results by Census Block Group",
           outFields: ["*"]  
         });
 
@@ -195,7 +363,7 @@
         });
 
 	const bubbleCountyLayer2 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 2500000,
           title: "Net Vote Margin by County",
@@ -203,10 +371,10 @@
         }); 
 
         const bubblePrecinctLayer2 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 2500000,
           maxScale: 300,
-          title: "Net Vote Margin by Precinct",
+          title: "Net Vote Margin by Census Block Group",
           outFields: ["*"]
         });
 
@@ -219,7 +387,7 @@
         });
 
 	const countColLayer2 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 2500000,
           title: "US Presidential Election Results by County",
@@ -227,10 +395,10 @@
         });
 
 	const precColLayer2 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 2500000,
           maxScale: 300,
-          title: "US Presidential Election Results by Voting Precinct",
+          title: "US Presidential Election Results by Census Block Group",
           outFields: ["*"]  
         });
 	
@@ -259,7 +427,7 @@
         });
        
 	const bubbleCountyLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_County_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 2500000,
           title: "Net Vote Margin by County",
@@ -267,10 +435,10 @@
         }); 
 
         const bubblePrecinctLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 2500000,
           maxScale: 300,
-          title: "Net Vote Margin by Precinct",
+          title: "Net Vote Margin by Census Block Group",
           outFields: ["*"]
         });
 	
@@ -291,7 +459,7 @@
         });
 
 	const bubbleCountyLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 2500000,
           title: "Net Vote Margin by County",
@@ -299,10 +467,10 @@
         }); 
 
         const bubblePrecinctLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 2500000,
           maxScale: 300,
-          title: "Net Vote Margin by Precinct",
+          title: "Net Vote Margin by Census Block Group",
           outFields: ["*"]
         });
 	
@@ -326,23 +494,23 @@
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
           minScale: 80000000,
           maxScale: 20000000,
-          title: "US Presidential Election Results by State",
+          title: "2016 US Presidential Election Results by State",
           outFields: ["*"]
         });
 
 	const countColLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_County_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 9000000,
-          title: "US Presidential Election Results by County",
+          title: "2016 US Presidential Election Results by County",
           outFields: ["*"]  
         });
 
 	const precColLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 9000000,
           maxScale: 300,
-          title: "US Presidential Election Results by Voting Precinct",
+          title: "2016 US Presidential Election Results by Census Block Group",
           outFields: ["*"]  
         });
 
@@ -358,23 +526,23 @@
           url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
           minScale: 80000000,
           maxScale: 20000000,
-          title: "US Presidential Election Results by State",
+          title: "2020 US Presidential Election Results by State",
           outFields: ["*"]
         });
 
 	const countColLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 9000000,
-          title: "US Presidential Election Results by County",
+          title: "2020 US Presidential Election Results by County",
           outFields: ["*"]  
         });
 
 	const precColLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 9000000,
           maxScale: 300,
-          title: "US Presidential Election Results by Voting Precinct",
+          title: "2020 US Presidential Election Results by Census Block Group",
           outFields: ["*"]  
         });
 	
@@ -398,7 +566,7 @@
           title: "Layers",
           visible: true,
           visibilityMode: "exclusive",
-          layers: [dotGroupLayer, colbuballGroupLayer, bubGroupLayer, chorGroupLayer],
+          layers: [swingGroupLayer, dotcolallGroupLayer, dotGroupLayer, colbuballGroupLayer, bubGroupLayer, chorGroupLayer],
           listMode: "show"
         });
 	
@@ -415,7 +583,7 @@
        });
 	
 	const countyLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_County_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 4500000,
           legendEnabled: false,
@@ -425,7 +593,7 @@
         });
 
 	const precinctLayer16 = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2016_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 4500000,
           maxScale: 300,
 	  legendEnabled: false,
@@ -453,7 +621,7 @@
        });
 
 	const countyLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_County_Results/FeatureServer/0",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
           minScale: 20000000,
           maxScale: 4500000,
           legendEnabled: false,
@@ -463,7 +631,7 @@
         });
 	
 	const precinctLayer = new FeatureLayer({
-          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_Election_Final_Prec_Results/FeatureServer",
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
           minScale: 4500000,
           maxScale: 300,
 	  legendEnabled: false,
@@ -480,11 +648,49 @@
           listMode: "hide"
 	});
 
+    const stateSwingLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_State_Results/FeatureServer/0",
+         minScale: 80000000,
+         maxScale: 20000000,
+         legendEnabled: false,
+         listMode: "hide",
+         title: "",
+         outFields: ["*"]
+       });
+
+	const countySwingLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Election_Final_County_Results/FeatureServer/0",
+          minScale: 20000000,
+          maxScale: 4500000,
+          legendEnabled: false,
+	  listMode: "hide",
+          title: "",
+          outFields: ["*"]
+        });
+	
+	const precinctSwingLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/VNo0ht0YPXJoI4oE/arcgis/rest/services/2020_2016_Final_Election_Results_By_Census_Block/FeatureServer/0",
+          minScale: 4500000,
+          maxScale: 300,
+	  legendEnabled: false,
+	  listMode: "hide",
+          title: "",
+          outFields: ["*"]  
+        });
+
+	const highSwing = new GroupLayer({
+	  title: "Swing",
+          visible: true,
+          visibilityMode: "inherited",
+          layers: [stateSwingLayer, precinctSwingLayer, countySwingLayer],
+          listMode: "hide"
+	});
+
 	const masthigh = new GroupLayer({
 	  title: "Pop-Up Layers",
 	  visible: true,
 	  visibilityMode: "exclusive",
-	  layers: [high16, high20],
+	  layers: [highSwing, high16, high20],
 	  listMode: "hide"
 	});
 
@@ -512,6 +718,18 @@
 
 	view.whenLayerView(precinctLayer).then(function (layerView) {
            PrecinctLayerView = layerView;
+        });
+		
+	view.whenLayerView(stateSwingLayer).then(function(layerView) {
+	   StateSwingLayerView = layerView;
+	});
+
+	view.whenLayerView(countySwingLayer).then(function (layerView) {
+           CountySwingLayerView = layerView;
+        });
+
+	view.whenLayerView(precinctSwingLayer).then(function (layerView) {
+           PrecinctSwingLayerView = layerView;
         });
 
 	view.ui.add(
@@ -544,32 +762,56 @@
       if (layer === colGroupLayer16 && chorGroupLayer.visible) {
         high16.visible = true;
         high20.visible = false;
+	highSwing.visible = false;
       } else if (layer === colGroupLayer && chorGroupLayer.visible) {
         high20.visible = true;
         high16.visible = false;
+	highSwing.visible = false;
       } else if (layer === dotLayer16 && dotGroupLayer.visible) {
         high16.visible = true;
         high20.visible = false;
+	highSwing.visible = false;
       } else if (layer === dotLayer && dotGroupLayer.visible) {
         high20.visible = true;
         high16.visible = false;
+	highSwing.visible = false;
       } else if (layer === colbubGroupLayer16 && colbuballGroupLayer.visible) {
         high16.visible = true;
         high20.visible = false;
+	highSwing.visible = false;
       } else if (layer === colbubGroupLayer && colbuballGroupLayer.visible) {
         high20.visible = true;
         high16.visible = false;
+	highSwing.visible = false;
       } else if (layer === bubbleGroupLayer16 && bubGroupLayer.visible) {
         high16.visible = true;
         high20.visible = false;
+	highSwing.visible = false;
       } else if (layer === bubbleGroupLayer && bubGroupLayer.visible) {
         high20.visible = true;
         high16.visible = false;
+	highSwing.visible = false;
+      } else if (layer === pctSwingGroup && swingGroupLayer.visible) {
+        high20.visible = false;
+        high16.visible = false;
+	highSwing.visible = true;
+      } else if (layer === swingGroup && swingGroupLayer.visible) {
+        high16.visible = false;
+        high20.visible = false;
+	highSwing.visible = true;
+      } else if (layer === dotcolGroupLayer && dotcolallGroupLayer.visible) {
+	high20.visible = true;
+	high16.visible = false;
+	highSwing.visible = false;
+      } else if (layer === dotcolGroupLayer16 && dotcolallGroupLayer.visible) {
+	high16.visible = true;
+	high20.visible = false;
+	highSwing.visible = false;
       }
     }
 
     // Watch the visibility property of the main group layers
-    [chorGroupLayer, dotGroupLayer, colbuballGroupLayer, bubGroupLayer].forEach(groupLayer => {
+    [swingGroupLayer, chorGroupLayer, dotcolallGroupLayer, dotGroupLayer, colbuballGroupLayer, bubGroupLayer].forEach(groupLayer => {
       groupLayer.watch("visible", function(newValue, oldValue, property, object) {
         if (newValue === true) {
             // When a main group layer becomes visible, check its child layers and update the highlight layer
@@ -584,6 +826,33 @@
 
 
         // Highlight layers renderer
+		const stateSwingRenderer = new SimpleRenderer({
+             //type: "simple",
+             symbol: {
+               type: "simple-fill",
+               style: "none",
+               outline: null
+             }
+          }); 
+
+	const countSwingRenderer = new SimpleRenderer({
+             //type: "simple",
+             symbol: {
+               type: "simple-fill",
+               style: "none",
+               outline: null
+             }
+          }); 
+
+	const precSwingRenderer = new SimpleRenderer({
+             //type: "simple",
+             symbol: {
+               type: "simple-fill",
+               style: "none",
+               outline: null
+             }
+          }); 
+		
         const stateRenderer16 = new SimpleRenderer({
              //type: "simple",
              symbol: {
@@ -692,11 +961,11 @@
                   field: "CLI_TRU",
                   stops: [
                     { value: 1, size: 1 },
-                    { value: 700, size: 8 },
-                    { value: 13000, size: 27 },
+                    { value: 400, size: 10 },
+                    { value: 7000, size: 20 },
                     { value: -1, size: 1 },
-                    { value: -700, size: 8 },
-                    { value: -13000, size: 27 },
+                    { value: -400, size: 10 },
+                    { value: -7000, size: 20 },
                   ],
                   legendOptions: {
                     title: "Number of Clinton (D) Votes minus Number of Trump (R) Votes"
@@ -715,7 +984,7 @@
                 }
               ]
             });
-
+	      
 	    // Dot density renderer
 	    const dotDensityRenderer16 = new DotDensityRenderer({
               dotValue: 1,
@@ -737,7 +1006,7 @@
                   label: "Trump (R)"
                 }, 
                 {
-                  field: "Total_Othe",
+                  field: "TotOth16",
                   color: "#bf00ff",
                   label: "Other"
 	        }
@@ -745,6 +1014,279 @@
             });
 
 	    // Class breaks renderer
+			const stateSwingPCTRenderer = new ClassBreaksRenderer({
+              valueExpression: `
+                var biden_pct = $feature.pctbi;
+                var trump20_pct = $feature.pcttr20;
+                var clinton_pct = $feature.pctcl;
+                var trump16_pct = $feature.pcttr16;
+                var total_votes16 = $feature.Tot_16;
+                var total_votes20 = $feature.Tot_20;
+
+                var difference = (biden_pct - trump20_pct) - (clinton_pct - trump16_pct);
+
+                if (total_votes16 == 0 && total_votes20 == 0) {
+                  return 100002;  // For no votes
+              } else if (difference == 0) {
+                  return -100002;  // For no difference
+              } else {
+                  return difference;
+              }
+
+              `,
+              classBreakInfos: [
+                  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 0.6], outline: null }},
+		  { minValue: -200, maxValue: -50, label: "Over 50% More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 0.6], outline: null }},
+                  { minValue: -50, maxValue: -45, label: "≤50% More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 0.6], outline: null }},
+                  { minValue: -45, maxValue: -40, label: "≤45% More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 0.6], outline: null }},
+                  { minValue: -40, maxValue: -35, label: "≤40% More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 0.6], outline: null }},
+		  { minValue: -35, maxValue: -30, label: "≤35% More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 0.6], outline: null }},
+		  { minValue: -30, maxValue: -25, label: "≤30% More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 0.6], outline: null }}, 
+		  { minValue: -25, maxValue: -20, label: "≤25% More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 0.6], outline: null }},
+		  { minValue: -20, maxValue: -15, label: "≤20% More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 0.6], outline: null }},
+		  { minValue: -15, maxValue: -10, label: "≤15% More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 0.6], outline: null }},
+		  { minValue: -10, maxValue: -5, label: "≤10% More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 0.6], outline: null }},
+		  { minValue: -5, maxValue: 0, label: "≤5% More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 0.6], outline: null }},
+		  { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 0.6], outline: null }},
+                  { minValue: 0, maxValue: 5, label: "≤5% More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 0.6], outline: null }},
+                  { minValue: 5, maxValue: 10, label: "≤10% More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 0.6], outline: null }},
+		  { minValue: 10, maxValue: 15, label: "≤15% More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 0.6], outline: null }},
+                  { minValue: 15, maxValue: 20, label: "≤20% More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 0.6], outline: null }},
+                  { minValue: 20, maxValue: 25, label: "≤25% More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 0.6], outline: null }},
+                  { minValue: 25, maxValue: 30, label: "≤30% More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 0.6], outline: null }},
+                  { minValue: 30, maxValue: 35, label: "≤35% More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 0.6], outline: null }},
+                  { minValue: 35, maxValue: 40, label: "≤40% More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 0.6], outline: null }},
+                  { minValue: 40, maxValue: 45, label: "≤45% More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 0.6], outline: null }},
+                  { minValue: 45, maxValue: 50, label: "≤50% More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 0.6], outline: null }},
+                  { minValue: 50, maxValue: 200, label: "Over 50% More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 0.6], outline: null }},
+              ]
+          });
+	  
+          const countSwingPCTRenderer = new ClassBreaksRenderer({
+              valueExpression: `
+                var biden_pct = $feature.pctbi;
+                var trump20_pct = $feature.pcttr20;
+                var clinton_pct = $feature.pctcl;
+                var trump16_pct = $feature.pcttr16;
+                var total_votes16 = $feature.total_vo_1;
+                var total_votes20 = $feature.total_vote;
+
+                var difference = (biden_pct - trump20_pct) - (clinton_pct - trump16_pct);
+
+                if (total_votes16 == 0 && total_votes20 == 0) {
+                  return 100002;  // For no votes
+              } else if (difference == 0) {
+                  return -100002;  // For no difference
+              } else {
+                  return difference;
+              }
+
+              `,
+              classBreakInfos: [
+                  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 0.6], outline: null }},
+		  { minValue: -200, maxValue: -50, label: "Over 50% More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 0.6], outline: null }},
+                  { minValue: -50, maxValue: -45, label: "≤50% More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 0.6], outline: null }},
+                  { minValue: -45, maxValue: -40, label: "≤45% More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 0.6], outline: null }},
+                  { minValue: -40, maxValue: -35, label: "≤40% More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 0.6], outline: null }},
+		  { minValue: -35, maxValue: -30, label: "≤35% More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 0.6], outline: null }},
+		  { minValue: -30, maxValue: -25, label: "≤30% More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 0.6], outline: null }}, 
+		  { minValue: -25, maxValue: -20, label: "≤25% More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 0.6], outline: null }},
+		  { minValue: -20, maxValue: -15, label: "≤20% More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 0.6], outline: null }},
+		  { minValue: -15, maxValue: -10, label: "≤15% More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 0.6], outline: null }},
+		  { minValue: -10, maxValue: -5, label: "≤10% More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 0.6], outline: null }},
+		  { minValue: -5, maxValue: 0, label: "≤5% More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 0.6], outline: null }},
+		  { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 0.6], outline: null }},
+                  { minValue: 0, maxValue: 5, label: "≤5% More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 0.6], outline: null }},
+                  { minValue: 5, maxValue: 10, label: "≤10% More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 0.6], outline: null }},
+		  { minValue: 10, maxValue: 15, label: "≤15% More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 0.6], outline: null }},
+                  { minValue: 15, maxValue: 20, label: "≤20% More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 0.6], outline: null }},
+                  { minValue: 20, maxValue: 25, label: "≤25% More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 0.6], outline: null }},
+                  { minValue: 25, maxValue: 30, label: "≤30% More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 0.6], outline: null }},
+                  { minValue: 30, maxValue: 35, label: "≤35% More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 0.6], outline: null }},
+                  { minValue: 35, maxValue: 40, label: "≤40% More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 0.6], outline: null }},
+                  { minValue: 40, maxValue: 45, label: "≤45% More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 0.6], outline: null }},
+                  { minValue: 45, maxValue: 50, label: "≤50% More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 0.6], outline: null }},
+                  { minValue: 50, maxValue: 200, label: "Over 50% More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 0.6], outline: null }},
+              ]
+          });
+
+	      const precSwingPCTRenderer = new ClassBreaksRenderer({
+              valueExpression: `
+                var biden_pct = $feature.PCTBID;
+                var trump20_pct = $feature.PCTTRU20;
+                var clinton_pct = $feature.PCTCLI;
+                var trump16_pct = $feature.PCTTRU16;
+                var total_votes16 = $feature.TotVote16;
+                var total_votes20 = $feature.TotVote20;
+
+                var difference = (biden_pct - trump20_pct) - (clinton_pct - trump16_pct);
+
+                if (total_votes16 == 0 && total_votes20 == 0) {
+                  return 100002;  // For no votes
+              } else if (difference == 0) {
+                  return -100002;  // For no difference
+              } else {
+                  return difference;
+              }
+
+              `,
+              classBreakInfos: [
+                  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 0.6], outline: null }},
+		  { minValue: -200, maxValue: -50, label: "Over 50% More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 0.6], outline: null }},
+                  { minValue: -50, maxValue: -45, label: "≤50% More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 0.6], outline: null }},
+                  { minValue: -45, maxValue: -40, label: "≤45% More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 0.6], outline: null }},
+                  { minValue: -40, maxValue: -35, label: "≤40% More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 0.6], outline: null }},
+		  { minValue: -35, maxValue: -30, label: "≤35% More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 0.6], outline: null }},
+		  { minValue: -30, maxValue: -25, label: "≤30% More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 0.6], outline: null }}, 
+		  { minValue: -25, maxValue: -20, label: "≤25% More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 0.6], outline: null }},
+		  { minValue: -20, maxValue: -15, label: "≤20% More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 0.6], outline: null }},
+		  { minValue: -15, maxValue: -10, label: "≤15% More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 0.6], outline: null }},
+		  { minValue: -10, maxValue: -5, label: "≤10% More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 0.6], outline: null }},
+		  { minValue: -5, maxValue: 0, label: "≤5% More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 0.6], outline: null }},
+		  { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 0.6], outline: null }},
+                  { minValue: 0, maxValue: 5, label: "≤5% More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 0.6], outline: null }},
+                  { minValue: 5, maxValue: 10, label: "≤10% More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 0.6], outline: null }},
+		  { minValue: 10, maxValue: 15, label: "≤15% More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 0.6], outline: null }},
+                  { minValue: 15, maxValue: 20, label: "≤20% More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 0.6], outline: null }},
+                  { minValue: 20, maxValue: 25, label: "≤25% More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 0.6], outline: null }},
+                  { minValue: 25, maxValue: 30, label: "≤30% More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 0.6], outline: null }},
+                  { minValue: 30, maxValue: 35, label: "≤35% More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 0.6], outline: null }},
+                  { minValue: 35, maxValue: 40, label: "≤40% More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 0.6], outline: null }},
+                  { minValue: 40, maxValue: 45, label: "≤45% More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 0.6], outline: null }},
+                  { minValue: 45, maxValue: 50, label: "≤50% More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 0.6], outline: null }},
+                  { minValue: 50, maxValue: 200, label: "Over 50% More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 0.6], outline: null }},
+              ]
+          });
+	      
+	      const stateSwingVoteRenderer = new ClassBreaksRenderer({
+              valueExpression: `
+                var total_votes16 = $feature.Tot_16;
+                var total_votes20 = $feature.Tot_20;
+                var difference = $feature.TOTDIF;
+
+                if (total_votes16 == 0 && total_votes20 == 0) {
+                  return 100002;  // For no votes
+              } else if (difference == 0) {
+                  return -100002;  // For no difference
+              } else {
+                  return difference;
+              }
+
+              `,
+              classBreakInfos: [
+                  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 0.6], outline: null }},
+		  { minValue: -1000000, maxValue: -500000, label: "Over 500,000 Votes More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 0.6], outline: null }},
+                  { minValue: -500000, maxValue: -450000, label: "≤500,000 Votes More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 0.6], outline: null }},
+                  { minValue: -450000, maxValue: -400000, label: "≤450,000 Votes More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 0.6], outline: null }},
+                  { minValue: -400000, maxValue: -350000, label: "≤400,000 Votes More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 0.6], outline: null }},
+		  { minValue: -350000, maxValue: -300000, label: "≤350,000 Votes More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 0.6], outline: null }},
+		  { minValue: -300000, maxValue: -250000, label: "≤300,000 Votes More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 0.6], outline: null }}, 
+		  { minValue: -250000, maxValue: -200000, label: "≤250,000 Votes More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 0.6], outline: null }},
+		  { minValue: -200000, maxValue: -150000, label: "≤200,000 Votes More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 0.6], outline: null }},
+		  { minValue: -150000, maxValue: -100000, label: "≤150,000 Votes More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 0.6], outline: null }},
+		  { minValue: -100000, maxValue: -50000, label: "≤100,000 Votes More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 0.6], outline: null }},
+		  { minValue: -50000, maxValue: 0, label: "≤50,000 Votes More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 0.6], outline: null }},
+		  { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 0.6], outline: null }},
+                  { minValue: 0, maxValue: 50000, label: "≤50,000 Votes More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 0.6], outline: null }},
+                  { minValue: 50000, maxValue: 100000, label: "≤100,000 Votes More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 0.6], outline: null }},
+		  { minValue: 100000, maxValue: 150000, label: "≤150,000 Votes More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 0.6], outline: null }},
+                  { minValue: 150000, maxValue: 200000, label: "≤200,000 Votes More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 0.6], outline: null }},
+                  { minValue: 200000, maxValue: 250000, label: "≤250,000 Votes More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 0.6], outline: null }},
+                  { minValue: 250000, maxValue: 300000, label: "≤300,000 Votes More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 0.6], outline: null }},
+                  { minValue: 300000, maxValue: 350000, label: "≤350,000 Votes More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 0.6], outline: null }},
+                  { minValue: 350000, maxValue: 400000, label: "≤400,000 Votes More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 0.6], outline: null }},
+                  { minValue: 400000, maxValue: 450000, label: "≤450,000 Votes More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 0.6], outline: null }},
+                  { minValue: 450000, maxValue: 500000, label: "≤500,000 Votes More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 0.6], outline: null }},
+                  { minValue: 500000, maxValue: 1000000, label: "Over 500,000 Votes More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 0.6], outline: null }},
+              ]
+          });
+	  
+          const countSwingVoteRenderer = new ClassBreaksRenderer({
+              valueExpression: `
+                var total_votes16 = $feature.total_vo_1;
+                var total_votes20 = $feature.total_vote;
+                var difference = $feature.TOTDIF;
+
+                if (total_votes16 == 0 && total_votes20 == 0) {
+                  return 100002;  // For no votes
+              } else if (difference == 0) {
+                  return -100002;  // For no difference
+              } else {
+                  return difference;
+              }
+
+              `,
+              classBreakInfos: [
+                  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 0.6], outline: null }},
+		  { minValue: -1000000, maxValue: -500000, label: "Over 500,000 Votes More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 0.6], outline: null }},
+                  { minValue: -500000, maxValue: -450000, label: "≤500,000 Votes More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 0.6], outline: null }},
+                  { minValue: -450000, maxValue: -400000, label: "≤450,000 Votes More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 0.6], outline: null }},
+                  { minValue: -400000, maxValue: -350000, label: "≤400,000 Votes More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 0.6], outline: null }},
+		  { minValue: -350000, maxValue: -300000, label: "≤350,000 Votes More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 0.6], outline: null }},
+		  { minValue: -300000, maxValue: -250000, label: "≤300,000 Votes More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 0.6], outline: null }}, 
+		  { minValue: -250000, maxValue: -200000, label: "≤250,000 Votes More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 0.6], outline: null }},
+		  { minValue: -200000, maxValue: -150000, label: "≤200,000 Votes More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 0.6], outline: null }},
+		  { minValue: -150000, maxValue: -100000, label: "≤150,000 Votes More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 0.6], outline: null }},
+		  { minValue: -100000, maxValue: -50000, label: "≤100,000 Votes More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 0.6], outline: null }},
+		  { minValue: -50000, maxValue: 0, label: "≤50,000 Votes More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 0.6], outline: null }},
+		  { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 0.6], outline: null }},
+                  { minValue: 0, maxValue: 50000, label: "≤50,000 Votes More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 0.6], outline: null }},
+                  { minValue: 50000, maxValue: 100000, label: "≤100,000 Votes More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 0.6], outline: null }},
+		  { minValue: 100000, maxValue: 150000, label: "≤150,000 Votes More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 0.6], outline: null }},
+                  { minValue: 150000, maxValue: 200000, label: "≤200,000 Votes More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 0.6], outline: null }},
+                  { minValue: 200000, maxValue: 250000, label: "≤250,000 Votes More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 0.6], outline: null }},
+                  { minValue: 250000, maxValue: 300000, label: "≤300,000 Votes More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 0.6], outline: null }},
+                  { minValue: 300000, maxValue: 350000, label: "≤350,000 Votes More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 0.6], outline: null }},
+                  { minValue: 350000, maxValue: 400000, label: "≤400,000 Votes More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 0.6], outline: null }},
+                  { minValue: 400000, maxValue: 450000, label: "≤450,000 Votes More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 0.6], outline: null }},
+                  { minValue: 450000, maxValue: 500000, label: "≤500,000 Votes More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 0.6], outline: null }},
+                  { minValue: 500000, maxValue: 1000000, label: "Over 500,000 Votes More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 0.6], outline: null }},
+              ]
+          });
+
+	      const precSwingVoteRenderer = new ClassBreaksRenderer({
+              valueExpression: `
+                var total_votes16 = $feature.TotVote16;
+                var total_votes20 = $feature.TotVote20;
+                var difference = $feature.TOTDIF;
+
+                if (total_votes16 == 0 && total_votes20 == 0) {
+                  return 100002;  // For no votes
+              } else if (difference == 0) {
+                  return -100002;  // For no difference
+              } else {
+                  return difference;
+              }
+
+              `,
+              classBreakInfos: [
+                  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 0.6], outline: null }},
+		  { minValue: -3300, maxValue: -3000, label: "Over 3,000 Votes More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 0.6], outline: null }},
+                  { minValue: -3000, maxValue: -2700, label: "≤3,000 Votes More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 0.6], outline: null }},
+                  { minValue: -2700, maxValue: -2400, label: "≤2,700 Votes More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 0.6], outline: null }},
+                  { minValue: -2400, maxValue: -2100, label: "≤2,400 Votes More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 0.6], outline: null }},
+		  { minValue: -2100, maxValue: -1800, label: "≤2,100 Votes More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 0.6], outline: null }},
+		  { minValue: -1800, maxValue: -1500, label: "≤1,800 Votes More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 0.6], outline: null }}, 
+		  { minValue: -1500, maxValue: -1200, label: "≤1,500 Votes More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 0.6], outline: null }},
+		  { minValue: -1200, maxValue: -900, label: "≤1,200 Votes More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 0.6], outline: null }},
+		  { minValue: -900, maxValue: -600, label: "≤900 Votes More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 0.6], outline: null }},
+		  { minValue: -600, maxValue: -300, label: "≤600 Votes More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 0.6], outline: null }},
+		  { minValue: -300, maxValue: 0, label: "≤300 Votes More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 0.6], outline: null }},
+		  { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 0.6], outline: null }},
+                  { minValue: 0, maxValue: 300, label: "≤300 Votes More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 0.6], outline: null }},
+                  { minValue: 300, maxValue: 600, label: "≤600 Votes More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 0.6], outline: null }},
+		  { minValue: 600, maxValue: 900, label: "≤900 Votes More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 0.6], outline: null }},
+                  { minValue: 900, maxValue: 1200, label: "≤1,200 Votes More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 0.6], outline: null }},
+                  { minValue: 1200, maxValue: 1500, label: "≤1,500 Votes More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 0.6], outline: null }},
+                  { minValue: 1500, maxValue: 1800, label: "≤1,800 Votes More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 0.6], outline: null }},
+                  { minValue: 1800, maxValue: 2100, label: "≤2,100 Votes More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 0.6], outline: null }},
+                  { minValue: 2100, maxValue: 2400, label: "≤2,400 Votes More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 0.6], outline: null }},
+                  { minValue: 2400, maxValue: 2700, label: "≤2,700 Votes More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 0.6], outline: null }},
+                  { minValue: 2700, maxValue: 3000, label: "≤3,000 Votes More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 0.6], outline: null }},
+                  { minValue: 3000, maxValue: 3300, label: "Over 3,000 Votes More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 0.6], outline: null }},
+              ]
+          });
+		
             const stateColRenderer162 = new ClassBreaksRenderer({
               valueExpression: `
                 var dem_votes = $feature.Clinton;
@@ -791,9 +1333,9 @@
 
             const countColRenderer162 = new ClassBreaksRenderer({
               valueExpression: `
-                var dem_votes = $feature.votes_dem;
-                var gop_votes = $feature.votes_gop;
-                var total_votes = $feature.total_vote;
+                var dem_votes = $feature.votes_dem_;
+                var gop_votes = $feature.votes_gop_;
+                var total_votes = $feature.total_vo_1;
 
                 if (total_votes == 0) {
                     return 100002;  // For no votes
@@ -837,8 +1379,8 @@
               valueExpression: `
                 var dem_votes = $feature.G16PREDCLI;
                 var gop_votes = $feature.G16PRERTRU;
-	        var other_votes = $feature.Total_Othe;
-                var total_votes = $feature.Total_Vote;
+	        var other_votes = $feature.TotOth16;
+                var total_votes = $feature.TotVote16;
 
                 if (total_votes == 0) {
                     return 100002;  // For no votes
@@ -943,9 +1485,9 @@
 
             const countColRenderer16 = new ClassBreaksRenderer({
               valueExpression: `
-                var dem_votes = $feature.votes_dem;
-                var gop_votes = $feature.votes_gop;
-                var total_votes = $feature.total_vote;
+                var dem_votes = $feature.votes_dem_;
+                var gop_votes = $feature.votes_gop_;
+                var total_votes = $feature.total_vo_1;
 
                 if (total_votes == 0) {
                     return 100002;  // For no votes
@@ -989,8 +1531,8 @@
               valueExpression: `
                 var dem_votes = $feature.G16PREDCLI;
                 var gop_votes = $feature.G16PRERTRU;
-	        var other_votes = $feature.Total_Othe;
-                var total_votes = $feature.Total_Vote;
+	        var other_votes = $feature.TotOth16;
+                var total_votes = $feature.TotVote16;
 
                 if (total_votes == 0) {
                     return 100002;  // For no votes
@@ -1157,11 +1699,11 @@
                 field: "BID_TRU",
                 stops: [
                   { value: 1, size: 1 },
-                  { value: 700, size: 8 },
-                  { value: 13000, size: 27 },
+                  { value: 400, size: 10 },
+                  { value: 7000, size: 20 },
                   { value: -1, size: 1 },
-                  { value: -700, size: 8 },
-                  { value: -13000, size: 27 },
+                  { value: -400, size: 10 },
+                  { value: -7000, size: 20 },
                 ],
                 legendOptions: {
                   title: "Number of Biden (D) Votes minus Number of Trump (R) Votes"
@@ -1297,7 +1839,7 @@
             valueExpression: `
               var dem_votes = $feature.G20PREDBID;
               var gop_votes = $feature.G20PRERTRU;
-              var total_votes = $feature.Total_Vote;
+              var total_votes = $feature.TotVote20;
 
               if (total_votes == 0) {
                   return 100002;  // For no votes
@@ -1429,7 +1971,7 @@
             valueExpression: `
               var dem_votes = $feature.G20PREDBID;
               var gop_votes = $feature.G20PRERTRU;
-              var total_votes = $feature.Total_Vote;
+              var total_votes = $feature.TotVote20;
 
               if (total_votes == 0) {
                   return 100002;  // For no votes
@@ -1479,12 +2021,16 @@
 	  bubblePrecinctLayer162.renderer = precinctBubbleRenderer16;
 	  bubbleCountyLayer162.renderer = countyBubbleRenderer16;
 	  dotLayer16.renderer = dotDensityRenderer16;
+	  dotLayer162.renderer = dotDensityRenderer16;
           stateColLayer16.renderer = stateColRenderer16;
 	  countColLayer16.renderer = countColRenderer16;
 	  precColLayer16.renderer = precColRenderer16;
 	  stateColLayer162.renderer = stateColRenderer162;
 	  countColLayer162.renderer = countColRenderer162;
 	  precColLayer162.renderer = precColRenderer162;
+	  stateColLayer163.renderer = stateColRenderer162;
+	  countColLayer163.renderer = countColRenderer162;
+	  precColLayer163.renderer = precColRenderer162;
 	  stateLayer.renderer = stateRenderer;
 	  countyLayer.renderer = countRenderer;
 	  precinctLayer.renderer = precRenderer;
@@ -1495,35 +2041,50 @@
 	  bubbleCountyLayer2.renderer = countyBubbleRenderer;         
 	  bubbleStateLayer2.renderer = stateBubbleRenderer;
 	  dotLayer.renderer = dotDensityRenderer;
+	  dotLayer2.renderer = dotDensityRenderer;
 	  stateColLayer.renderer = stateColRenderer;
 	  countColLayer.renderer = countColRenderer;
 	  precColLayer.renderer = precColRenderer;
 	  stateColLayer2.renderer = stateColRenderer2;
 	  countColLayer2.renderer = countColRenderer2;
 	  precColLayer2.renderer = precColRenderer2;
+	  stateColLayer3.renderer = stateColRenderer2;
+	  countColLayer3.renderer = countColRenderer2;
+	  precColLayer3.renderer = precColRenderer2;
+	  stateSwingLayer.renderer = stateSwingRenderer;
+	  countySwingLayer.renderer = countSwingRenderer;
+	  precinctSwingLayer.renderer = precSwingRenderer;
+	  stateSwingPCT.renderer = stateSwingPCTRenderer;
+	  countSwingPCT.renderer = countSwingPCTRenderer;
+	  precSwingPCT.renderer = precSwingPCTRenderer;
+	  stateSwing.renderer = stateSwingVoteRenderer;
+	  countSwing.renderer = countSwingVoteRenderer;
+	  precSwing.renderer = precSwingVoteRenderer;
 
-          view.on("pointer-move", eventHandler);
-	  view.on("pointer-down", eventHandler);
+          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
+
+          view.on("pointer-move", debouncedEventHandler);
+	  view.on("pointer-down", debouncedEventHandler);
 
           let highlight;
-          const infoDiv = document.getElementById('infoDiv');
+          const infoDiv = document.getElementById('infoDiv');  
 	  let timeoutId;
 
-	  view.on("pointer-move", function(event) {
+	  //view.on("pointer-move", function(event) {
           // Clear the timeout if it exists
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-            }
+            //if (timeoutId) {
+              //clearTimeout(timeoutId);
+            //}
 
             // Set a timeout to run the eventHandler after a delay
-            timeoutId = setTimeout(function() {
-              eventHandler(event);
-            }, 10);  // 10 ms delay
-          });          
-
+            //timeoutId = setTimeout(function() {
+              //eventHandler(event);
+            //}, 200);  // 200 ms delay
+          //});        
+	      
 	  function eventHandler(event) {
             const screenPoint = {
-              include: [stateLayer16, countyLayer16, precinctLayer16, stateLayer, countyLayer, precinctLayer]
+              include: [stateLayer16, countyLayer16, precinctLayer16, stateLayer, countyLayer, precinctLayer, stateSwingLayer, countySwingLayer, precinctSwingLayer]
             };
 
             view.hitTest(event, screenPoint).then(function(response) {
@@ -1532,32 +2093,44 @@
 
                 let featureID;
                 if (graphic.layer === precinctLayer) {
-                  featureID = graphic.attributes.FID;  // Use the FID attribute for precincts
+                  featureID = graphic.attributes.BGID;  // Use the BGID attribute for precincts
                 } else if (graphic.layer === countyLayer) {
-                  featureID = graphic.attributes.CountyFi_1;  // Use the CountyFi_1 attribute for counties
+                  featureID = graphic.attributes.FID;  // Use the FID attribute for counties
                 } else if (graphic.layer === stateLayer) {
-                  featureID = graphic.attributes.snid20;  // Use the snid attribute for states
+                  featureID = graphic.attributes.SNID;  // Use the SNID attribute for states
                 } else if (graphic.layer === precinctLayer16) {
-                  featureID = graphic.attributes.pnid;  // Use the pnid attribute for precincts
+                  featureID = graphic.attributes.BGID;  // Use the BGID attribute for precincts
                 } else if (graphic.layer === countyLayer16) {
-                  featureID = graphic.attributes.cnid16;  // Use the cnid attribute for counties
+                  featureID = graphic.attributes.FID;  // Use the FID attribute for counties
                 } else if (graphic.layer === stateLayer16) {
-                  featureID = graphic.attributes.snid16;  // Use the snid attribute for states
+                  featureID = graphic.attributes.SNID;  // Use the SNID attribute for states
+				} else if (graphic.layer === precinctSwingLayer) {
+                  featureID = graphic.attributes.BGID;  // Use the BGID attribute for precincts
+                } else if (graphic.layer === countySwingLayer) {
+                  featureID = graphic.attributes.FID;  // Use the FID attribute for counties
+                } else if (graphic.layer === stateSwingLayer) {
+                  featureID = graphic.attributes.SNID;  // Use the SNID attribute for states
                 } 
 
                 if (graphic.layer === precinctLayer && featureID !== currentPrecinctID) {
-        	  currentPrecinctID = featureID;
-      		} else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
-        	  currentCountyID = featureID;
+				  currentPrecinctID = featureID;
+      		    } else if (graphic.layer === countyLayer && featureID !== currentCountyID) {
+        	      currentCountyID = featureID;
                 } else if (graphic.layer === stateLayer && featureID !== currentStateID) {
-        	  currentStateID = featureID;
-	        } else if (graphic.layer === precinctLayer16 && featureID !== currentPrecinctID16) {
-        	  currentPrecinctID16 = featureID;
-      		} else if (graphic.layer === countyLayer16 && featureID !== currentCountyID16) {
-        	  currentCountyID16 = featureID;
+        	      currentStateID = featureID;
+	            } else if (graphic.layer === precinctLayer16 && featureID !== currentPrecinctID16) {
+        	      currentPrecinctID16 = featureID;
+      		    } else if (graphic.layer === countyLayer16 && featureID !== currentCountyID16) {
+        	      currentCountyID16 = featureID;
                 } else if (graphic.layer === stateLayer16 && featureID !== currentStateID16) {
-        	  currentStateID16 = featureID;
-      		} else {
+        	      currentStateID16 = featureID;
+			    } else if (graphic.layer === precinctSwingLayer && featureID !== currentPrecinctSwingID) {
+        	      currentPrecinctSwingID = featureID;
+      		    } else if (graphic.layer === countySwingLayer && featureID !== currentCountySwingID) {
+        	      currentCountySwingID = featureID;
+                } else if (graphic.layer === stateSwingLayer && featureID !== currentStateSwingID) {
+        	      currentStateSwingID = featureID;
+      		    } else {
                   // The feature under the mouse is the same as the last highlighted feature, so return
                   return;
                 }
@@ -1568,140 +2141,598 @@
                   }
 
                   let layerView;
-                  if (graphic.layer === precinctLayer) {
-                    layerView = PrecinctLayerView;
-                    currentPrecinctID = featureID;
-		    highlight = layerView.highlight(graphic);
-                    // Get the vote counts for each candidate
-		    var clintonVotes = graphic.attributes.G20PREDBID;
-                    var trumpVotes = graphic.attributes.G20PRERTRU;
-                    var otherVotes = graphic.attributes.Total_Othe;
+				  if (graphic.layer === precinctLayer) {
+					layerView = PrecinctLayerView;
+					currentPrecinctID = featureID;
+					highlight = layerView.highlight(graphic);
 
-                    // Determine which candidate has the most votes
-                    var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
+					var demVotes = graphic.attributes.G20PREDBID;
+					var trumpVotes = graphic.attributes.G20PRERTRU;
+					var otherVotes = graphic.attributes.TotOth20;
+					var demPerc = graphic.attributes.PCTBID;
+					var trumpPerc = graphic.attributes.PCTTRU20; 
+					var otherPerc = graphic.attributes.PCTOTH20;
+					
+					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
+					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
+					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
+					winVote = Math.abs(voteArray[0] - voteArray[1]);
 
-                    // Set the background color based on the candidate with the most votes
-                    var clintonHighlight = (clintonVotes === maxVotes) ? "background-color: #e0ecf8;" : "";
-                    var trumpHighlight = (trumpVotes === maxVotes) ? "background-color: #f8e0e0;" : "";
-                    var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
+					var totalVote = graphic.attributes.TotVote20;
+					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
 
-                    infoDiv.innerHTML = 
-                      "<b style='font-size: 1.2em;'>Precinct Results</b><br>" +
-                      "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID_S + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
-                  } else if (graphic.layer === countyLayer) {
-                    layerView = CountyLayerView;
-                    currentCountyID = featureID;
-		    highlight = layerView.highlight(graphic);
-                    // Get the vote counts for each candidate
-		    var clintonVotes = graphic.attributes.votes_dem;
-                    var trumpVotes = graphic.attributes.votes_gop;
-                    var otherVotes = graphic.attributes.Total_Othe;
+					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
 
-                    // Determine which candidate has the most votes
-                    var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
+					if (totalVote === 0){
+						winCandidate = "No Votes";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
+						winCandidate = "Tie: Biden & Trump";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Biden & Other";
+						demHighlight = "background-color: #e0ecf8;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Trump & Other";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes){
+						winCandidate = "Biden";
+						winColor = "blue";
+						demHighlight = "background-color: #e0ecf8;";
+					} else if (trumpVotes === maxVotes){
+						winCandidate = "Trump";
+						winColor = "red";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (otherVotes === maxVotes){ 
+						winCandidate = "Other";
+						winColor = "dimgrey";
+						otherHighlight = "background-color: #e6e6e6;";
+					}
 
-                    // Set the background color based on the candidate with the most votes
-                    var clintonHighlight = (clintonVotes === maxVotes) ? "background-color: #e0ecf8;" : "";
-                    var trumpHighlight = (trumpVotes === maxVotes) ? "background-color: #f8e0e0;" : "";
-                    var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
+					infoDiv.innerHTML = 
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>Block Group Results</b>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
+				  } else if (graphic.layer === countyLayer) {
+					layerView = CountyLayerView;
+					currentCountyID = featureID;
+					highlight = layerView.highlight(graphic);
 
-                    infoDiv.innerHTML = 
-                      "<b span style='font-size: 1.2em;'>" + graphic.attributes.county_nam + " Results</b><br>" +
-                      "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
+					var demVotes = graphic.attributes.votes_dem;
+					var trumpVotes = graphic.attributes.votes_gop;
+					var otherVotes = graphic.attributes.Total_Othe;
+					var demPerc = graphic.attributes.pctbi;
+					var trumpPerc = graphic.attributes.pcttr20; 
+					var otherPerc = graphic.attributes.pctot20;
+
+					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
+					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
+					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
+					winVote = Math.abs(voteArray[0] - voteArray[1]);
+
+					var totalVote = graphic.attributes.total_vote;
+					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
+
+					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+
+					if (totalVote === 0){
+						winCandidate = "No Votes";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
+						winCandidate = "Tie: Biden & Trump";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Biden & Other";
+						demHighlight = "background-color: #e0ecf8;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Trump & Other";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes){
+						winCandidate = "Biden";
+						winColor = "blue";
+						demHighlight = "background-color: #e0ecf8;";
+					} else if (trumpVotes === maxVotes){
+						winCandidate = "Trump";
+						winColor = "red";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (otherVotes === maxVotes){ 
+						winCandidate = "Other";
+						winColor = "dimgrey";
+						otherHighlight = "background-color: #e6e6e6;";
+					}
+
+					infoDiv.innerHTML = 
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Results</b>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
                   } else if (graphic.layer === stateLayer) {
-                    layerView = StateLayerView;
-                    currentStateID = featureID;
-		    highlight = layerView.highlight(graphic);
-                    // Get the vote counts for each candidate
-		    var clintonVotes = graphic.attributes.Biden;
-                    var trumpVotes = graphic.attributes.Trump_20;
-                    var otherVotes = graphic.attributes.Other_20;
+					layerView = StateLayerView;
+					currentStateID = featureID;
+					highlight = layerView.highlight(graphic);
 
-                    // Determine which candidate has the most votes
-                    var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
+					var demVotes = graphic.attributes.Biden;
+					var trumpVotes = graphic.attributes.Trump_20;
+					var otherVotes = graphic.attributes.Other_20;
+					var demPerc = graphic.attributes.PCT_BID;
+					var trumpPerc = graphic.attributes.PCT_TRU_20; 
+					var otherPerc = graphic.attributes.PCT_OTH_20;
 
-                    // Set the background color based on the candidate with the most votes
-                    var clintonHighlight = (clintonVotes === maxVotes) ? "background-color: #e0ecf8;" : "";
-                    var trumpHighlight = (trumpVotes === maxVotes) ? "background-color: #f8e0e0;" : "";
-                    var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
+					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
+					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
+					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
+					winVote = Math.abs(voteArray[0] - voteArray[1]);
 
-                    infoDiv.innerHTML = 
-                      "<b span style='font-size: 1.2em;'>" + graphic.attributes.STATE_NAME + " Results</b><br>" +
-                      "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCT_BID_S + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
+					var totalVote = graphic.attributes.Tot_20;
+					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
+
+					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+
+					if (totalVote === 0){
+						winCandidate = "No Votes";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
+						winCandidate = "Tie: Biden & Trump";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Biden & Other";
+						demHighlight = "background-color: #e0ecf8;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Trump & Other";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes){
+						winCandidate = "Biden";
+						winColor = "blue";
+						demHighlight = "background-color: #e0ecf8;";
+					} else if (trumpVotes === maxVotes){
+						winCandidate = "Trump";
+						winColor = "red";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (otherVotes === maxVotes){ 
+						winCandidate = "Other";
+						winColor = "dimgrey";
+						otherHighlight = "background-color: #e6e6e6;";
+					}
+
+					infoDiv.innerHTML = 
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.STATE_NAME + " Results</b>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCT_BID_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
                   } else if (graphic.layer === precinctLayer16) {
-                    layerView = PrecinctLayerView16;
-                    currentPrecinctID16 = featureID;
-		    highlight = layerView.highlight(graphic);
-                    // Get the vote counts for each candidate
-		    var clintonVotes = graphic.attributes.G16PREDCLI;
-                    var trumpVotes = graphic.attributes.G16PRERTRU;
-                    var otherVotes = graphic.attributes.Total_Othe;
+					layerView = PrecinctLayerView16;
+					currentPrecinctID16 = featureID;
+					highlight = layerView.highlight(graphic);
+					
+					var demVotes = graphic.attributes.G16PREDCLI;
+					var trumpVotes = graphic.attributes.G16PRERTRU;
+					var otherVotes = graphic.attributes.TotOth16;
+					var demPerc = graphic.attributes.PCTCLI;
+					var trumpPerc = graphic.attributes.PCTTRU16; 
+					var otherPerc = graphic.attributes.PCTOTH16;
 
-                    // Determine which candidate has the most votes
-                    var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
+					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
+					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
+					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
+					winVote = Math.abs(voteArray[0] - voteArray[1]);
 
-                    // Set the background color based on the candidate with the most votes
-                    var clintonHighlight = (clintonVotes === maxVotes) ? "background-color: #e0ecf8;" : "";
-                    var trumpHighlight = (trumpVotes === maxVotes) ? "background-color: #f8e0e0;" : "";
-                    var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
+					var totalVote = graphic.attributes.TotVote16;
+					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
 
-                    infoDiv.innerHTML = 
-                      "<b style='font-size: 1.2em;'>Precinct Results</b><br>" +
-                      "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI_S + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
-                  } else if (graphic.layer === countyLayer16) {
-                    layerView = CountyLayerView16;
-                    currentCountyID16 = featureID;
-		    highlight = layerView.highlight(graphic);
-                    // Get the vote counts for each candidate
-		    var clintonVotes = graphic.attributes.votes_dem;
-                    var trumpVotes = graphic.attributes.votes_gop;
-                    var otherVotes = graphic.attributes.Total_Othe;
+					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
 
-                    // Determine which candidate has the most votes
-                    var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
+					if (totalVote === 0){
+						winCandidate = "No Votes";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
+						winCandidate = "Tie: Clinton & Trump";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Clinton & Other";
+						demHighlight = "background-color: #e0ecf8;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Trump & Other";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes){
+						winCandidate = "Clinton";
+						winColor = "blue";
+						demHighlight = "background-color: #e0ecf8;";
+					} else if (trumpVotes === maxVotes){
+						winCandidate = "Trump";
+						winColor = "red";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (otherVotes === maxVotes){ 
+						winCandidate = "Other";
+						winColor = "dimgrey";
+						otherHighlight = "background-color: #e6e6e6;";
+					}
 
-                    // Set the background color based on the candidate with the most votes
-                    var clintonHighlight = (clintonVotes === maxVotes) ? "background-color: #e0ecf8;" : "";
-                    var trumpHighlight = (trumpVotes === maxVotes) ? "background-color: #f8e0e0;" : "";
-                    var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
+					infoDiv.innerHTML = 
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>Block Group Results</b>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
+				  } else if (graphic.layer === countyLayer16) {
+					layerView = CountyLayerView16;
+					currentCountyID16 = featureID;
+					highlight = layerView.highlight(graphic);
+					
+					var demVotes = graphic.attributes.votes_dem_;
+					var trumpVotes = graphic.attributes.votes_gop_;
+					var otherVotes = graphic.attributes.Total_Ot_1;
+					var demPerc = graphic.attributes.pctcl;
+					var trumpPerc = graphic.attributes.pcttr16; 
+					var otherPerc = graphic.attributes.pctot16;
 
-                    infoDiv.innerHTML = 
-                      "<b span style='font-size: 1.2em;'>" + graphic.attributes.county_nam + " Results</b><br>" +
-                      "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
+					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
+					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
+					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
+					winVote = Math.abs(voteArray[0] - voteArray[1]);
+
+					var totalVote = graphic.attributes.tot_vo_1;
+					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
+
+					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+
+					if (totalVote === 0){
+						winCandidate = "No Votes";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
+						winCandidate = "Tie: Clinton & Trump";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Clinton & Other";
+						demHighlight = "background-color: #e0ecf8;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Trump & Other";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes){
+						winCandidate = "Clinton";
+						winColor = "blue";
+						demHighlight = "background-color: #e0ecf8;";
+					} else if (trumpVotes === maxVotes){
+						winCandidate = "Trump";
+						winColor = "red";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (otherVotes === maxVotes){ 
+						winCandidate = "Other";
+						winColor = "dimgrey";
+						otherHighlight = "background-color: #e6e6e6;";
+					}
+
+					infoDiv.innerHTML = 
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Results</b>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU16 + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH16 + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
                   } else if (graphic.layer === stateLayer16) {
-                    layerView = StateLayerView16;
-                    currentStateID16 = featureID;
-		    highlight = layerView.highlight(graphic);
-                    // Get the vote counts for each candidate
-		    var clintonVotes = graphic.attributes.Clinton;
-                    var trumpVotes = graphic.attributes.Trump_16;
-                    var otherVotes = graphic.attributes.Other_16;
+					layerView = StateLayerView16;
+					currentStateID16 = featureID;
+					highlight = layerView.highlight(graphic);
+					
+					var demVotes = graphic.attributes.Clinton;
+					var trumpVotes = graphic.attributes.Trump_16;
+					var otherVotes = graphic.attributes.Other_16;
+					var demPerc = graphic.attributes.PCT_CLI;
+					var trumpPerc = graphic.attributes.PCT_TRU_16; 
+					var otherPerc = graphic.attributes.PCT_OTH_16;
 
-                    // Determine which candidate has the most votes
-                    var maxVotes = Math.max(clintonVotes, trumpVotes, otherVotes);
+					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
+					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
+					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
+					winVote = Math.abs(voteArray[0] - voteArray[1]);
 
-                    // Set the background color based on the candidate with the most votes
-                    var clintonHighlight = (clintonVotes === maxVotes) ? "background-color: #e0ecf8;" : "";
-                    var trumpHighlight = (trumpVotes === maxVotes) ? "background-color: #f8e0e0;" : "";
-                    var otherHighlight = (otherVotes === maxVotes) ? "background-color: #e6e6e6;" : "";
+					var totalVote = graphic.attributes.Tot_16;
+					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
 
-                    infoDiv.innerHTML = 
-                      "<b span style='font-size: 1.2em;'>" + graphic.attributes.STATE_NAME + " Results</b><br>" +
-                      "<div style='color: black; font-weight: 500;" + clintonHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCT_CLI_S + "</b> (" + clintonVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-                      "<div style='color: black; font-weight: 500;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>";
-                  }
-              
+					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+
+					if (totalVote === 0){
+						winCandidate = "No Votes";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
+						winCandidate = "Tie: Clinton & Trump";
+						demHighlight = "background-color: #e0ecf8;";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Clinton & Other";
+						demHighlight = "background-color: #e0ecf8;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
+						winCandidate = "Tie: Trump & Other";
+						trumpHighlight = "background-color: #f8e0e0;";
+						otherHighlight = "background-color: #e6e6e6;";
+					} else if (demVotes === maxVotes){
+						winCandidate = "Clinton";
+						winColor = "blue";
+						demHighlight = "background-color: #e0ecf8;";
+					} else if (trumpVotes === maxVotes){
+						winCandidate = "Trump";
+						winColor = "red";
+						trumpHighlight = "background-color: #f8e0e0;";
+					} else if (otherVotes === maxVotes){ 
+						winCandidate = "Other";
+						winColor = "dimgrey";
+						otherHighlight = "background-color: #e6e6e6;";
+					}
+
+					infoDiv.innerHTML = 
+					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.STATE_NAME + " Results</b>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCT_CLI_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
+				  } else if (graphic.layer === precinctSwingLayer) {
+					layerView = PrecinctSwingLayerView;
+					currentPrecinctSwingID = featureID;
+					highlight = layerView.highlight(graphic);
+					var clintonVotes = graphic.attributes.G16PREDCLI;
+					var bidenVotes = graphic.attributes.G20PREDBID;
+					var trumpVotes16 = graphic.attributes.G16PRERTRU;
+					var trumpVotes20 = graphic.attributes.G20PRERTRU;
+					var totdif = graphic.attributes.TOTDIF;
+
+					var shiftValue = graphic.attributes.PCTDIF;
+					var shiftText, shiftColor, shiftBackgroundColor;
+					if (shiftValue > 0) {
+						shiftText = '+' + shiftValue + '% More Democratic';
+						shiftColor = 'blue';
+						shiftBackgroundColor = '#e0ecf8';
+					} else if (shiftValue < 0) {
+						shiftText = '+' + (-shiftValue) + '% More Republican';
+						shiftColor = 'red';
+						shiftBackgroundColor = '#f8e0e0';
+					} else {
+						shiftText = 'No Significant % Change';
+						shiftColor = 'dimgrey';
+						shiftBackgroundColor = '#e6e6e6';
+					}
+					var totdifText, totdifColor;
+					if (totdif > 0) {
+						totdifText = totdif.toLocaleString() + " net Democratic votes";
+						totdifColor = 'blue';
+					} else if (totdif < 0) {
+						totdifText = Math.abs(totdif).toLocaleString() + " net Republican votes";
+						totdifColor = 'red';
+					} else {
+						totdifText = "no net vote change";
+						totdifColor = 'dimgrey';
+					}
+					var winner2016, winner2020;
+					if (clintonVotes > trumpVotes16) {
+					  winner2016 = 'clinton';
+					} else {
+					  winner2016 = 'trump16';
+					}
+
+					if (bidenVotes > trumpVotes20) {
+					  winner2020 = 'biden';
+					} else {
+					  winner2020 = 'trump20';
+					}
+					var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
+					var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
+					var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
+					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
+
+					infoDiv.innerHTML = 
+						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>Block Group Shift 2016-2020</div>" +
+						"<table style='width: 100%;'>" +
+						"    <thead>" +
+						"        <tr>" +
+						"            <th style='text-align: center; color: black; width: 45%;'>2016</th>" +
+						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
+						"            <th style='text-align: center; color: black; width: 45%;'>2020</th>" +
+						"        </tr>" +
+						"    </thead>" +
+						"    <tbody>" +
+						"        <tr>" +
+						"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCTCLI_S + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
+						"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1.1); vertical-align: middle;'>&rarr;</td>" +
+						"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCTBID_S + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
+						"        </tr>" +
+						"        <tr>" +
+						"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.TRU16_S + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
+						"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.TRU20_S + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
+						"        </tr>" +
+						"    </tbody>" +
+						"</table>" +
+						"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
+						"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
+						"</div>";
+
+				} else if (graphic.layer === countySwingLayer) {
+					layerView = CountySwingLayerView;
+					currentCountySwingID = featureID;
+					highlight = layerView.highlight(graphic);
+					var clintonVotes = graphic.attributes.votes_dem_;
+					var bidenVotes = graphic.attributes.votes_dem;
+					var trumpVotes16 = graphic.attributes.votes_gop_;
+					var trumpVotes20 = graphic.attributes.votes_gop;
+					var totdif = graphic.attributes.TOTDIF;
+
+					var shiftValue = graphic.attributes.PCTDIF;
+					var shiftText, shiftColor, shiftBackgroundColor;
+					if (shiftValue > 0) {
+						shiftText = '+' + shiftValue + '% More Democratic';
+						shiftColor = 'blue';
+						shiftBackgroundColor = '#e0ecf8';
+					} else if (shiftValue < 0) {
+						shiftText = '+' + (-shiftValue) + '% More Republican';
+						shiftColor = 'red';
+						shiftBackgroundColor = '#f8e0e0';
+					} else {
+						shiftText = 'No Significant % Change';
+						shiftColor = 'dimgrey';
+						shiftBackgroundColor = '#e6e6e6';
+					}
+					var totdifText, totdifColor;
+					if (totdif > 0) {
+						totdifText = totdif.toLocaleString() + " net Democratic votes";
+						totdifColor = 'blue';
+					} else if (totdif < 0) {
+						totdifText = Math.abs(totdif).toLocaleString() + " net Republican votes";
+						totdifColor = 'red';
+					} else {
+						totdifText = "no net vote change";
+						totdifColor = 'dimgrey';
+					}
+					var winner2016, winner2020;
+					if (clintonVotes > trumpVotes16) {
+					  winner2016 = 'clinton';
+					} else {
+					  winner2016 = 'trump16';
+					}
+
+					if (bidenVotes > trumpVotes20) {
+					  winner2020 = 'biden';
+					} else {
+					  winner2020 = 'trump20';
+					}
+					var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
+					var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
+					var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
+					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
+
+					infoDiv.innerHTML = 
+						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Shift 2016-2020</div>" +
+						"<table style='width: 100%;'>" +
+						"    <thead>" +
+						"        <tr>" +
+						"            <th style='text-align: center; color: black; width: 45%;'>2016</th>" +
+						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
+						"            <th style='text-align: center; color: black; width: 45%;'>2020</th>" +
+						"        </tr>" +
+						"    </thead>" +
+						"    <tbody>" +
+						"        <tr>" +
+						"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCTCLI + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
+						"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1.1); vertical-align: middle;'>&rarr;</td>" +
+						"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCTBID + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
+						"        </tr>" +
+						"        <tr>" +
+						"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCTTRU16 + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
+						"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCTTRU + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
+						"        </tr>" +
+						"    </tbody>" +
+						"</table>" +
+						"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
+						"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
+						"</div>";
+
+				} else if (graphic.layer === stateSwingLayer) {
+					layerView = StateSwingLayerView;
+					currentStateSwingID = featureID;
+					highlight = layerView.highlight(graphic);
+					var clintonVotes = graphic.attributes.Clinton;
+					var bidenVotes = graphic.attributes.Biden;
+					var trumpVotes16 = graphic.attributes.Trump_16;
+					var trumpVotes20 = graphic.attributes.Trump_20;
+					var totdif = graphic.attributes.TOTDIF;
+
+					var shiftValue = graphic.attributes.PCTDIF;
+					var shiftText, shiftColor, shiftBackgroundColor;
+					if (shiftValue > 0) {
+						shiftText = '+' + shiftValue + '% More Democratic';
+						shiftColor = 'blue';
+						shiftBackgroundColor = '#e0ecf8';
+					} else if (shiftValue < 0) {
+						shiftText = '+' + (-shiftValue) + '% More Republican';
+						shiftColor = 'red';
+						shiftBackgroundColor = '#f8e0e0';
+					} else {
+						shiftText = 'No Significant % Change';
+						shiftColor = 'dimgrey';
+						shiftBackgroundColor = '#e6e6e6';
+					}
+					var totdifText, totdifColor;
+					if (totdif > 0) {
+						totdifText = totdif.toLocaleString() + " net Democratic votes";
+						totdifColor = 'blue';
+					} else if (totdif < 0) {
+						totdifText = Math.abs(totdif).toLocaleString() + " net Republican votes";
+						totdifColor = 'red';
+					} else {
+						totdifText = "no net vote change";
+						totdifColor = 'dimgrey';
+					}
+					var winner2016, winner2020;
+					if (clintonVotes > trumpVotes16) {
+					  winner2016 = 'clinton';
+					} else {
+					  winner2016 = 'trump16';
+					}
+
+					if (bidenVotes > trumpVotes20) {
+					  winner2020 = 'biden';
+					} else {
+					  winner2020 = 'trump20';
+					}
+					var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
+					var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
+					var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
+					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
+
+					infoDiv.innerHTML = 
+						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.STATE_NAME + " Shift 2016-2020</div>" +
+						"<table style='width: 100%;'>" +
+						"    <thead>" +
+						"        <tr>" +
+						"            <th style='text-align: center; color: black; width: 45%;'>2016</th>" +
+						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
+						"            <th style='text-align: center; color: black; width: 45%;'>2020</th>" +
+						"        </tr>" +
+						"    </thead>" +
+						"    <tbody>" +
+						"        <tr>" +
+						"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCT_CLI_S + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
+						"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1.1); vertical-align: middle;'>&rarr;</td>" +
+						"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCT_BID_S + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
+						"        </tr>" +
+						"        <tr>" +
+						"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCT_T_16_S + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
+						"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCT_T_20_S + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
+						"        </tr>" +
+						"    </tbody>" +
+						"</table>" +
+						"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
+						"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
+						"</div>";
+				}
+  
                   if (layerView) {
                     infoDiv.style.display = 'block';
                   }
@@ -1716,6 +2747,9 @@
                   currentPrecinctID16 = null;
                   currentCountyID16 = null;
                   currentStateID16 = null;
+				  currentPrecinctSwingID = null;
+				  currentCountySwingID = null;
+				  currentStateSwingID = null;
               
                   infoDiv.style.display = 'none';
                      
