@@ -2449,26 +2449,26 @@
 	  countSwing.renderer = countSwingVoteRenderer;
 	  precSwing.renderer = precSwingVoteRenderer;
 
-          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
+          //const debouncedEventHandler = promiseUtils.debounce(eventHandler);
 
-          view.on("pointer-move", debouncedEventHandler);
-	  view.on("pointer-down", debouncedEventHandler);
+          view.on("pointer-move", eventHandler);
+	  view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');  
 	  let timeoutId;
 
-	  //view.on("pointer-move", function(event) {
+	  view.on("pointer-move", function(event) {
           // Clear the timeout if it exists
-            //if (timeoutId) {
-              //clearTimeout(timeoutId);
-            //}
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
 
             // Set a timeout to run the eventHandler after a delay
-            //timeoutId = setTimeout(function() {
-              //eventHandler(event);
-            //}, 200);  // 200 ms delay
-          //});        
+            timeoutId = setTimeout(function() {
+              eventHandler(event);
+            }, 100);  // 100 ms delay
+          });        
 	      
 	  function eventHandler(event) {
             const screenPoint = {
