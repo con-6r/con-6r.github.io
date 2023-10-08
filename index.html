@@ -2449,10 +2449,10 @@
 	  countSwing.renderer = countSwingVoteRenderer;
 	  precSwing.renderer = precSwingVoteRenderer;
 
-          //const debouncedEventHandler = promiseUtils.debounce(eventHandler);
+          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
 
-          view.on("pointer-move");
-	  view.on("pointer-down");
+          view.on("pointer-move", debouncedEventHandler);
+	  view.on("pointer-down", debouncedEventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');  
