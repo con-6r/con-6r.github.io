@@ -17,7 +17,16 @@
       width: 100%;
     }
 
+    .dark-mode {
+      filter: hue-rotate(180deg) invert(1);
+    }
+    
+    .infoDiv-dark-mode {
+      filter: hue-rotate(180deg) invert(1);
+    }
+
     #infoDiv {
+      filter: hue-rotate(360deg) invert(0);
       display: none;
       position: fixed;
       top: 15px;
@@ -30,11 +39,28 @@
       font-size: 18px;
       box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
     }
+
+    #darkModeToggle {
+      font-family: "Avenir Next", sans-serif;
+      background-color: #fff;
+      border-width: 0px;
+      box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      bottom: 30px;
+      left: 15px;
+      z-index: 100;
+    }
+	
   </style>
 
   <script src="https://js.arcgis.com/4.17/"></script>
 
   <script>
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        document.getElementById('infoDiv').classList.toggle('infoDiv-dark-mode');
+    }
+	
     require([
       "esri/WebMap",
       "esri/views/MapView",
@@ -45,6 +71,7 @@
       "esri/symbols/SimpleMarkerSymbol",
       "esri/renderers/ClassBreaksRenderer",
       "esri/renderers/DotDensityRenderer",
+      //"esri/renderers/PieChartRenderer",
       "esri/widgets/Legend",
       "esri/widgets/LayerList",
       "esri/core/promiseUtils",
@@ -62,6 +89,7 @@
       SimpleMarkerSymbol,
       ClassBreaksRenderer,
       DotDensityRenderer,
+      //PieChartRenderer,
       Legend,
       LayerList,
       promiseUtils,
@@ -984,10 +1012,11 @@
                 }
               ]
             });
-	      
+
 	    // Dot density renderer
 	    const dotDensityRenderer16 = new DotDensityRenderer({
               dotValue: 1,
+	      dotSize: 0.5,
               outline: null,
               dotBlendingEnabled: true,
               referenceScale: 100000,
@@ -1722,10 +1751,101 @@
               }
             ]
           });
+            
+        const countyPieRenderer = new PieChartRenderer({
+              size: 10,
+              attributes: [
+              {
+                field: "votes_gop",
+                color: "#e30022",
+                label: "Trump (R)"
+              },
+              {
+                color: "#0000ff",
+                label: "Biden (D)",
+                field: "votes_dem"
+              },
+              {
+                field: "Total_Othe",
+                color: "#a9a9a9",
+                label: "Other"
+              }
+            ],
+            backgroundFillSymbol: {
+              // polygon fill behind pie chart
+              color: [127, 127, 127, 0.2],
+              outline: {
+                width: 1,
+                color: [255, 255, 255, 0.3]
+              }
+            },		    
+            outline: {
+              width: 1.1,
+              color: "grey"
+            },
+            visualVariables: [
+            {
+              type: "size", // size visual variable based on total votes represented in each pie
+              valueExpression: "$feature.total_vote",
+	      valueExpressionTitle: "Total Number of Votes",
+              minDataValue: 15000,
+              maxDataValue: 1500000,
+              minSize: 10,
+              maxSize: 54
+            }
+          ]
+    
+        });
+
+	const precinctPieRenderer = new PieChartRenderer({
+              size: 10,
+              attributes: [
+              {
+                field: "G20PRERTRU",
+                color: "#e30022",
+                label: "Trump (R)"
+              },
+              {
+                color: "#0000ff",
+                label: "Biden (D)",
+                field: "G20PREDBID"
+              },
+              {
+                field: "TotOth20",
+                color: "#a9a9a9",
+                label: "Other"
+              }
+            ],
+            backgroundFillSymbol: {
+              // polygon fill behind pie chart
+              color: [127, 127, 127, 0.2],
+              outline: {
+                width: 1,
+                color: [255, 255, 255, 0.3]
+              }
+            },		    
+            outline: {
+              width: 1.1,
+              color: "grey"
+            },
+            visualVariables: [
+            {
+              type: "size", // size visual variable based on total votes represented in each pie
+              valueExpression: "$feature.TotVote20",
+	      valueExpressionTitle: "Total Number of Votes",
+              minDataValue: 100,
+              maxDataValue: 8000,
+              minSize: 8,
+              maxSize: 28
+            }
+          ]
+    
+        });
 
 	  // Dot density renderer
 	  const dotDensityRenderer = new DotDensityRenderer({
             dotValue: 1,
+	    dotSize: 0.5,
             outline: null,
             dotBlendingEnabled: true,
             referenceScale: 100000,
@@ -2061,26 +2181,26 @@
 	  countSwing.renderer = countSwingVoteRenderer;
 	  precSwing.renderer = precSwingVoteRenderer;
 
-          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
+          //const debouncedEventHandler = promiseUtils.debounce(eventHandler);
 
-          view.on("pointer-move", debouncedEventHandler);
-	  view.on("pointer-down", debouncedEventHandler);
+          view.on("pointer-move", eventHandler);
+	  view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');  
 	  let timeoutId;
 
-	  //view.on("pointer-move", function(event) {
+	  view.on("pointer-move", function(event) {
           // Clear the timeout if it exists
-            //if (timeoutId) {
-              //clearTimeout(timeoutId);
-            //}
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
 
             // Set a timeout to run the eventHandler after a delay
-            //timeoutId = setTimeout(function() {
-              //eventHandler(event);
-            //}, 200);  // 200 ms delay
-          //});        
+            timeoutId = setTimeout(function() {
+              eventHandler(event);
+            }, 10);  // 10 ms delay
+          });        
 	      
 	  function eventHandler(event) {
             const screenPoint = {
@@ -2553,9 +2673,9 @@
 						"<table style='width: 100%;'>" +
 						"    <thead>" +
 						"        <tr>" +
-						"            <th style='text-align: center; color: black; width: 45%;'>2016</th>" +
+						"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
 						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
-						"            <th style='text-align: center; color: black; width: 45%;'>2020</th>" +
+						"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
 						"        </tr>" +
 						"    </thead>" +
 						"    <tbody>" +
@@ -2632,9 +2752,9 @@
 						"<table style='width: 100%;'>" +
 						"    <thead>" +
 						"        <tr>" +
-						"            <th style='text-align: center; color: black; width: 45%;'>2016</th>" +
+						"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
 						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
-						"            <th style='text-align: center; color: black; width: 45%;'>2020</th>" +
+						"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
 						"        </tr>" +
 						"    </thead>" +
 						"    <tbody>" +
@@ -2711,9 +2831,9 @@
 						"<table style='width: 100%;'>" +
 						"    <thead>" +
 						"        <tr>" +
-						"            <th style='text-align: center; color: black; width: 45%;'>2016</th>" +
+						"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
 						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
-						"            <th style='text-align: center; color: black; width: 45%;'>2020</th>" +
+						"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
 						"        </tr>" +
 						"    </thead>" +
 						"    <tbody>" +
@@ -2780,6 +2900,7 @@
 </head>
 
 <body>
+  <button id="darkModeToggle" onclick="toggleDarkMode();">Toggle Dark Mode</button>
   <div id="viewDiv"></div>
   <div id="infoDiv"></div>
 </body>
