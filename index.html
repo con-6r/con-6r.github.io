@@ -2448,26 +2448,11 @@
 	  stateSwing.renderer = stateSwingVoteRenderer;
 	  countSwing.renderer = countSwingVoteRenderer;
 	  precSwing.renderer = precSwingVoteRenderer;
+        
+          const debouncedEventHandler = promiseUtils.debounce(eventHandler);
 
-	  function debounce(func, wait) {
-          let timeout;
-          return function() {
-              const context = this, args = arguments;
-              clearTimeout(timeout);
-              timeout = setTimeout(() => {
-                  func.apply(context, args);
-              }, wait);
-            };
-          }
-
-          const debouncedEventHandler = debounce(eventHandler, 50);
           view.on("pointer-move", debouncedEventHandler);
           view.on("pointer-down", debouncedEventHandler);
-
-          //const debouncedEventHandler = promiseUtils.debounce(eventHandler);
-
-          //view.on("pointer-move", eventHandler);
-	  //view.on("pointer-down", eventHandler);
 
           let highlight;
           const infoDiv = document.getElementById('infoDiv');  
