@@ -5,8 +5,10 @@
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>Election Explorer</title>
 
+  <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/2.13.0/calcite.css" />
   <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
-
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.0/calcite.esm.js"></script>
+	
   <style>
     html,
     body,
@@ -40,15 +42,11 @@
       box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
     }
 
-    #darkModeToggle {
-      font-family: "Avenir Next", sans-serif;
-      background-color: #fff;
-      border-width: 0px;
-      box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
-      position: fixed;
-      bottom: 30px;
-      left: 15px;
-      z-index: 100;
+    .dark-mode-button {
+      --calcite-color-brand: #FFFFFF;
+      --calcite-color-text-inverse: #6E6E6E;
+      --calcite-color-brand-hover: #F3F3F3;
+      --calcite-color-brand-press: #E2F1FB;
     }
 	
   </style>
@@ -56,13 +54,11 @@
   <script src="https://js.arcgis.com/4.17/"></script>
 
   <script>
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        document.getElementById('infoDiv').classList.toggle('infoDiv-dark-mode');
-    }
-	
+  
     require([
       "esri/WebMap",
+      "esri/core/Accessor",
+      "esri/support/actions/ActionButton",
       "esri/views/MapView",
       "esri/layers/FeatureLayer",
       "esri/layers/GroupLayer",
@@ -80,6 +76,8 @@
       "esri/widgets/Search"
     ], function (
       WebMap,
+      Accessor,
+      ActionButton,	    
       MapView,
       FeatureLayer,
       GroupLayer,
@@ -2786,29 +2784,70 @@
           }
         });
 
-       view.ui.add(
-        [
-          new Expand({
-            view: view,
-            content: new Search({ view: view }),
-            group: "top-left",
-            expanded: false
-          }),
-	  new Expand({
-            view: view,
-            content: new Legend({ view: view }),
-            group: "top-left",
-            expanded: true
-          })
-        ],
-        "top-left"
-      );
+        function createDarkModeToggle() {
+          function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('infoDiv').classList.toggle('infoDiv-dark-mode');
+
+            const button = document.querySelector('.dark-mode-button');
+            if (document.body.classList.contains('dark-mode')) {
+              button.setAttribute("icon-start", "brightness");
+			  button.setAttribute("title", "Light Mode");
+            } else {
+              button.setAttribute("icon-start", "moon");
+			  button.setAttribute("title", "Dark Mode");
+            }
+          }
+
+          const darkModeAction = new ActionButton({
+            id: "dark-mode-toggle"
+          });
+
+          darkModeAction.visible = true;
+          darkModeAction.execute = toggleDarkMode;
+
+          // Create a button element to trigger the action
+          const actionButton = document.createElement("calcite-button");
+          actionButton.iconStart = "moon";
+          actionButton.scale = "m";
+          actionButton.label = "Dark/Light Mode Toggle";
+          actionButton.title = "Dark Mode";
+          actionButton.appearance = "solid";
+          actionButton.kind = "brand";
+          actionButton.classList.add("dark-mode-button");
+
+          actionButton.addEventListener("click", function() {
+            darkModeAction.execute();
+          });
+
+          view.when(() => {
+            view.ui.add(
+            [
+              actionButton,
+              new Expand({
+                view: view,
+                content: new Search({ view: view }),
+                group: "top-left",
+                expanded: false
+              }),
+              new Expand({
+                view: view,
+                content: new Legend({ view: view }),
+                group: "top-left",
+                expanded: true
+              })
+            ],
+            "top-left"
+            );
+          });
+        }
+        // Call the function to create and add the dark mode toggle
+        view.when(createDarkModeToggle);
     });
   </script>
 </head>
 
 <body>
-  <button id="darkModeToggle" onclick="toggleDarkMode();">Toggle Dark Mode</button>
   <div id="viewDiv"></div>
   <div id="infoDiv"></div>
 </body>
