@@ -2826,15 +2826,17 @@
               actionButton,
               new Expand({
                 view: view,
+		expandTooltip: "Location Search",
                 content: new Search({ view: view }),
                 group: "top-left",
                 expanded: false
               }),
               new Expand({
                 view: view,
+		expandTooltip: "Legend",
                 content: new Legend({ view: view }),
                 group: "top-left",
-                expanded: true
+                expanded: false
               })
             ],
             "top-left"
