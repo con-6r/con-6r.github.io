@@ -1256,8 +1256,8 @@
               ]
             });
 
-	        // Class breaks renderer
-			const stateSwingPCTRenderer = new ClassBreaksRenderer({
+            // Class breaks renderer
+	    const stateSwingPCTRenderer = new ClassBreaksRenderer({
                 valueExpression: `
                   var biden_pct = $feature.pctbi;
                   var trump20_pct = $feature.pcttr20;
@@ -3185,12 +3185,14 @@
               actionButton,
               new Expand({
                 view: view,
+		expandTooltip: "Location Search",
                 content: new Search({ view: view }),
                 group: "top-left",
                 expanded: false
               }),
               new Expand({
                 view: view,
+		expandTooltip: "Legend",
                 content: new Legend({ view: view }),
                 group: "top-left",
                 expanded: false
