@@ -15,40 +15,63 @@
     #viewDiv {
       padding: 0;
       margin: 0;
-      height: 100%;
-      width: 100%;
-    }
+          height: 100%;
+          width: 100%;
+        }
+        .dark-mode {
+          filter: hue-rotate(180deg) invert(1);
+        }
 
-    .dark-mode {
-      filter: hue-rotate(180deg) invert(1);
-    }
-    
-    .infoDiv-dark-mode {
-      filter: hue-rotate(180deg) invert(1);
-    }
-
-    #infoDiv {
-      filter: hue-rotate(360deg) invert(0);
-      display: none;
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background-color: #fff;
-      padding: 10px;
-      margin: 5px;
-      z-index: 99;
-      font-family: "Avenir Next", sans-serif;
-      font-size: 18px;
-      box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .dark-mode-button {
-      --calcite-color-brand: #FFFFFF;
-      --calcite-color-text-inverse: #6E6E6E;
-      --calcite-color-brand-hover: #F3F3F3;
-      --calcite-color-brand-press: #E2F1FB;
-    }
-	
+        .infoDiv-dark-mode {
+          filter: hue-rotate(180deg) invert(1);
+        }
+        #infoDiv {
+          filter: hue-rotate(360deg) invert(0);
+          display: none;
+          position: absolute;
+          top: 15px;
+          right: 15px;
+          background-color: #fff;
+          padding-top: 9px;
+		  padding-right: 13px;
+		  padding-left: 13px;
+		  padding-bottom: 9px;
+          margin: auto;
+          z-index: 99;
+          font-family: "Avenir Next", sans-serif;
+          font-size: 15px;
+          width: auto;
+		  min-width: 200px;
+          max-width: 600px;
+          white-space: nowrap;
+          box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+		#infoDivContent {
+	      white-space: normal;
+		  line-height: 1.15;
+		/* Add a rule */
+		}
+		#infoDivContent > * {
+		  margin: 0; 
+		  padding: 2px 0; 
+		}
+		#closeInfoDiv {
+	      position: absolute;
+          top: 2px;
+          right: 2px;
+          background: none;
+		  border: none;
+		  font-size: 20px;
+		  cursor: pointer;
+		  padding: 0px;
+		  line-height: 0.5;
+		}
+        .dark-mode-button {
+          --calcite-color-brand: #FFFFFF;
+          --calcite-color-text-inverse: #6E6E6E;
+          --calcite-color-brand-hover: #F3F3F3;
+          --calcite-color-brand-press: #E2F1FB;
+        }
   </style>
 
   <script src="https://js.arcgis.com/4.17/"></script>
@@ -2168,690 +2191,601 @@
                   }
 
                   let layerView;
-				  if (graphic.layer === precinctLayer) {
-					layerView = PrecinctLayerView;
-					currentPrecinctID = featureID;
-					highlight = layerView.highlight(graphic);
+		if (graphic.layer === precinctLayer) {
+							layerView = PrecinctLayerView;
+							currentPrecinctID = featureID;
+							highlight = layerView.highlight(graphic);
+							
+							var demVotes = graphic.attributes.G20PREDBID;
+							var trumpVotes = graphic.attributes.G20PRERTRU;
+							var otherVotes = graphic.attributes.TotOth20;
+							var totalVote = graphic.attributes.TotVote20;
+							
+							// Use precalculated fields
+							winPerc = graphic.attributes.WIN_MARGIN_PERC_2020;
+							winVote = graphic.attributes.WIN_MARGIN_VOTES_2020;
+							var winCandidate = graphic.attributes.WINNER_2020;
+							
+							var winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+							
+							if (totalVote === 0) {
+								demHighlight = "background-color: #e0ecf8;";
+								trumpHighlight = "background-color: #f8e0e0;";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate === "Biden") {
+								winColor = "blue";
+								demHighlight = "background-color: #e0ecf8;";
+							} else if (winCandidate === "Trump") {
+								winColor = "red";
+								trumpHighlight = "background-color: #f8e0e0;";
+							} else if (winCandidate === "Other") {
+								winColor = "dimgrey";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate.startsWith("Tie")) {
+								if (winCandidate.includes("Biden")) demHighlight = "background-color: #e0ecf8;";
+								if (winCandidate.includes("Trump")) trumpHighlight = "background-color: #f8e0e0;";
+								if (winCandidate.includes("Other")) otherHighlight = "background-color: #e6e6e6;";
+							}
+							
+							updateInfoDiv(
+								"<b style='font-size: 1.1em; text-align: center; display: block;'>Block Group Results 2020</b>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>"
+							);
+						
+						} else if (graphic.layer === countyLayer) {
+							layerView = CountyLayerView;
+							currentCountyID = featureID;
+							highlight = layerView.highlight(graphic);
+							
+							var demVotes = graphic.attributes.votes_dem;
+							var trumpVotes = graphic.attributes.votes_gop;
+							var otherVotes = graphic.attributes.Total_Othe;
+							var totalVote = graphic.attributes.total_vote;
+							
+							// Use precalculated fields
+							winPerc = graphic.attributes.WIN_MARGIN_PERC_2020;
+							winVote = graphic.attributes.WIN_MARGIN_VOTES_2020;
+							var winCandidate = graphic.attributes.WINNER_2020;
+							
+							var winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+							
+							if (totalVote === 0) {
+								demHighlight = "background-color: #e0ecf8;";
+								trumpHighlight = "background-color: #f8e0e0;";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate === "Biden") {
+								winColor = "blue";
+								demHighlight = "background-color: #e0ecf8;";
+							} else if (winCandidate === "Trump") {
+								winColor = "red";
+								trumpHighlight = "background-color: #f8e0e0;";
+							} else if (winCandidate === "Other") {
+								winColor = "dimgrey";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate.startsWith("Tie")) {
+								if (winCandidate.includes("Biden")) demHighlight = "background-color: #e0ecf8;";
+								if (winCandidate.includes("Trump")) trumpHighlight = "background-color: #f8e0e0;";
+								if (winCandidate.includes("Other")) otherHighlight = "background-color: #e6e6e6;";
+							}
+							
+							updateInfoDiv(
+							  "<b style='font-size: 1.1em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " 2020</b>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>"
+							);
+						
+						} else if (graphic.layer === stateLayer) {
+							layerView = StateLayerView;
+							currentStateID = featureID;
+							highlight = layerView.highlight(graphic);
+								
+							var demVotes = graphic.attributes.Biden;
+							var trumpVotes = graphic.attributes.Trump_20;
+							var otherVotes = graphic.attributes.Other_20;
+							var totalVote = graphic.attributes.Tot_20;
+								
+							// Use precalculated fields
+							winPerc = graphic.attributes.WIN_MARGIN_PERC_2020;
+							winVote = graphic.attributes.WIN_MARGIN_VOTES_2020;
+							var winCandidate = graphic.attributes.WINNER_2020;
+								
+							var winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+							if (totalVote === 0) {
+								demHighlight = "background-color: #e0ecf8;";
+								trumpHighlight = "background-color: #f8e0e0;";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate === "Biden") {
+								winColor = "blue";
+								demHighlight = "background-color: #e0ecf8;";
+							} else if (winCandidate === "Trump") {
+								winColor = "red";
+								trumpHighlight = "background-color: #f8e0e0;";
+							} else if (winCandidate === "Other") {
+								winColor = "dimgrey";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate.startsWith("Tie")) {
+								if (winCandidate.includes("Biden")) demHighlight = "background-color: #e0ecf8;";
+								if (winCandidate.includes("Trump")) trumpHighlight = "background-color: #f8e0e0;";
+								if (winCandidate.includes("Other")) otherHighlight = "background-color: #e6e6e6;";
+							}
+                        
+							updateInfoDiv(
+							  "<b style='font-size: 1.1em; text-align: center; display: block;'>" + graphic.attributes.STATE_NAME + " 2020</b>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCT_BID_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+							  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>"
+							);
+						
+						} else if (graphic.layer === precinctLayer16) {
+							layerView = PrecinctLayerView16;
+							currentPrecinctID16 = featureID;
+							highlight = layerView.highlight(graphic);
+							
+							var demVotes = graphic.attributes.G16PREDCLI;
+							var trumpVotes = graphic.attributes.G16PRERTRU;
+							var otherVotes = graphic.attributes.TotOth16;
+							var totalVote = graphic.attributes.TotVote16;
+							
+							// Use precalculated fields
+							winPerc = graphic.attributes.WIN_MARGIN_PERC_2016;
+							winVote = graphic.attributes.WIN_MARGIN_VOTES_2016;
+							var winCandidate = graphic.attributes.WINNER_2016;
+							
+							var winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+							
+							if (totalVote === 0) {
+								winCandidate = "No Votes";
+								demHighlight = "background-color: #e0ecf8;";
+								trumpHighlight = "background-color: #f8e0e0;";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate === "Clinton") {
+								winColor = "blue";
+								demHighlight = "background-color: #e0ecf8;";
+							} else if (winCandidate === "Trump") {
+								winColor = "red";
+								trumpHighlight = "background-color: #f8e0e0;";
+							} else if (winCandidate === "Other") {
+								winColor = "dimgrey";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate.startsWith("Tie")) {
+								if (winCandidate.includes("Clinton")) demHighlight = "background-color: #e0ecf8;";
+								if (winCandidate.includes("Trump")) trumpHighlight = "background-color: #f8e0e0;";
+								if (winCandidate.includes("Other")) otherHighlight = "background-color: #e6e6e6;";
+							}
+							
+							updateInfoDiv(
+								"<b style='font-size: 1.1em; text-align: center; display: block;'>Block Group Results 2016</b>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>"
+							);
+						
+							// County Layer 2016
+						} else if (graphic.layer === countyLayer16) {
+							layerView = CountyLayerView16;
+							currentCountyID16 = featureID;
+							highlight = layerView.highlight(graphic);
+							
+							var demVotes = graphic.attributes.votes_dem_;
+							var trumpVotes = graphic.attributes.votes_gop_;
+							var otherVotes = graphic.attributes.Total_Ot_1;
+							var totalVote = graphic.attributes.tot_vo_1;
+							
+							// Use precalculated fields
+							winPerc = graphic.attributes.WIN_MARGIN_PERC_2016;
+							winVote = graphic.attributes.WIN_MARGIN_VOTES_2016;
+							var winCandidate = graphic.attributes.WINNER_2016;
+							
+							var winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+							
+							if (totalVote === 0) {
+								winCandidate = "No Votes";
+								demHighlight = "background-color: #e0ecf8;";
+								trumpHighlight = "background-color: #f8e0e0;";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate === "Clinton") {
+								winColor = "blue";
+								demHighlight = "background-color: #e0ecf8;";
+							} else if (winCandidate === "Trump") {
+								winColor = "red";
+								trumpHighlight = "background-color: #f8e0e0;";
+							} else if (winCandidate === "Other") {
+								winColor = "dimgrey";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate.startsWith("Tie")) {
+								if (winCandidate.includes("Clinton")) demHighlight = "background-color: #e0ecf8;";
+								if (winCandidate.includes("Trump")) trumpHighlight = "background-color: #f8e0e0;";
+								if (winCandidate.includes("Other")) otherHighlight = "background-color: #e6e6e6;";
+							}
+							
+							updateInfoDiv(
+								"<b style='font-size: 1.1em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " 2016</b>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU16 + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH16 + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>"
+							);
+						
+							// State Layer 2016
+						} else if (graphic.layer === stateLayer16) {
+							layerView = StateLayerView16;
+							currentStateID16 = featureID;
+							highlight = layerView.highlight(graphic);
+							
+							var demVotes = graphic.attributes.Clinton;
+							var trumpVotes = graphic.attributes.Trump_16;
+							var otherVotes = graphic.attributes.Other_16;
+							var totalVote = graphic.attributes.Tot_16;
+							
+							// Use precalculated fields
+							winPerc = graphic.attributes.WIN_MARGIN_PERC_2016;
+							winVote = graphic.attributes.WIN_MARGIN_VOTES_2016;
+							var winCandidate = graphic.attributes.WINNER_2016;
+							
+							var winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
+							
+							if (totalVote === 0) {
+								winCandidate = "No Votes";
+								demHighlight = "background-color: #e0ecf8;";
+								trumpHighlight = "background-color: #f8e0e0;";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate === "Clinton") {
+								winColor = "blue";
+								demHighlight = "background-color: #e0ecf8;";
+							} else if (winCandidate === "Trump") {
+								winColor = "red";
+								trumpHighlight = "background-color: #f8e0e0;";
+							} else if (winCandidate === "Other") {
+								winColor = "dimgrey";
+								otherHighlight = "background-color: #e6e6e6;";
+							} else if (winCandidate.startsWith("Tie")) {
+								if (winCandidate.includes("Clinton")) demHighlight = "background-color: #e0ecf8;";
+								if (winCandidate.includes("Trump")) trumpHighlight = "background-color: #f8e0e0;";
+								if (winCandidate.includes("Other")) otherHighlight = "background-color: #e6e6e6;";
+							}
+							
+							updateInfoDiv(
+								"<b style='font-size: 1.1em; text-align: center; display: block;'>" + graphic.attributes.STATE_NAME + " 2016</b>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCT_CLI_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
+								"<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>"
+							);
+						} else if (graphic.layer === precinctSwingLayer) {
+								layerView = PrecinctSwingLayerView;
+								currentPrecinctSwingID = featureID;
+								highlight = layerView.highlight(graphic);
+								var clintonVotes = graphic.attributes.G16PREDCLI;
+								var bidenVotes = graphic.attributes.G20PREDBID;
+								var trumpVotes16 = graphic.attributes.G16PRERTRU;
+								var trumpVotes20 = graphic.attributes.G20PRERTRU;
+								var totdif = graphic.attributes.TOTDIF;
+								var shiftValueString = graphic.attributes.PCTDIF_S;
+								var shiftValue = parseFloat(shiftValueString.replace('%', ''));
+								var shiftText, shiftColor, shiftBackgroundColor;
+								if (shiftValue > 0) {
+									shiftText = '+' + shiftValue + '% More Democratic';
+									shiftColor = 'blue';
+									shiftBackgroundColor = '#e0ecf8';
+								} else if (shiftValue < 0) {
+									shiftText = '+' + (-shiftValue) + '% More Republican';
+									shiftColor = 'red';
+									shiftBackgroundColor = '#f8e0e0';
+								} else {
+									shiftText = 'No % Change';
+									shiftColor = 'dimgrey';
+									shiftBackgroundColor = '#e6e6e6';
+								}
+								var totdifText, totdifColor;
+								if (totdif > 0) {
+									totdifText = totdif.toLocaleString() + " Net Democratic Votes";
+									totdifColor = 'blue';
+								} else if (totdif < 0) {
+									totdifText = Math.abs(totdif).toLocaleString() + " Net Republican Votes";
+									totdifColor = 'red';
+								} else {
+									totdifText = "No Net Vote Change";
+									totdifColor = 'dimgrey';
+								}
+								var winner2016, winner2020;
+								if (clintonVotes > trumpVotes16) {
+								  winner2016 = 'clinton';
+								} else {
+								  winner2016 = 'trump16';
+								}
+								if (bidenVotes > trumpVotes20) {
+								  winner2020 = 'biden';
+								} else {
+								  winner2020 = 'trump20';
+								}
+								var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
+								var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
+								var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
+								var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
+								updateInfoDiv(
+									"<div style='font-weight: bold; font-size: 1.1em; margin-bottom: 2px; text-align: center;'>Block Group Shift 2016-2020</div>" +
+									"<table style='width: 100%;'>" +
+									"    <thead>" +
+									"        <tr>" +
+									"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
+									"            <th style='text-align: center; color: black; width: 10%;'></th>" +
+									"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
+									"        </tr>" +
+									"    </thead>" +
+									"    <tbody>" +
+									"        <tr>" +
+									"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCTCLI_S + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
+									"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1); vertical-align: middle;'>&rarr;</td>" +
+									"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCTBID_S + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
+									"        </tr>" +
+									"        <tr>" +
+									"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.TRU16_S + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
+									"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.TRU20_S + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
+									"        </tr>" +
+									"    </tbody>" +
+									"</table>" +
+									"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
+									"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
+									"</div>");
+						} else if (graphic.layer === countySwingLayer) {
+								layerView = CountySwingLayerView;
+								currentCountySwingID = featureID;
+								highlight = layerView.highlight(graphic);
+								var clintonVotes = graphic.attributes.votes_dem_;
+								var bidenVotes = graphic.attributes.votes_dem;
+								var trumpVotes16 = graphic.attributes.votes_gop_;
+								var trumpVotes20 = graphic.attributes.votes_gop;
+								var totdif = graphic.attributes.TOTDIF;
+								var shiftValueString = graphic.attributes.PCTDIF_S;
+								var shiftValue = parseFloat(shiftValueString.replace('%', ''));
+								var shiftText, shiftColor, shiftBackgroundColor;
+								if (shiftValue > 0) {
+									shiftText = '+' + shiftValue + '% More Democratic';
+									shiftColor = 'blue';
+									shiftBackgroundColor = '#e0ecf8';
+								} else if (shiftValue < 0) {
+									shiftText = '+' + (-shiftValue) + '% More Republican';
+									shiftColor = 'red';
+									shiftBackgroundColor = '#f8e0e0';
+								} else {
+									shiftText = 'No % Change';
+									shiftColor = 'dimgrey';
+									shiftBackgroundColor = '#e6e6e6';
+								}
+								var totdifText, totdifColor;
+								if (totdif > 0) {
+									totdifText = totdif.toLocaleString() + " Net Democratic Votes";
+									totdifColor = 'blue';
+								} else if (totdif < 0) {
+									totdifText = Math.abs(totdif).toLocaleString() + " Net Republican Votes";
+									totdifColor = 'red';
+								} else {
+									totdifText = "No Net Vote Change";
+									totdifColor = 'dimgrey';
+								}
+								var winner2016, winner2020;
+								if (clintonVotes > trumpVotes16) {
+								  winner2016 = 'clinton';
+								} else {
+								  winner2016 = 'trump16';
+								}
+								if (bidenVotes > trumpVotes20) {
+								  winner2020 = 'biden';
+								} else {
+								  winner2020 = 'trump20';
+								}
+								var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
+								var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
+								var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
+								var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
+								updateInfoDiv(
+									"<div style='font-weight: bold; font-size: 1.1em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Shift 2016-2020</div>" +
+									"<table style='width: 100%;'>" +
+									"    <thead>" +
+									"        <tr>" +
+									"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
+									"            <th style='text-align: center; color: black; width: 10%;'></th>" +
+									"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
+									"        </tr>" +
+									"    </thead>" +
+									"    <tbody>" +
+									"        <tr>" +
+									"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCTCLI + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
+									"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1); vertical-align: middle;'>&rarr;</td>" +
+									"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCTBID + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
+									"        </tr>" +
+									"        <tr>" +
+									"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCTTRU16 + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
+									"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCTTRU + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
+									"        </tr>" +
+									"    </tbody>" +
+									"</table>" +
+									"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
+									"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
+									"</div>");
+						} else if (graphic.layer === stateSwingLayer) {
+								layerView = StateSwingLayerView;
+								currentStateSwingID = featureID;
+								highlight = layerView.highlight(graphic);
+								var clintonVotes = graphic.attributes.Clinton;
+								var bidenVotes = graphic.attributes.Biden;
+								var trumpVotes16 = graphic.attributes.Trump_16;
+								var trumpVotes20 = graphic.attributes.Trump_20;
+								var totdif = graphic.attributes.TOTDIF;
+								var shiftValueString = graphic.attributes.PCTDIF_S;
+								var shiftValue = parseFloat(shiftValueString.replace('%', ''));
+								var shiftText, shiftColor, shiftBackgroundColor;
+								if (shiftValue > 0) {
+									shiftText = '+' + shiftValue + '% More Democratic';
+									shiftColor = 'blue';
+									shiftBackgroundColor = '#e0ecf8';
+								} else if (shiftValue < 0) {
+									shiftText = '+' + (-shiftValue) + '% More Republican';
+									shiftColor = 'red';
+									shiftBackgroundColor = '#f8e0e0';
+								} else {
+									shiftText = 'No % Change';
+									shiftColor = 'dimgrey';
+									shiftBackgroundColor = '#e6e6e6';
+								}
+								var totdifText, totdifColor;
+								if (totdif > 0) {
+									totdifText = totdif.toLocaleString() + " Net Democratic Votes";
+									totdifColor = 'blue';
+								} else if (totdif < 0) {
+									totdifText = Math.abs(totdif).toLocaleString() + " Net Republican Votes";
+									totdifColor = 'red';
+								} else {
+									totdifText = "No Net Vote Change";
+									totdifColor = 'dimgrey';
+								}
+								var winner2016, winner2020;
+								if (clintonVotes > trumpVotes16) {
+								  winner2016 = 'clinton';
+								} else {
+								  winner2016 = 'trump16';
+								}
+								if (bidenVotes > trumpVotes20) {
+								  winner2020 = 'biden';
+								} else {
+								  winner2020 = 'trump20';
+								}
+								var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
+								var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
+								var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
+								var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
+								updateInfoDiv(
+									"<div style='font-weight: bold; font-size: 1.1em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.STATE_NAME + " Shift 2016-2020</div>" +
+									"<table style='width: 100%;'>" +
+									"    <thead>" +
+									"        <tr>" +
+									"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
+									"            <th style='text-align: center; color: black; width: 10%;'></th>" +
+									"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
+									"        </tr>" +
+									"    </thead>" +
+									"    <tbody>" +
+									"        <tr>" +
+									"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCT_CLI_S + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
+									"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1); vertical-align: middle;'>&rarr;</td>" +
+									"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCT_BID_S + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
+									"        </tr>" +
+									"        <tr>" +
+									"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCT_T_16_S + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
+									"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCT_T_20_S + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
+									"        </tr>" +
+									"    </tbody>" +
+									"</table>" +
+									"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
+									"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
+									"</div>");
+                        }
 
-					var demVotes = graphic.attributes.G20PREDBID;
-					var trumpVotes = graphic.attributes.G20PRERTRU;
-					var otherVotes = graphic.attributes.TotOth20;
-					var demPerc = graphic.attributes.PCTBID;
-					var trumpPerc = graphic.attributes.PCTTRU20; 
-					var otherPerc = graphic.attributes.PCTOTH20;
-					
-					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
-					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
-					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
-					winVote = Math.abs(voteArray[0] - voteArray[1]);
+                      if (layerView) {
+                        infoDiv.style.display = 'block';
+                      }
+                      } else {
+                      if (highlight) {
+                        highlight.remove();
+                        highlight = null;
+                      }
+                      currentPrecinctID = null;
+                      currentCountyID = null;
+                      currentStateID = null;
+                      currentPrecinctID16 = null;
+                      currentCountyID16 = null;
+                      currentStateID16 = null;
+					  currentPrecinctSwingID = null;
+                      currentCountySwingID = null;
+                      currentStateSwingID = null;
 
-					var totalVote = graphic.attributes.TotVote20;
-					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
+                      infoDiv.style.display = 'none';
 
-					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
-
-					if (totalVote === 0){
-						winCandidate = "No Votes";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
-						winCandidate = "Tie: Biden & Trump";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Biden & Other";
-						demHighlight = "background-color: #e0ecf8;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Trump & Other";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes){
-						winCandidate = "Biden";
-						winColor = "blue";
-						demHighlight = "background-color: #e0ecf8;";
-					} else if (trumpVotes === maxVotes){
-						winCandidate = "Trump";
-						winColor = "red";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (otherVotes === maxVotes){ 
-						winCandidate = "Other";
-						winColor = "dimgrey";
-						otherHighlight = "background-color: #e6e6e6;";
-					}
-
-					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>Block Group Results</b>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
-				  } else if (graphic.layer === countyLayer) {
-					layerView = CountyLayerView;
-					currentCountyID = featureID;
-					highlight = layerView.highlight(graphic);
-
-					var demVotes = graphic.attributes.votes_dem;
-					var trumpVotes = graphic.attributes.votes_gop;
-					var otherVotes = graphic.attributes.Total_Othe;
-					var demPerc = graphic.attributes.pctbi;
-					var trumpPerc = graphic.attributes.pcttr20; 
-					var otherPerc = graphic.attributes.pctot20;
-
-					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
-					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
-					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
-					winVote = Math.abs(voteArray[0] - voteArray[1]);
-
-					var totalVote = graphic.attributes.total_vote;
-					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
-
-					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
-
-					if (totalVote === 0){
-						winCandidate = "No Votes";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
-						winCandidate = "Tie: Biden & Trump";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Biden & Other";
-						demHighlight = "background-color: #e0ecf8;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Trump & Other";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes){
-						winCandidate = "Biden";
-						winColor = "blue";
-						demHighlight = "background-color: #e0ecf8;";
-					} else if (trumpVotes === maxVotes){
-						winCandidate = "Trump";
-						winColor = "red";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (otherVotes === maxVotes){ 
-						winCandidate = "Other";
-						winColor = "dimgrey";
-						otherHighlight = "background-color: #e6e6e6;";
-					}
-
-					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Results</b>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCTBID + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
-                  } else if (graphic.layer === stateLayer) {
-					layerView = StateLayerView;
-					currentStateID = featureID;
-					highlight = layerView.highlight(graphic);
-
-					var demVotes = graphic.attributes.Biden;
-					var trumpVotes = graphic.attributes.Trump_20;
-					var otherVotes = graphic.attributes.Other_20;
-					var demPerc = graphic.attributes.PCT_BID;
-					var trumpPerc = graphic.attributes.PCT_TRU_20; 
-					var otherPerc = graphic.attributes.PCT_OTH_20;
-
-					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
-					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
-					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
-					winVote = Math.abs(voteArray[0] - voteArray[1]);
-
-					var totalVote = graphic.attributes.Tot_20;
-					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
-
-					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
-
-					if (totalVote === 0){
-						winCandidate = "No Votes";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
-						winCandidate = "Tie: Biden & Trump";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Biden & Other";
-						demHighlight = "background-color: #e0ecf8;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Trump & Other";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes){
-						winCandidate = "Biden";
-						winColor = "blue";
-						demHighlight = "background-color: #e0ecf8;";
-					} else if (trumpVotes === maxVotes){
-						winCandidate = "Trump";
-						winColor = "red";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (otherVotes === maxVotes){ 
-						winCandidate = "Other";
-						winColor = "dimgrey";
-						otherHighlight = "background-color: #e6e6e6;";
-					}
-
-					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.STATE_NAME + " Results</b>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Biden: <b style='color: blue;'>" + graphic.attributes.PCT_BID_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_20_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_20_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
-                  } else if (graphic.layer === precinctLayer16) {
-					layerView = PrecinctLayerView16;
-					currentPrecinctID16 = featureID;
-					highlight = layerView.highlight(graphic);
-					
-					var demVotes = graphic.attributes.G16PREDCLI;
-					var trumpVotes = graphic.attributes.G16PRERTRU;
-					var otherVotes = graphic.attributes.TotOth16;
-					var demPerc = graphic.attributes.PCTCLI;
-					var trumpPerc = graphic.attributes.PCTTRU16; 
-					var otherPerc = graphic.attributes.PCTOTH16;
-
-					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
-					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
-					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
-					winVote = Math.abs(voteArray[0] - voteArray[1]);
-
-					var totalVote = graphic.attributes.TotVote16;
-					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
-
-					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
-
-					if (totalVote === 0){
-						winCandidate = "No Votes";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
-						winCandidate = "Tie: Clinton & Trump";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Clinton & Other";
-						demHighlight = "background-color: #e0ecf8;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Trump & Other";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes){
-						winCandidate = "Clinton";
-						winColor = "blue";
-						demHighlight = "background-color: #e0ecf8;";
-					} else if (trumpVotes === maxVotes){
-						winCandidate = "Trump";
-						winColor = "red";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (otherVotes === maxVotes){ 
-						winCandidate = "Other";
-						winColor = "dimgrey";
-						otherHighlight = "background-color: #e6e6e6;";
-					}
-
-					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>Block Group Results</b>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.TRU16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.OTH16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
-				  } else if (graphic.layer === countyLayer16) {
-					layerView = CountyLayerView16;
-					currentCountyID16 = featureID;
-					highlight = layerView.highlight(graphic);
-					
-					var demVotes = graphic.attributes.votes_dem_;
-					var trumpVotes = graphic.attributes.votes_gop_;
-					var otherVotes = graphic.attributes.Total_Ot_1;
-					var demPerc = graphic.attributes.pctcl;
-					var trumpPerc = graphic.attributes.pcttr16; 
-					var otherPerc = graphic.attributes.pctot16;
-
-					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
-					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
-					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
-					winVote = Math.abs(voteArray[0] - voteArray[1]);
-
-					var totalVote = graphic.attributes.tot_vo_1;
-					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
-
-					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
-
-					if (totalVote === 0){
-						winCandidate = "No Votes";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
-						winCandidate = "Tie: Clinton & Trump";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Clinton & Other";
-						demHighlight = "background-color: #e0ecf8;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Trump & Other";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes){
-						winCandidate = "Clinton";
-						winColor = "blue";
-						demHighlight = "background-color: #e0ecf8;";
-					} else if (trumpVotes === maxVotes){
-						winCandidate = "Trump";
-						winColor = "red";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (otherVotes === maxVotes){ 
-						winCandidate = "Other";
-						winColor = "dimgrey";
-						otherHighlight = "background-color: #e6e6e6;";
-					}
-
-					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Results</b>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCTCLI + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCTTRU16 + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCTOTH16 + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
-                  } else if (graphic.layer === stateLayer16) {
-					layerView = StateLayerView16;
-					currentStateID16 = featureID;
-					highlight = layerView.highlight(graphic);
-					
-					var demVotes = graphic.attributes.Clinton;
-					var trumpVotes = graphic.attributes.Trump_16;
-					var otherVotes = graphic.attributes.Other_16;
-					var demPerc = graphic.attributes.PCT_CLI;
-					var trumpPerc = graphic.attributes.PCT_TRU_16; 
-					var otherPerc = graphic.attributes.PCT_OTH_16;
-
-					var voteArray = [demVotes, trumpVotes, otherVotes].sort((a, b) => b - a);
-					var percArray = [demPerc, trumpPerc, otherPerc].sort((a, b) => b - a);
-					winPerc = Math.round(Math.abs(percArray[0] - percArray[1]));
-					winVote = Math.abs(voteArray[0] - voteArray[1]);
-
-					var totalVote = graphic.attributes.Tot_16;
-					var maxVotes = Math.max(demVotes, trumpVotes, otherVotes);
-
-					var winCandidate, winColor, demHighlight = "", trumpHighlight = "", otherHighlight = "";
-
-					if (totalVote === 0){
-						winCandidate = "No Votes";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes && trumpVotes === maxVotes) {
-						winCandidate = "Tie: Clinton & Trump";
-						demHighlight = "background-color: #e0ecf8;";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (demVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Clinton & Other";
-						demHighlight = "background-color: #e0ecf8;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (trumpVotes === maxVotes && otherVotes === maxVotes) {
-						winCandidate = "Tie: Trump & Other";
-						trumpHighlight = "background-color: #f8e0e0;";
-						otherHighlight = "background-color: #e6e6e6;";
-					} else if (demVotes === maxVotes){
-						winCandidate = "Clinton";
-						winColor = "blue";
-						demHighlight = "background-color: #e0ecf8;";
-					} else if (trumpVotes === maxVotes){
-						winCandidate = "Trump";
-						winColor = "red";
-						trumpHighlight = "background-color: #f8e0e0;";
-					} else if (otherVotes === maxVotes){ 
-						winCandidate = "Other";
-						winColor = "dimgrey";
-						otherHighlight = "background-color: #e6e6e6;";
-					}
-
-					infoDiv.innerHTML = 
-					  "<b style='font-size: 1.2em; text-align: center; display: block;'>" + graphic.attributes.STATE_NAME + " Results</b>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + demHighlight + "'>Clinton: <b style='color: blue;'>" + graphic.attributes.PCT_CLI_S + "</b> (" + demVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + trumpHighlight + "'>Trump: <b style='color: red;'>" + graphic.attributes.PCT_T_16_S + "</b> (" + trumpVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;" + otherHighlight + "'>Other: <b style='color: dimgrey;'>" + graphic.attributes.PCT_O_16_S + "</b> (" + otherVotes.toLocaleString() + " votes)</div>" +
-					  "<div style='color: black; font-weight: 500; text-align: center;'>Winner: <b style='color: " + winColor + ";'>" + winCandidate + " +" + winPerc + "%</b> (+" + winVote.toLocaleString() + " votes)</div>";
-				  } else if (graphic.layer === precinctSwingLayer) {
-					layerView = PrecinctSwingLayerView;
-					currentPrecinctSwingID = featureID;
-					highlight = layerView.highlight(graphic);
-					var clintonVotes = graphic.attributes.G16PREDCLI;
-					var bidenVotes = graphic.attributes.G20PREDBID;
-					var trumpVotes16 = graphic.attributes.G16PRERTRU;
-					var trumpVotes20 = graphic.attributes.G20PRERTRU;
-					var totdif = graphic.attributes.TOTDIF;
-
-					var shiftValue = graphic.attributes.PCTDIF;
-					var shiftText, shiftColor, shiftBackgroundColor;
-					if (shiftValue > 0) {
-						shiftText = '+' + shiftValue + '% More Democratic';
-						shiftColor = 'blue';
-						shiftBackgroundColor = '#e0ecf8';
-					} else if (shiftValue < 0) {
-						shiftText = '+' + (-shiftValue) + '% More Republican';
-						shiftColor = 'red';
-						shiftBackgroundColor = '#f8e0e0';
-					} else {
-						shiftText = 'Less Than 1% Change';
-						shiftColor = 'dimgrey';
-						shiftBackgroundColor = '#e6e6e6';
-					}
-					var totdifText, totdifColor;
-					if (totdif > 0) {
-						totdifText = totdif.toLocaleString() + " Net Democratic Votes";
-						totdifColor = 'blue';
-					} else if (totdif < 0) {
-						totdifText = Math.abs(totdif).toLocaleString() + " Net Republican Votes";
-						totdifColor = 'red';
-					} else {
-						totdifText = "No Net Vote Change";
-						totdifColor = 'dimgrey';
-					}
-					var winner2016, winner2020;
-					if (clintonVotes > trumpVotes16) {
-					  winner2016 = 'clinton';
-					} else {
-					  winner2016 = 'trump16';
-					}
-
-					if (bidenVotes > trumpVotes20) {
-					  winner2020 = 'biden';
-					} else {
-					  winner2020 = 'trump20';
-					}
-					var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
-					var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
-					var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
-					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
-
-					infoDiv.innerHTML = 
-						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>Block Group Shift 2016-2020</div>" +
-						"<table style='width: 100%;'>" +
-						"    <thead>" +
-						"        <tr>" +
-						"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
-						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
-						"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
-						"        </tr>" +
-						"    </thead>" +
-						"    <tbody>" +
-						"        <tr>" +
-						"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCTCLI_S + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
-						"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1.1); vertical-align: middle;'>&rarr;</td>" +
-						"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCTBID_S + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
-						"        </tr>" +
-						"        <tr>" +
-						"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.TRU16_S + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
-						"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.TRU20_S + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
-						"        </tr>" +
-						"    </tbody>" +
-						"</table>" +
-						"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
-						"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
-						"</div>";
-
-				} else if (graphic.layer === countySwingLayer) {
-					layerView = CountySwingLayerView;
-					currentCountySwingID = featureID;
-					highlight = layerView.highlight(graphic);
-					var clintonVotes = graphic.attributes.votes_dem_;
-					var bidenVotes = graphic.attributes.votes_dem;
-					var trumpVotes16 = graphic.attributes.votes_gop_;
-					var trumpVotes20 = graphic.attributes.votes_gop;
-					var totdif = graphic.attributes.TOTDIF;
-
-					var shiftValue = graphic.attributes.PCTDIF;
-					var shiftText, shiftColor, shiftBackgroundColor;
-					if (shiftValue > 0) {
-						shiftText = '+' + shiftValue + '% More Democratic';
-						shiftColor = 'blue';
-						shiftBackgroundColor = '#e0ecf8';
-					} else if (shiftValue < 0) {
-						shiftText = '+' + (-shiftValue) + '% More Republican';
-						shiftColor = 'red';
-						shiftBackgroundColor = '#f8e0e0';
-					} else {
-						shiftText = 'Less Than 1% Change';
-						shiftColor = 'dimgrey';
-						shiftBackgroundColor = '#e6e6e6';
-					}
-					var totdifText, totdifColor;
-					if (totdif > 0) {
-						totdifText = totdif.toLocaleString() + " Net Democratic Votes";
-						totdifColor = 'blue';
-					} else if (totdif < 0) {
-						totdifText = Math.abs(totdif).toLocaleString() + " Net Republican Votes";
-						totdifColor = 'red';
-					} else {
-						totdifText = "No Net Vote Change";
-						totdifColor = 'dimgrey';
-					}
-					var winner2016, winner2020;
-					if (clintonVotes > trumpVotes16) {
-					  winner2016 = 'clinton';
-					} else {
-					  winner2016 = 'trump16';
-					}
-
-					if (bidenVotes > trumpVotes20) {
-					  winner2020 = 'biden';
-					} else {
-					  winner2020 = 'trump20';
-					}
-					var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
-					var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
-					var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
-					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
-
-					infoDiv.innerHTML = 
-						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.county_nam + ", " + graphic.attributes.state_name + " Shift 2016-2020</div>" +
-						"<table style='width: 100%;'>" +
-						"    <thead>" +
-						"        <tr>" +
-						"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
-						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
-						"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
-						"        </tr>" +
-						"    </thead>" +
-						"    <tbody>" +
-						"        <tr>" +
-						"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCTCLI + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
-						"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1.1); vertical-align: middle;'>&rarr;</td>" +
-						"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCTBID + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
-						"        </tr>" +
-						"        <tr>" +
-						"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCTTRU16 + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
-						"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCTTRU + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
-						"        </tr>" +
-						"    </tbody>" +
-						"</table>" +
-						"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
-						"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
-						"</div>";
-
-				} else if (graphic.layer === stateSwingLayer) {
-					layerView = StateSwingLayerView;
-					currentStateSwingID = featureID;
-					highlight = layerView.highlight(graphic);
-					var clintonVotes = graphic.attributes.Clinton;
-					var bidenVotes = graphic.attributes.Biden;
-					var trumpVotes16 = graphic.attributes.Trump_16;
-					var trumpVotes20 = graphic.attributes.Trump_20;
-					var totdif = graphic.attributes.TOTDIF;
-
-					var shiftValue = graphic.attributes.PCTDIF;
-					var shiftText, shiftColor, shiftBackgroundColor;
-					if (shiftValue > 0) {
-						shiftText = '+' + shiftValue + '% More Democratic';
-						shiftColor = 'blue';
-						shiftBackgroundColor = '#e0ecf8';
-					} else if (shiftValue < 0) {
-						shiftText = '+' + (-shiftValue) + '% More Republican';
-						shiftColor = 'red';
-						shiftBackgroundColor = '#f8e0e0';
-					} else {
-						shiftText = 'Less Than 1% Change';
-						shiftColor = 'dimgrey';
-						shiftBackgroundColor = '#e6e6e6';
-					}
-					var totdifText, totdifColor;
-					if (totdif > 0) {
-						totdifText = totdif.toLocaleString() + " Net Democratic Votes";
-						totdifColor = 'blue';
-					} else if (totdif < 0) {
-						totdifText = Math.abs(totdif).toLocaleString() + " Net Republican Votes";
-						totdifColor = 'red';
-					} else {
-						totdifText = "No Net Vote Change";
-						totdifColor = 'dimgrey';
-					}
-					var winner2016, winner2020;
-					if (clintonVotes > trumpVotes16) {
-					  winner2016 = 'clinton';
-					} else {
-					  winner2016 = 'trump16';
-					}
-
-					if (bidenVotes > trumpVotes20) {
-					  winner2020 = 'biden';
-					} else {
-					  winner2020 = 'trump20';
-					}
-					var clintonBackground = winner2016 === 'clinton' ? '#e0ecf8' : 'transparent';
-					var trump16Background = winner2016 === 'trump16' ? '#f8e0e0' : 'transparent';
-					var bidenBackground = winner2020 === 'biden' ? '#e0ecf8' : 'transparent';
-					var trump20Background = winner2020 === 'trump20' ? '#f8e0e0' : 'transparent';
-
-					infoDiv.innerHTML = 
-						"<div style='font-weight: bold; font-size: 1.2em; margin-bottom: 2px; text-align: center;'>" + graphic.attributes.STATE_NAME + " Shift 2016-2020</div>" +
-						"<table style='width: 100%;'>" +
-						"    <thead>" +
-						"        <tr>" +
-						"            <th style='text-align: left; color: black; width: 45%;'>2016</th>" +
-						"            <th style='text-align: center; color: black; width: 10%;'></th>" +
-						"            <th style='text-align: left; color: black; width: 45%;'>2020</th>" +
-						"        </tr>" +
-						"    </thead>" +
-						"    <tbody>" +
-						"        <tr>" +
-						"            <td style='font-weight: 500; background-color: " + clintonBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Clinton:</span> <span style='color: blue;'> " + graphic.attributes.PCT_CLI_S + "</span> <span style='color: black;'>(" + clintonVotes.toLocaleString() + " votes)</span></td>" +
-						"            <td rowspan='2' style='text-align: center; font-size: 2.4em; font-weight: bold; transform: scaleX(0.8) scaleY(1.1); vertical-align: middle;'>&rarr;</td>" +
-						"            <td style='font-weight: 500; background-color: " + bidenBackground + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Biden:</span> <span style='color: blue;'> " + graphic.attributes.PCT_BID_S + "</span> <span style='color: black;'>(" + bidenVotes.toLocaleString() + " votes)</span></td>" +
-						"        </tr>" +
-						"        <tr>" +
-						"            <td style='font-weight: 500; background-color: " + trump16Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCT_T_16_S + "</span> <span style='color: black;'>(" + trumpVotes16.toLocaleString() + " votes)</span></td>" +
-						"            <td style='font-weight: 500; background-color: " + trump20Background + "; padding: 2px;'><span style='font-weight: bold; color: black;'>Trump:</span> <span style='color: red;'> " + graphic.attributes.PCT_T_20_S + "</span> <span style='color: black;'>(" + trumpVotes20.toLocaleString() + " votes)</span></td>" +
-						"        </tr>" +
-						"    </tbody>" +
-						"</table>" +
-						"<div style='background-color: " + shiftBackgroundColor + "; padding: 2px; text-align: center;'>" +
-						"    <span style='color: black; font-weight: bold;'>Shift: <span style='color: " + shiftColor + "; font-weight: bold;'>" + shiftText + " <span style='color: black; font-weight: bold;'>(<span style='color: " + totdifColor + "; font-weight: bold;'>" + totdifText + "<span style='color: black; font-weight: bold;'>)</span></span></span>" +
-						"</div>";
+                    }
+                });
+				function updateInfoDiv(content) {
+					infoDivContent.innerHTML = content;
+					infoDiv.style.display = 'block';
 				}
-  
-                  if (layerView) {
-                    infoDiv.style.display = 'block';
-                  }
-                  } else {
-                  if (highlight) {
-                    highlight.remove();
-                    highlight = null;
-                  }
-                  currentPrecinctID = null;
-                  currentCountyID = null;
-                  currentStateID = null;
-                  currentPrecinctID16 = null;
-                  currentCountyID16 = null;
-                  currentStateID16 = null;
-				  currentPrecinctSwingID = null;
-				  currentCountySwingID = null;
-				  currentStateSwingID = null;
-              
-                  infoDiv.style.display = 'none';
-                     
- 	      }
+
+				document.getElementById('closeInfoDiv').addEventListener('click', function() {
+					infoDiv.style.display = 'none';
+				});
+              }
             });
-          }
-        });
 
-        function createDarkModeToggle() {
-          function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            document.getElementById('infoDiv').classList.toggle('infoDiv-dark-mode');
-
-            const button = document.querySelector('.dark-mode-button');
-            if (document.body.classList.contains('dark-mode')) {
-              button.setAttribute("icon-start", "brightness");
-			  button.setAttribute("title", "Light Mode");
-            } else {
-              button.setAttribute("icon-start", "moon");
-			  button.setAttribute("title", "Dark Mode");
+            function createDarkModeToggle() {
+              function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                document.getElementById('infoDiv').classList.toggle('infoDiv-dark-mode');
+                const button = document.querySelector('.dark-mode-button');
+                if (document.body.classList.contains('dark-mode')) {
+                  button.setAttribute("icon-start", "brightness");
+                  button.setAttribute("title", "Light Mode");
+                } else {
+                  button.setAttribute("icon-start", "moon");
+                  button.setAttribute("title", "Dark Mode");
+                }
+              }
+              const darkModeAction = new ActionButton({
+                id: "dark-mode-toggle"
+              });
+              darkModeAction.visible = true;
+              darkModeAction.execute = toggleDarkMode;
+              // Create a button element to trigger the action
+              const actionButton = document.createElement("calcite-button");
+              actionButton.iconStart = "moon";
+              actionButton.scale = "m";
+              actionButton.label = "Dark/Light Mode Toggle";
+              actionButton.title = "Dark Mode";
+              actionButton.appearance = "solid";
+              actionButton.kind = "brand";
+              actionButton.classList.add("dark-mode-button");
+              actionButton.addEventListener("click", function() {
+                darkModeAction.execute();
+              });
+              view.when(() => {
+                view.ui.add(
+                [
+                  actionButton,
+                  new Expand({
+                    view: view,
+					mode: "floating",
+					expandTooltip: "Location Search",
+                    content: new Search({ view: view }),
+                    group: "top-left",
+                    expanded: false
+                  }),
+                  new Expand({
+                    view: view,
+					mode: "floating",
+					expandTooltip: "Legend",
+                    content: new Legend({ view: view }),
+                    group: "top-left",
+                    expanded: false
+                  })
+                ],
+                "top-left"
+                );
+              });
             }
-          }
-
-          const darkModeAction = new ActionButton({
-            id: "dark-mode-toggle"
-          });
-
-          darkModeAction.visible = true;
-          darkModeAction.execute = toggleDarkMode;
-
-          // Create a button element to trigger the action
-          const actionButton = document.createElement("calcite-button");
-          actionButton.iconStart = "moon";
-          actionButton.scale = "m";
-          actionButton.label = "Dark/Light Mode Toggle";
-          actionButton.title = "Dark Mode";
-          actionButton.appearance = "solid";
-          actionButton.kind = "brand";
-          actionButton.classList.add("dark-mode-button");
-
-          actionButton.addEventListener("click", function() {
-            darkModeAction.execute();
-          });
-
-          view.when(() => {
-            view.ui.add(
-            [
-              actionButton,
-              new Expand({
-                view: view,
-		expandTooltip: "Location Search",
-                content: new Search({ view: view }),
-                group: "top-left",
-                expanded: false
-              }),
-              new Expand({
-                view: view,
-		expandTooltip: "Legend",
-                content: new Legend({ view: view }),
-                group: "top-left",
-                expanded: false
-              })
-            ],
-            "top-left"
-            );
-          });
-        }
-        // Call the function to create and add the dark mode toggle
-        view.when(createDarkModeToggle);
-    });
-  </script>
+            // Call the function to create and add the dark mode toggle
+            view.when(createDarkModeToggle);
+        });
+    </script>
 </head>
-
 <body>
   <div id="viewDiv"></div>
-  <div id="infoDiv"></div>
+  <div id="infoDiv">
+    <button id="closeInfoDiv" aria-label="Close" style="color:black;">&times;</button>
+    <div id="infoDivContent"></div>
+  </div>
 </body>
 </html>
