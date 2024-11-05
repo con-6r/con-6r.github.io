@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>North Carolina 2024 Results</title>
+    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/2.13.0/calcite.css"/>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css"/>
+    <script type="module" src="https://js.arcgis.com/calcite-components/2.13.0/calcite.esm.js"></script>
+    <style>
+        html,
+        body,
+        #viewDiv {
+          padding: 0;
+          margin: 0;
+          height: 100%;
+          width: 100%;
+        }
+        .dark-mode {
+          filter: hue-rotate(180deg) invert(1);
+        }
+        .dark-mode-button {
+          --calcite-color-brand: #FFFFFF;
+          --calcite-color-text-inverse: #6E6E6E;
+          --calcite-color-brand-hover: #F3F3F3;
+          --calcite-color-brand-press: #E2F1FB;
+        }
+		.esri-feature__title{
+		  line-height: 1em;
+		}
+		.esri-feature__content-element {
+		  margin-bottom: 4px;
+		  padding: 0px 7px;
+	    }
+		.esri-feature-media__container {
+		  flex-flow: wrap;
+          align-items: center;
+          width: 100%;
+          min-height: 100px;
+          margin-top: -4px;
+          display: flex;
+          align-content: center;
+          flex-wrap: wrap;
+          flex-direction: row-reverse;
+        }
+		.esri-feature-media__item {
+		  justify-content: center;
+		  align-items: flex-start;
+		  width: 100%;
+		  height: auto;
+		  margin-block: 0px;
+		  display: flex;
+	    }
+		.esri-feature-media__chart {
+		  background-color: #fff;
+          width: 80%;
+          height: 96px;
+		}
+		#feature-widget {
+		  padding: 5px;
+          background: white;
+          box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script src="https://js.arcgis.com/4.30/"></script>
+    <script>
+		require([
+		  "esri/WebMap",
+		  "esri/views/MapView",
+		  "esri/core/promiseUtils",
+		  "esri/layers/FeatureLayer",
+		  "esri/widgets/Feature",
+		  "esri/layers/GroupLayer",
+		  "esri/renderers/ClassBreaksRenderer",
+		  "esri/symbols/SimpleMarkerSymbol",
+		  "esri/renderers/SimpleRenderer",
+		  "esri/support/actions/ActionButton",
+		  "esri/widgets/Legend",
+          "esri/widgets/LayerList",
+		  "esri/widgets/Expand"
+		], function(WebMap, MapView, promiseUtils, FeatureLayer, Feature, GroupLayer, ClassBreaksRenderer, SimpleMarkerSymbol, SimpleRenderer, ActionButton, Legend,
+          LayerList, Expand) {
+		
+		  const map = new WebMap({
+			portalItem: {
+			  id: "3582b744bba84668b52a16b0b6942544" 
+			}
+		  });
+
+		  const view = new MapView({
+            container: "viewDiv",
+            zoom: 7,
+            center: [-79.543288, 35.709636],
+            map: map,
+            highlightOptions: {
+              fillOpacity: 0,
+              color: [50, 50, 50]
+            },
+            constraints: {
+              minScale: 80000000,
+              maxScale: 300
+            },
+			popupEnabled: false,
+		  });
+		  
+		  const flayer = new FeatureLayer({
+			  url: "https://services6.arcgis.com/eQZMuWckORNF5csU/arcgis/rest/services/NC_Joined_View_Precincts/FeatureServer",
+			  refreshInterval: 0.16667,
+			  title: "Voting Precinct Results",
+			  outFields: ["*"],
+			  definitionExpression: "Visible = 'Y'",
+			  popupTemplate: {
+				title: "<b><div style='font-size:18px; max-width: 200px; text-align: center; word-wrap: break-word; white-space: normal; text-decoration-line: underline;'>{PREC_NAME}</div></b>",
+				expressionInfos: [
+				{
+				    name: "expr0",
+					expression: "Round((($feature['TOT_Kamala_Harris']/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr1",
+					expression: "Round((($feature['TOT_Donald_Trump']/$feature['TOT_US_Pres'])*100), 1)"
+			    },
+				{
+					name: "expr2",
+					expression: "Round(((($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry'])/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr3",
+					expression: "$feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']"
+			    },
+				{
+					name: "expr4",
+					expression: "Round((($feature.TOT_US_Pres/($feature.G20PreD+$feature.G20PreR+$feature.G20PreO))*100), 1)"
+				},
+				{
+					name: "harris_background",
+					expression: "When($feature.TOT_Kamala_Harris >= $feature.TOT_Donald_Trump && $feature.TOT_Kamala_Harris >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#e0ecf8', 'transparent')"
+				},
+				{
+					name: "trump_background",
+					expression: "When($feature.TOT_Donald_Trump >= $feature.TOT_Kamala_Harris && $feature.TOT_Donald_Trump >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#f8e0e0', 'transparent')"
+				},
+				{
+					name: "other_background",
+					expression: "When(($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Kamala_Harris && ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Donald_Trump , '#e6e6e6', 'transparent')"
+				}],
+				content: [
+				{
+					type: "text",
+					text: "<p><span style='color:#ff4a43;background-color:{expression/trump_background};font-size:16px;font-weight:510;'>Donald Trump (R): {expression/expr1}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Donald_Trump} votes&nbsp;</span><br><span style='color:#1a6aff;background-color:{expression/harris_background};font-size:16px;font-weight:510'>Kamala Harris (D): {expression/expr0}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Kamala_Harris} votes&nbsp;</span><br><span style='color:#5a5a5a;background-color:{expression/other_background};font-size:16px;line-height:2em;font-weight:510'>Other: {expression/expr2}%</span><br><span style='font-size:medium;font-weight:bold;'>{expression/expr3} votes</span><br><span style='line-height:2em;font-size:14px;font-weight:bold;'>Percent of 2020 Turnout: {expression/expr4}%</span><br><span style='line-height:2em;font-size:12px;'>Last Updated: {TIME_STAMP}</span><br><span style='line-height:2em;font-size:12px;'>Refresh in: </span><span style='font-size:12px;' class='refresh-countdown'></span></p>"
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Vote By Mail data
+							attributes["Harris"] = $feature.VBM_Kamala_Harris;
+							attributes["Trump"] = $feature.VBM_Donald_Trump;
+							attributes["Other"] = $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry;
+							var total = Round(((($feature.VBM_Kamala_Harris + $feature.VBM_Donald_Trump + $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);				
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Vote By Mail (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									},
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+						
+							// Early Voting data
+							attributes["Harris"] = $feature.ADV_Kamala_Harris;
+							attributes["Trump"] = $feature.ADV_Donald_Trump;
+							attributes["Other"] = $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry;
+							var total = Round(((($feature.ADV_Kamala_Harris + $feature.ADV_Donald_Trump + $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Early In-Person (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Election Day data
+							attributes["Harris"] = $feature.ELD_Kamala_Harris;
+							attributes["Trump"] = $feature.ELD_Donald_Trump;
+							attributes["Other"] = $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry;
+							var total = Round(((($feature.ELD_Kamala_Harris + $feature.ELD_Donald_Trump + $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Election Day (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				}
+			  ]
+			}
+		  });
+		  const bubblePrecinctLayer = new FeatureLayer({
+              url: "https://services6.arcgis.com/eQZMuWckORNF5csU/arcgis/rest/services/NC_Joined_View_Precincts/FeatureServer",
+			  refreshInterval: 0.16667,
+              title: "Net Vote Margin (Precinct)",
+              outFields: ["*"],
+			  definitionExpression: "Visible = 'Y'",
+			  popupTemplate: {
+				title: "<b><div style='font-size:18px; max-width: 200px; text-align: center; word-wrap: break-word; white-space: normal; text-decoration-line: underline;'>{PREC_NAME}</div></b>",
+				expressionInfos: [
+				{
+				    name: "expr0",
+					expression: "Round((($feature['TOT_Kamala_Harris']/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr1",
+					expression: "Round((($feature['TOT_Donald_Trump']/$feature['TOT_US_Pres'])*100), 1)"
+			    },
+				{
+					name: "expr2",
+					expression: "Round(((($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry'])/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr3",
+					expression: "$feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']"
+			    },
+				{
+					name: "expr4",
+					expression: "Round((($feature.TOT_US_Pres/($feature.G20PreD+$feature.G20PreR+$feature.G20PreO))*100), 1)"
+				},
+				{
+					name: "harris_background",
+					expression: "When($feature.TOT_Kamala_Harris >= $feature.TOT_Donald_Trump && $feature.TOT_Kamala_Harris >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#e0ecf8', 'transparent')"
+				},
+				{
+					name: "trump_background",
+					expression: "When($feature.TOT_Donald_Trump >= $feature.TOT_Kamala_Harris && $feature.TOT_Donald_Trump >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#f8e0e0', 'transparent')"
+				},
+				{
+					name: "other_background",
+					expression: "When(($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Kamala_Harris && ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Donald_Trump , '#e6e6e6', 'transparent')"
+				}],
+				content: [
+				{
+					type: "text",
+					text: "<p><span style='color:#ff4a43;background-color:{expression/trump_background};font-size:16px;font-weight:510;'>Donald Trump (R): {expression/expr1}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Donald_Trump} votes&nbsp;</span><br><span style='color:#1a6aff;background-color:{expression/harris_background};font-size:16px;font-weight:510'>Kamala Harris (D): {expression/expr0}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Kamala_Harris} votes&nbsp;</span><br><span style='color:#5a5a5a;background-color:{expression/other_background};font-size:16px;font-weight:510'>Other: {expression/expr2}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{expression/expr3} votes</span><br><span style='line-height:2em;font-size:14px;font-weight:bold;'>Percent of 2020 Turnout: {expression/expr4}%</span><br><span style='line-height:2em;font-size:12px;'>Last Updated: {TIME_STAMP}</span><br><span style='line-height:2em;font-size:12px;'>Refresh in: </span><span style='font-size:12px;' class='refresh-countdown'></span></p>"
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Vote By Mail data
+							attributes["Harris"] = $feature.VBM_Kamala_Harris;
+							attributes["Trump"] = $feature.VBM_Donald_Trump;
+							attributes["Other"] = $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry;
+							var total = Round(((($feature.VBM_Kamala_Harris + $feature.VBM_Donald_Trump + $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);				
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Vote By Mail (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									},
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+						
+							// Early Voting data
+							attributes["Harris"] = $feature.ADV_Kamala_Harris;
+							attributes["Trump"] = $feature.ADV_Donald_Trump;
+							attributes["Other"] = $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry;
+							var total = Round(((($feature.ADV_Kamala_Harris + $feature.ADV_Donald_Trump + $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Early In-Person (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Election Day data
+							attributes["Harris"] = $feature.ELD_Kamala_Harris;
+							attributes["Trump"] = $feature.ELD_Donald_Trump;
+							attributes["Other"] = $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry;
+							var total = Round(((($feature.ELD_Kamala_Harris + $feature.ELD_Donald_Trump + $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Election Day (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				}
+			  ]
+			}
+		  });	  
+		  const swingPCTLayer = new FeatureLayer({
+              url: "https://services6.arcgis.com/eQZMuWckORNF5csU/arcgis/rest/services/NC_Joined_View_Precincts/FeatureServer",
+			  refreshInterval: 0.16667,
+              title: "% Shift from 2020 (Precinct)",
+              outFields: ["*"],
+			  definitionExpression: "ShowShift = 'Y'",
+			  popupTemplate: {
+				  title: "<div style='font-weight: bold; color: black; font-size: 17px; text-align:center; text-decoration-line: underline;'>{PREC_NAME}</div><br><div style='font-weight: bold; color: black; font-size: 16px; text-align:center;'>Shift from 2020</div>",
+				  expressionInfos: [
+					{
+					  name: "harris_percent",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var value = Round(($feature.TOT_Kamala_Harris/total2024) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "biden_percent",
+					  expression: `
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var value = Round(($feature.G20PreD/total2020) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "trump20_percent",
+					  expression: `
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var value = Round(($feature.G20PreR/total2020) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "trump24_percent",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var value = Round(($feature.TOT_Donald_Trump/total2024) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "biden_background",
+					  expression: `
+						return When($feature.G20PreD >= $feature.G20PreR, '#e0ecf8', 'transparent');
+					  `
+					},
+					{
+					  name: "trump20_background",
+					  expression: `
+						return When($feature.G20PreR >= $feature.G20PreD, '#f8e0e0', 'transparent');
+					  `
+					},
+					{
+					  name: "harris_background",
+					  expression: `
+						return When($feature.TOT_Kamala_Harris >= $feature.TOT_Donald_Trump, '#e0ecf8', 'transparent');
+					  `
+					},
+					{
+					  name: "trump24_background",
+					  expression: `
+						return When($feature.TOT_Donald_Trump >= $feature.TOT_Kamala_Harris, '#f8e0e0', 'transparent');
+					  `
+					},
+					{
+					  name: "shift_value",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						return Round(shift2024 - shift2020, 1);
+					  `
+					},
+					{
+					  name: "shift_formatted",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						var absValue = Abs(shiftValue);
+						return IIF(Floor(absValue) == absValue, Text(absValue, '#'), Text(absValue, '#.0'));
+					  `
+					},
+					{
+					  name: "shift_background",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						return When(shiftValue > 0, '#e0ecf8',
+									shiftValue < 0, '#f8e0e0',
+									'#e6e6e6');
+					  `
+					},
+					{
+					  name: "shift_color",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						return When(shiftValue > 0, '#1a6aff',
+									shiftValue < 0, '#ff4a43',
+									'#5a5a5a');
+					  `
+					},
+					{
+					  name: "shift_direction",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						return When(shiftValue > 0, 'More Democratic',
+									shiftValue < 0, 'More Republican',
+									'No % Change');
+					  `
+					},
+					{
+					  name: "total_diff",
+					  expression: `
+						return ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+					  `
+					},
+					{
+					  name: "total_diff_formatted",
+					  expression: `
+						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+						return Text(Abs(totalDiff), '#,###');
+					  `
+					},
+					{
+					  name: "total_diff_direction",
+					  expression: `
+						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+						return When(totalDiff > 0, 'Net Democratic',
+									totalDiff < 0, 'Net Republican',
+									'No Change');
+					  `
+					}
+				  ],
+				  content: [{
+					type: "text",
+					text: "<table style='width: 100%;'>" +
+						  "    <tbody>" +
+						  "        <tr>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/biden_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Biden: </span>" +
+						  "                <span style='color: #1a6aff;'>{expression/biden_percent}</span>" +
+						  "                <span style='color: black;'><br> ({G20PreD} votes)</span>" +
+						  "            </td>" +
+						  "            <td rowspan='2' style='text-align: center; font-size: 2.6em; font-weight: bold; transform: scaleX(1.2) scaleY(1.4); vertical-align: middle;'>→</td>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/harris_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Harris: </span>" +
+						  "                <span style='color: #1a6aff;'>{expression/harris_percent}</span>" +
+						  "                <span style='color: black;'><br> ({TOT_Kamala_Harris} votes)</span>" +
+						  "            </td>" +
+						  "        </tr>" +
+						  "        <tr>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/trump20_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Trump: </span>" +
+						  "                <span style='color: #ff4a43;'>{expression/trump20_percent}</span>" +
+						  "                <span style='color: black;'><br> ({G20PreR} votes)</span>" +
+						  "            </td>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/trump24_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Trump: </span>" +
+						  "                <span style='color: #ff4a43;'>{expression/trump24_percent}</span>" +
+						  "                <span style='color: black;'><br> ({TOT_Donald_Trump} votes)</span>" +
+						  "            </td>" +
+						  "        </tr>" +
+						  "    </tbody>" +
+						  "</table><br>" +
+						  "<div style='background-color: {expression/shift_background}; padding: 1px; text-align: center;'>" +
+						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Shift: " +
+						  "        <span style='color: {expression/shift_color}; font-weight: bold;'>" +
+						  "            {expression/shift_formatted}% {expression/shift_direction}" +
+						  "                    <span style='color: black; font-weight: bold;'>(<span style='color: {expression/shift_color}; font-weight: bold;'>{expression/total_diff_formatted} {expression/total_diff_direction} votes<span style='color: black; font-weight: bold;'>)" +
+						  "                </span>" +
+						  "            </span>" +
+						  "        </span>" +
+						  "    </span>" +
+						  "</div>"
+				  }]
+				}
+		  });
+		  const swingVoteLayer = new FeatureLayer({
+              url: "https://services6.arcgis.com/eQZMuWckORNF5csU/arcgis/rest/services/NC_Joined_View_Precincts/FeatureServer",
+			  refreshInterval: 0.16667,
+              title: "Raw Vote Shift from 2020 (Precinct)",
+              outFields: ["*"],
+			  definitionExpression: "ShowShift = 'Y'",
+			  popupTemplate: {
+				  title: "<div style='font-weight: bold; color: black; font-size: 17px; text-align: center; text-decoration-line: underline;'>{PREC_NAME}</div><br><div style='font-weight: bold; color: black; font-size: 16px; text-align:center;'>Shift from 2020</div>",
+				  expressionInfos: [
+					{
+					  name: "harris_percent",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var value = Round(($feature.TOT_Kamala_Harris/total2024) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "biden_percent",
+					  expression: `
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var value = Round(($feature.G20PreD/total2020) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "trump20_percent",
+					  expression: `
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var value = Round(($feature.G20PreR/total2020) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "trump24_percent",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var value = Round(($feature.TOT_Donald_Trump/total2024) * 100, 1);
+						return IIF(Floor(value) == value, 
+						  Text(value, '#'), 
+						  Text(value, '#.0')) + '%';
+					  `
+					},
+					{
+					  name: "biden_background",
+					  expression: `
+						return When($feature.G20PreD >= $feature.G20PreR, '#e0ecf8', 'transparent');
+					  `
+					},
+					{
+					  name: "trump20_background",
+					  expression: `
+						return When($feature.G20PreR >= $feature.G20PreD, '#f8e0e0', 'transparent');
+					  `
+					},
+					{
+					  name: "harris_background",
+					  expression: `
+						return When($feature.TOT_Kamala_Harris >= $feature.TOT_Donald_Trump, '#e0ecf8', 'transparent');
+					  `
+					},
+					{
+					  name: "trump24_background",
+					  expression: `
+						return When($feature.TOT_Donald_Trump >= $feature.TOT_Kamala_Harris, '#f8e0e0', 'transparent');
+					  `
+					},
+					{
+					  name: "shift_value",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						return Round(shift2024 - shift2020, 1);
+					  `
+					},
+					{
+					  name: "shift_formatted",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						var absValue = Abs(shiftValue);
+						return IIF(Floor(absValue) == absValue, Text(absValue, '#'), Text(absValue, '#.0'));
+					  `
+					},
+					{
+					  name: "shift_background",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						return When(shiftValue > 0, '#e0ecf8',
+									shiftValue < 0, '#f8e0e0',
+									'#e6e6e6');
+					  `
+					},
+					{
+					  name: "shift_color",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						return When(shiftValue > 0, '#1a6aff',
+									shiftValue < 0, '#ff4a43',
+									'#5a5a5a');
+					  `
+					},
+					{
+					  name: "shift_direction",
+					  expression: `
+						var total2024 = $feature.TOT_US_Pres;
+						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+						var shiftValue = Round(shift2024 - shift2020, 1);
+						return When(shiftValue > 0, 'More Democratic',
+									shiftValue < 0, 'More Republican',
+									'No % Change');
+					  `
+					},
+					{
+					  name: "total_diff",
+					  expression: `
+						return ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+					  `
+					},
+					{
+					  name: "total_diff_formatted",
+					  expression: `
+						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+						return Text(Abs(totalDiff), '#,###');
+					  `
+					},
+					{
+					  name: "total_diff_direction",
+					  expression: `
+						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+						return When(totalDiff > 0, 'Net Democratic',
+									totalDiff < 0, 'Net Republican',
+									'No Change');
+					  `
+					}
+				  ],
+				  content: [{
+					type: "text",
+					text: "<table style='width: 100%;'>" +
+						  "    <tbody>" +
+						  "        <tr>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/biden_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Biden: </span>" +
+						  "                <span style='color: #1a6aff;'>{expression/biden_percent}</span>" +
+						  "                <span style='color: black;'><br> ({G20PreD} votes)</span>" +
+						  "            </td>" +
+						  "            <td rowspan='2' style='text-align: center; font-size: 2.6em; font-weight: bold; transform: scaleX(1.2) scaleY(1.4); vertical-align: middle;'>→</td>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/harris_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Harris: </span>" +
+						  "                <span style='color: #1a6aff;'>{expression/harris_percent}</span>" +
+						  "                <span style='color: black;'><br> ({TOT_Kamala_Harris} votes)</span>" +
+						  "            </td>" +
+						  "        </tr>" +
+						  "        <tr>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/trump20_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Trump: </span>" +
+						  "                <span style='color: #ff4a43;'>{expression/trump20_percent}</span>" +
+						  "                <span style='color: black;'><br> ({G20PreR} votes)</span>" +
+						  "            </td>" +
+						  "            <td style='font-size:15px; text-align: center; font-weight: 500; background-color: {expression/trump24_background}; padding: 1px;'>" +
+						  "                <span style='font-weight: bold; color: black;'>Trump: </span>" +
+						  "                <span style='color: #ff4a43;'>{expression/trump24_percent}</span>" +
+						  "                <span style='color: black;'><br> ({TOT_Donald_Trump} votes)</span>" +
+						  "            </td>" +
+						  "        </tr>" +
+						  "    </tbody>" +
+						  "</table><br>" +
+						  "<div style='background-color: {expression/shift_background}; padding: 1px; text-align: center;'>" +
+						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Shift: " +
+						  "        <span style='color: {expression/shift_color}; font-weight: bold;'>" +
+						  "            {expression/shift_formatted}% {expression/shift_direction}" +
+						  "                    <span style='color: black; font-weight: bold;'>(<span style='color: {expression/shift_color}; font-weight: bold;'>{expression/total_diff_formatted} {expression/total_diff_direction} votes<span style='color: black; font-weight: bold;'>)" +
+						  "                </span>" +
+						  "            </span>" +
+						  "        </span>" +
+						  "    </span>" +
+						  "</div>"
+				  }]
+				}
+		  });
+		  
+		  const clayer = new FeatureLayer({
+			  url: "https://services6.arcgis.com/eQZMuWckORNF5csU/arcgis/rest/services/NC_2024_General_Election_Counties_Joined_View/FeatureServer",
+			  refreshInterval: 0.16667,
+			  title: "County Results",
+			  outFields: ["*"],
+			  definitionExpression: "Visible = 'Y'",
+			  popupTemplate: {
+				title: "<b><div style='font-size:18px; max-width: 200px; text-align: center; word-wrap: break-word; white-space: normal; text-decoration-line: underline;'>{PREC_KEY}</div></b>",
+				expressionInfos: [
+				{
+				    name: "expr0",
+					expression: "Round((($feature['TOT_Kamala_Harris']/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr1",
+					expression: "Round((($feature['TOT_Donald_Trump']/$feature['TOT_US_Pres'])*100), 1)"
+			    },
+				{
+					name: "expr2",
+					expression: "Round(((($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry'])/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr3",
+					expression: "$feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']"
+			    },
+				{
+					name: "harris_background",
+					expression: "When($feature.TOT_Kamala_Harris >= $feature.TOT_Donald_Trump && $feature.TOT_Kamala_Harris >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#e0ecf8', 'transparent')"
+				},
+				{
+					name: "trump_background",
+					expression: "When($feature.TOT_Donald_Trump >= $feature.TOT_Kamala_Harris && $feature.TOT_Donald_Trump >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#f8e0e0', 'transparent')"
+				},
+				{
+					name: "other_background",
+					expression: "When(($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Kamala_Harris && ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Donald_Trump , '#e6e6e6', 'transparent')"
+				}],
+				content: [
+				{
+					type: "text",
+					text: "<p><span style='color:#ff4a43;background-color:{expression/trump_background};font-size:16px;font-weight:510;'>Donald Trump (R): {expression/expr1}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Donald_Trump} votes&nbsp;</span><br><span style='color:#1a6aff;background-color:{expression/harris_background};font-size:16px;font-weight:510'>Kamala Harris (D): {expression/expr0}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Kamala_Harris} votes&nbsp;</span><br><span style='color:#5a5a5a;background-color:{expression/other_background};font-size:16px;font-weight:510'>Other: {expression/expr2}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{expression/expr3} votes</span><br><span style='line-height:2em;font-size:12px;'>Last Updated: {TIME_STAMP}</span><br><span style='line-height:2em;font-size:12px;'>Refresh in: </span><span style='font-size:12px;' class='refresh-countdown'></span></p>"
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Vote By Mail data
+							attributes["Harris"] = $feature.VBM_Kamala_Harris;
+							attributes["Trump"] = $feature.VBM_Donald_Trump;
+							attributes["Other"] = $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry;
+							var total = Round(((($feature.VBM_Kamala_Harris + $feature.VBM_Donald_Trump + $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);				
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Vote By Mail (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									},
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+						
+							// Early Voting data
+							attributes["Harris"] = $feature.ADV_Kamala_Harris;
+							attributes["Trump"] = $feature.ADV_Donald_Trump;
+							attributes["Other"] = $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry;
+							var total = Round(((($feature.ADV_Kamala_Harris + $feature.ADV_Donald_Trump + $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Early In-Person (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Election Day data
+							attributes["Harris"] = $feature.ELD_Kamala_Harris;
+							attributes["Trump"] = $feature.ELD_Donald_Trump;
+							attributes["Other"] = $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry;
+							var total = Round(((($feature.ELD_Kamala_Harris + $feature.ELD_Donald_Trump + $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Election Day (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				}
+			  ]
+			}
+		  });
+		  const bubbleCountyLayer = new FeatureLayer({
+              url: "https://services6.arcgis.com/eQZMuWckORNF5csU/arcgis/rest/services/NC_2024_General_Election_Counties_Joined_View/FeatureServer",
+			  refreshInterval: 0.16667,
+              title: "Net Vote Margin (County)",
+              outFields: ["*"],
+			  definitionExpression: "Visible = 'Y'",
+			  popupTemplate: {
+				title: "<b><div style='font-size:18px; max-width: 200px; text-align: center; word-wrap: break-word; white-space: normal; text-decoration-line: underline;'>{PREC_KEY}</div></b>",
+				expressionInfos: [
+				{
+				    name: "expr0",
+					expression: "Round((($feature['TOT_Kamala_Harris']/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr1",
+					expression: "Round((($feature['TOT_Donald_Trump']/$feature['TOT_US_Pres'])*100), 1)"
+			    },
+				{
+					name: "expr2",
+					expression: "Round(((($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry'])/$feature['TOT_US_Pres'])*100), 1)"
+				},
+				{
+					name: "expr3",
+					expression: "$feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']"
+			    },
+				{
+					name: "harris_background",
+					expression: "When($feature.TOT_Kamala_Harris >= $feature.TOT_Donald_Trump && $feature.TOT_Kamala_Harris >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#e0ecf8', 'transparent')"
+				},
+				{
+					name: "trump_background",
+					expression: "When($feature.TOT_Donald_Trump >= $feature.TOT_Kamala_Harris && $feature.TOT_Donald_Trump >= ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']), '#f8e0e0', 'transparent')"
+				},
+				{
+					name: "other_background",
+					expression: "When(($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Kamala_Harris && ($feature['TOT_Chase_Oliver']+$feature['TOT_Cornel_West']+$feature['TOT_Jill_Stein']+$feature['TOT_Randall_Terry']) >= $feature.TOT_Donald_Trump , '#e6e6e6', 'transparent')"
+				}],
+				content: [
+				{
+					type: "text",
+					text: "<p><span style='color:#ff4a43;background-color:{expression/trump_background};font-size:16px;font-weight:510;'>Donald Trump (R): {expression/expr1}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Donald_Trump} votes&nbsp;</span><br><span style='color:#1a6aff;background-color:{expression/harris_background};font-size:16px;font-weight:510'>Kamala Harris (D): {expression/expr0}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{TOT_Kamala_Harris} votes&nbsp;</span><br><span style='color:#5a5a5a;background-color:{expression/other_background};font-size:16px;font-weight:510'>Other: {expression/expr2}%</span><br><span style='font-size:medium;line-height:2em;font-weight:bold;'>{expression/expr3} votes</span><br><span style='line-height:2em;font-size:12px;'>Last Updated: {TIME_STAMP}</span><br><span style='line-height:2em;font-size:12px;'>Refresh in: </span><span style='font-size:12px;' class='refresh-countdown'></span></p>"
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Vote By Mail data
+							attributes["Harris"] = $feature.VBM_Kamala_Harris;
+							attributes["Trump"] = $feature.VBM_Donald_Trump;
+							attributes["Other"] = $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry;
+							var total = Round(((($feature.VBM_Kamala_Harris + $feature.VBM_Donald_Trump + $feature.VBM_Chase_Oliver + $feature.VBM_Cornel_West + 
+													$feature.VBM_Jill_Stein + $feature.VBM_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);				
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Vote By Mail (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									},
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+						
+							// Early Voting data
+							attributes["Harris"] = $feature.ADV_Kamala_Harris;
+							attributes["Trump"] = $feature.ADV_Donald_Trump;
+							attributes["Other"] = $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry;
+							var total = Round(((($feature.ADV_Kamala_Harris + $feature.ADV_Donald_Trump + $feature.ADV_Chase_Oliver + $feature.ADV_Cornel_West + 
+													$feature.ADV_Jill_Stein + $feature.ADV_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Early In-Person (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				},
+				{
+					type: "expression",
+					expressionInfo: {
+						name: "pieChartData",
+						expression: `
+							var attributes = {};
+							
+							// Election Day data
+							attributes["Harris"] = $feature.ELD_Kamala_Harris;
+							attributes["Trump"] = $feature.ELD_Donald_Trump;
+							attributes["Other"] = $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry;
+							var total = Round(((($feature.ELD_Kamala_Harris + $feature.ELD_Donald_Trump + $feature.ELD_Chase_Oliver + $feature.ELD_Cornel_West + 
+													$feature.ELD_Jill_Stein + $feature.ELD_Randall_Terry)/$feature.TOT_US_Pres)*100), 0);			
+							
+							return {
+								type: "media",
+								attributes: attributes,
+								title: "<b><div style='font-size: 14px; text-align: center;'>Election Day (" + total + "% of Total)</div></b>",
+								mediaInfos: [{
+									type: "piechart",
+									value: {
+										fields: ["Harris", "Trump", "Other"],
+										colors: [[26, 106, 255, 1], [255, 74, 67, 1], [113, 113, 113, 1]]
+									}
+								}]
+							};
+						`
+					}
+				}
+			  ]
+			}
+		  });	  
+		  
+		  const groupLayer = new GroupLayer({
+			title: "Layers",
+			visible: true,
+			visibilityMode: "exclusive",
+			layers: [swingVoteLayer, swingPCTLayer, bubbleCountyLayer, bubblePrecinctLayer, clayer, flayer],
+			listMode: "show"
+		  });
+		 
+		  map.add(groupLayer);
+		  
+		  view.ui.add(
+             [
+               new Expand({
+                 view: view,
+				 mode: "floating",
+                 expandTooltip: "Layers",
+                 content: new LayerList({ view: view, listItemCreatedFunction: defineActions }),
+                 group: "bottom-left",
+                 expanded: true
+               })
+             ],
+             "bottom-left"
+           );
+           function defineActions(event) {
+             const item = event.item;
+             if (item.layer.type === "group") {
+               item.open = true;
+             }
+           }
+		  
+		  const flayerRenderer = new ClassBreaksRenderer({
+			  valueExpression: `
+				  var dem_votes = $feature.TOT_Kamala_Harris;
+				  var gop_votes = $feature.TOT_Donald_Trump;
+			      var other_votes = ($feature.TOT_Chase_Oliver + $feature.TOT_Cornel_West + $feature.TOT_Jill_Stein + $feature.TOT_Randall_Terry);
+				  var total_votes = $feature.TOT_US_Pres;
+				  if (total_votes == 0) {
+					  return 100002;  // For no votes
+				  } else if (other_votes > dem_votes && other_votes > gop_votes) {
+					if (gop_votes > dem_votes || gop_votes < dem_votes || gop_votes == dem_votes) {
+					  return (other_votes / total_votes) * 100001; 
+				  }
+				  } else if (dem_votes == gop_votes && dem_votes > other_votes) {
+					  return -100002;  // For exact ties
+				  } else if (other_votes == gop_votes && other_votes > dem_votes) {
+					  return -100002;  // For exact ties
+				  } else if (dem_votes == other_votes && dem_votes > gop_votes) {
+					  return -100002;  // For exact ties
+				  } else if (dem_votes > gop_votes) {
+					  return (dem_votes / total_votes) * 100;  // Harris won
+				  } else {
+					  return -((gop_votes / total_votes) * 100);  // Trump won
+				  }
+				`,
+				classBreakInfos: [
+				  { minValue: 95000, maxValue: 100000, label: "≤100% Other", symbol: { type: "simple-fill", color: [50, 50, 50, 1], outline: null }},
+				  { minValue: 90000, maxValue: 95000, label: "≤95% Other", symbol: { type: "simple-fill", color: [65, 65, 65, 1], outline: null }},
+				  { minValue: 85000, maxValue: 90000, label: "≤90% Other", symbol: { type: "simple-fill", color: [81, 81, 81, 1], outline: null }},
+				  { minValue: 80000, maxValue: 85000, label: "≤85% Other", symbol: { type: "simple-fill", color: [97, 97, 97, 1], outline: null }},
+				  { minValue: 75000, maxValue: 80000, label: "≤80% Other", symbol: { type: "simple-fill", color: [113, 113, 113, 1], outline: null }},
+				  { minValue: 70000, maxValue: 75000, label: "≤75% Other", symbol: { type: "simple-fill", color: [129, 129, 129, 1], outline: null }},
+				  { minValue: 65000, maxValue: 70000, label: "≤70% Other", symbol: { type: "simple-fill", color: [144, 144, 144, 1], outline: null }},
+				  { minValue: 60000, maxValue: 65000, label: "≤65% Other", symbol: { type: "simple-fill", color: [160, 160, 160, 1], outline: null }},
+				  { minValue: 55000, maxValue: 60000, label: "≤60% Other", symbol: { type: "simple-fill", color: [176, 176, 176, 1], outline: null }},
+				  { minValue: 50000, maxValue: 55000, label: "≤55% Other", symbol: { type: "simple-fill", color: [192, 192, 192, 1], outline: null }},
+				  { minValue: 100, maxValue: 50000, label: "≤50% Other", symbol: { type: "simple-fill", color: [208, 208, 208, 1], outline: null }},
+				  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 1], outline: null }},
+				  { minValue: -100, maxValue: -95, label: "≤100% Trump (R)", symbol: { type: "simple-fill", color: [213, 25, 25, 1], outline: null }},
+				  { minValue: -95, maxValue: -90, label: "≤95% Trump (R)", symbol: { type: "simple-fill", color: [229, 33, 33, 1], outline: null }},
+				  { minValue: -90, maxValue: -85, label: "≤90% Trump (R)", symbol: { type: "simple-fill", color: [232, 55, 55, 1], outline: null }},
+				  { minValue: -85, maxValue: -80, label: "≤85% Trump (R)", symbol: { type: "simple-fill", color: [235, 77, 77, 1], outline: null }},
+				  { minValue: -80, maxValue: -75, label: "≤80% Trump (R)", symbol: { type: "simple-fill", color: [237, 100, 100, 1], outline: null }},
+				  { minValue: -75, maxValue: -70, label: "≤75% Trump (R)", symbol: { type: "simple-fill", color: [240, 122, 122, 1], outline: null }},
+				  { minValue: -70, maxValue: -65, label: "≤70% Trump (R)", symbol: { type: "simple-fill", color: [242, 144, 144, 1], outline: null }},
+				  { minValue: -65, maxValue: -60, label: "≤65% Trump (R)", symbol: { type: "simple-fill", color: [245, 166, 166, 1], outline: null }},
+				  { minValue: -60, maxValue: -55, label: "≤60% Trump (R)", symbol: { type: "simple-fill", color: [247, 188, 188, 1], outline: null }},
+				  { minValue: -55, maxValue: -50, label: "≤55% Trump (R)", symbol: { type: "simple-fill", color: [250, 211, 211, 1], outline: null }},
+				  { minValue: -50, maxValue: 0, label: "≤50% Trump (R)", symbol: { type: "simple-fill", color: [252, 233, 233, 1], outline: null }},
+				  { minValue: -100002, maxValue: -100002, label: "Tie", symbol: { type: "simple-fill", color: [255, 255, 255, 1], outline: null }},
+				  { minValue: 0, maxValue: 50, label: "≤50% Harris (D)", symbol: { type: "simple-fill", color: [222, 238, 250, 1], outline: null }},
+				  { minValue: 50, maxValue: 55, label: "≤55% Harris (D)", symbol: { type: "simple-fill", color: [190, 220, 245, 1], outline: null }},
+				  { minValue: 55, maxValue: 60, label: "≤60% Harris (D)", symbol: { type: "simple-fill", color: [157, 203, 241, 1], outline: null }},
+				  { minValue: 60, maxValue: 65, label: "≤65% Harris (D)", symbol: { type: "simple-fill", color: [125, 185, 236, 1], outline: null }},
+				  { minValue: 65, maxValue: 70, label: "≤70% Harris (D)", symbol: { type: "simple-fill", color: [92, 168, 231, 1], outline: null }},
+				  { minValue: 70, maxValue: 75, label: "≤75% Harris (D)", symbol: { type: "simple-fill", color: [60, 150, 226, 1], outline: null }},
+				  { minValue: 75, maxValue: 80, label: "≤80% Harris (D)", symbol: { type: "simple-fill", color: [32, 132, 217, 1], outline: null }},
+				  { minValue: 80, maxValue: 85, label: "≤85% Harris (D)", symbol: { type: "simple-fill", color: [27, 112, 184, 1], outline: null }},
+				  { minValue: 85, maxValue: 90, label: "≤90% Harris (D)", symbol: { type: "simple-fill", color: [22, 93, 152, 1], outline: null }},
+				  { minValue: 90, maxValue: 95, label: "≤95% Harris (D)", symbol: { type: "simple-fill", color: [18, 73, 119, 1], outline: null }},
+				  { minValue: 95, maxValue: 100, label: "≤100% Harris (D)", symbol: { type: "simple-fill", color: [13, 53, 87, 1], outline: null }},
+				]
+			});
+			const voteMarginSymbol = new SimpleMarkerSymbol({
+			  outline: {
+				color: "rgba(0, 0, 0, 0.5)",
+				width: 0.5
+				}
+			});
+			const precinctBubbleRenderer = new SimpleRenderer({
+			  symbol: voteMarginSymbol,
+			  visualVariables: [
+				{
+				  type: "size",
+				  valueExpression: "$feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump",
+				  stops: [
+					{ value: 1, size: 1 },
+					{ value: 400, size: 10 },
+					{ value: 7000, size: 20 },
+					{ value: -1, size: 1 },
+					{ value: -400, size: 10 },
+					{ value: -7000, size: 20 },
+				  ],
+				  legendOptions: {
+					title: "Number of Harris (D) Votes minus Number of Trump (R) Votes"
+				  }
+				},
+				{
+				  type: "color",
+				  valueExpression: "$feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump",
+				  legendOptions: {
+					showLegend: false
+				  },
+				  stops: [
+					{ value: -1, color: [204, 10, 18, 0.35] },
+					{ value: 1, color: [37, 66, 143, 0.35] }
+				  ]
+				}
+			  ]
+			});
+			
+			const swingPCTRenderer = new ClassBreaksRenderer({
+				valueExpression: `
+				    var total2024 = $feature.TOT_US_Pres;
+					var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+					var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
+					var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
+					var difference = Round(shift2024 - shift2020, 1);
+			    if (total2020 == 0 && total2024 == 0) {
+					return 100002;  // For no votes
+				} else if (difference == 0) {
+					return -100002;  // For no difference
+				} else {
+					return difference;
+				}
+				`,
+				classBreakInfos: [
+					{ minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 1], outline: null }},
+					{ minValue: -200, maxValue: -50, label: "Over 50% More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 1], outline: null }},
+					{ minValue: -50, maxValue: -45, label: "≤50% More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 1], outline: null }},
+					{ minValue: -45, maxValue: -40, label: "≤45% More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 1], outline: null }},
+					{ minValue: -40, maxValue: -35, label: "≤40% More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 1], outline: null }},
+					{ minValue: -35, maxValue: -30, label: "≤35% More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 1], outline: null }},
+					{ minValue: -30, maxValue: -25, label: "≤30% More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 1], outline: null }},
+					{ minValue: -25, maxValue: -20, label: "≤25% More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 1], outline: null }},
+					{ minValue: -20, maxValue: -15, label: "≤20% More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 1], outline: null }},
+					{ minValue: -15, maxValue: -10, label: "≤15% More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 1], outline: null }},
+					{ minValue: -10, maxValue: -5, label: "≤10% More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 1], outline: null }},
+					{ minValue: -5, maxValue: 0, label: "≤5% More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 1], outline: null }},
+					{ minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 1], outline: null }},
+					{ minValue: 0, maxValue: 5, label: "≤5% More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 1], outline: null }},
+					{ minValue: 5, maxValue: 10, label: "≤10% More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 1], outline: null }},
+					{ minValue: 10, maxValue: 15, label: "≤15% More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 1], outline: null }},
+					{ minValue: 15, maxValue: 20, label: "≤20% More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 1], outline: null }},
+					{ minValue: 20, maxValue: 25, label: "≤25% More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 1], outline: null }},
+					{ minValue: 25, maxValue: 30, label: "≤30% More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 1], outline: null }},
+					{ minValue: 30, maxValue: 35, label: "≤35% More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 1], outline: null }},
+					{ minValue: 35, maxValue: 40, label: "≤40% More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 1], outline: null }},
+					{ minValue: 40, maxValue: 45, label: "≤45% More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 1], outline: null }},
+					{ minValue: 45, maxValue: 50, label: "≤50% More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 1], outline: null }},
+					{ minValue: 50, maxValue: 200, label: "Over 50% More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 1], outline: null }},
+				]
+			});
+			
+			const swingVoteRenderer = new ClassBreaksRenderer({
+                    valueExpression: `
+                      var total2024 = $feature.TOT_US_Pres;
+					  var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
+                      var difference = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+                    if (total2020 == 0 && total2024 == 0) {
+                        return 100002;  // For no votes
+                    } else if (difference == 0) {
+                        return -100002;  // For no difference
+                    } else {
+                        return difference;
+                    }
+                    `,
+                    classBreakInfos: [
+                        { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 1], outline: null }},
+                        { minValue: -3300, maxValue: -500, label: "Over 500 Votes More Republican", symbol: { type: "simple-fill", color: [213, 25, 25, 1], outline: null }},
+                        { minValue: -500, maxValue: -450, label: "≤500 Votes More Republican", symbol: { type: "simple-fill", color: [229, 33, 33, 1], outline: null }},
+                        { minValue: -450, maxValue: -400, label: "≤450 Votes More Republican", symbol: { type: "simple-fill", color: [232, 55, 55, 1], outline: null }},
+                        { minValue: -400, maxValue: -350, label: "≤400 Votes More Republican", symbol: { type: "simple-fill", color: [235, 77, 77, 1], outline: null }},
+                        { minValue: -350, maxValue: -300, label: "≤350 Votes More Republican", symbol: { type: "simple-fill", color: [237, 100, 100, 1], outline: null }},
+                        { minValue: -300, maxValue: -250, label: "≤300 Votes More Republican", symbol: { type: "simple-fill", color: [240, 122, 122, 1], outline: null }},
+                        { minValue: -250, maxValue: -200, label: "≤250 Votes More Republican", symbol: { type: "simple-fill", color: [242, 144, 144, 1], outline: null }},
+                        { minValue: -200, maxValue: -150, label: "≤200 Votes More Republican", symbol: { type: "simple-fill", color: [245, 166, 166, 1], outline: null }},
+                        { minValue: -150, maxValue: -100, label: "≤150 Votes More Republican", symbol: { type: "simple-fill", color: [247, 188, 188, 1], outline: null }},
+                        { minValue: -100, maxValue: -50, label: "≤100 Votes More Republican", symbol: { type: "simple-fill", color: [250, 211, 211, 1], outline: null }},
+                        { minValue: -50, maxValue: 0, label: "≤50 Votes More Republican", symbol: { type: "simple-fill", color: [252, 233, 233, 1], outline: null }},
+                        { minValue: -100002, maxValue: -100002, label: "No Change", symbol: { type: "simple-fill", color: [255, 255, 255, 1], outline: null }},
+                        { minValue: 0, maxValue: 50, label: "≤50 Votes More Democratic", symbol: { type: "simple-fill", color: [222, 238, 250, 1], outline: null }},
+                        { minValue: 50, maxValue: 100, label: "≤100 Votes More Democratic", symbol: { type: "simple-fill", color: [190, 220, 245, 1], outline: null }},
+                        { minValue: 100, maxValue: 150, label: "≤150 Votes More Democratic", symbol: { type: "simple-fill", color: [157, 203, 241, 1], outline: null }},
+                        { minValue: 150, maxValue: 200, label: "≤200 Votes More Democratic", symbol: { type: "simple-fill", color: [125, 185, 236, 1], outline: null }},
+                        { minValue: 200, maxValue: 250, label: "≤250 Votes More Democratic", symbol: { type: "simple-fill", color: [92, 168, 231, 1], outline: null }},
+                        { minValue: 250, maxValue: 300, label: "≤300 Votes More Democratic", symbol: { type: "simple-fill", color: [60, 150, 226, 1], outline: null }},
+                        { minValue: 300, maxValue: 350, label: "≤350 Votes More Democratic", symbol: { type: "simple-fill", color: [32, 132, 217, 1], outline: null }},
+                        { minValue: 350, maxValue: 400, label: "≤400 Votes More Democratic", symbol: { type: "simple-fill", color: [27, 112, 184, 1], outline: null }},
+                        { minValue: 400, maxValue: 450, label: "≤450 Votes More Democratic", symbol: { type: "simple-fill", color: [22, 93, 152, 1], outline: null }},
+                        { minValue: 450, maxValue: 500, label: "≤500 Votes More Democratic", symbol: { type: "simple-fill", color: [18, 73, 119, 1], outline: null }},
+                        { minValue: 500, maxValue: 3300, label: "Over 500 Votes More Democratic", symbol: { type: "simple-fill", color: [13, 53, 87, 1], outline: null }},
+                    ]
+                });
+				
+				const clayerRenderer = new ClassBreaksRenderer({
+				  valueExpression: `
+					  var dem_votes = $feature.TOT_Kamala_Harris;
+					  var gop_votes = $feature.TOT_Donald_Trump;
+					  var other_votes = ($feature.TOT_Chase_Oliver + $feature.TOT_Cornel_West + $feature.TOT_Jill_Stein + $feature.TOT_Randall_Terry);
+					  var total_votes = $feature.TOT_US_Pres;
+					  if (total_votes == 0) {
+						  return 100002;  // For no votes
+					  } else if (other_votes > dem_votes && other_votes > gop_votes) {
+						if (gop_votes > dem_votes || gop_votes < dem_votes || gop_votes == dem_votes) {
+						  return (other_votes / total_votes) * 100001; 
+					  }
+					  } else if (dem_votes == gop_votes && dem_votes > other_votes) {
+						  return -100002;  // For exact ties
+					  } else if (other_votes == gop_votes && other_votes > dem_votes) {
+						  return -100002;  // For exact ties
+					  } else if (dem_votes == other_votes && dem_votes > gop_votes) {
+						  return -100002;  // For exact ties
+					  } else if (dem_votes > gop_votes) {
+						  return (dem_votes / total_votes) * 100;  // Harris won
+					  } else {
+						  return -((gop_votes / total_votes) * 100);  // Trump won
+					  }
+					`,
+					classBreakInfos: [
+					  { minValue: 95000, maxValue: 100000, label: "≤100% Other", symbol: { type: "simple-fill", color: [50, 50, 50, 1], outline: null }},
+					  { minValue: 90000, maxValue: 95000, label: "≤95% Other", symbol: { type: "simple-fill", color: [65, 65, 65, 1], outline: null }},
+					  { minValue: 85000, maxValue: 90000, label: "≤90% Other", symbol: { type: "simple-fill", color: [81, 81, 81, 1], outline: null }},
+					  { minValue: 80000, maxValue: 85000, label: "≤85% Other", symbol: { type: "simple-fill", color: [97, 97, 97, 1], outline: null }},
+					  { minValue: 75000, maxValue: 80000, label: "≤80% Other", symbol: { type: "simple-fill", color: [113, 113, 113, 1], outline: null }},
+					  { minValue: 70000, maxValue: 75000, label: "≤75% Other", symbol: { type: "simple-fill", color: [129, 129, 129, 1], outline: null }},
+					  { minValue: 65000, maxValue: 70000, label: "≤70% Other", symbol: { type: "simple-fill", color: [144, 144, 144, 1], outline: null }},
+					  { minValue: 60000, maxValue: 65000, label: "≤65% Other", symbol: { type: "simple-fill", color: [160, 160, 160, 1], outline: null }},
+					  { minValue: 55000, maxValue: 60000, label: "≤60% Other", symbol: { type: "simple-fill", color: [176, 176, 176, 1], outline: null }},
+					  { minValue: 50000, maxValue: 55000, label: "≤55% Other", symbol: { type: "simple-fill", color: [192, 192, 192, 1], outline: null }},
+					  { minValue: 100, maxValue: 50000, label: "≤50% Other", symbol: { type: "simple-fill", color: [208, 208, 208, 1], outline: null }},
+					  { minValue: 100002, maxValue: 100002, label: "No Votes", symbol: { type: "simple-fill", color: [215, 219, 221, 1], outline: null }},
+					  { minValue: -100, maxValue: -95, label: "≤100% Trump (R)", symbol: { type: "simple-fill", color: [213, 25, 25, 1], outline: null }},
+					  { minValue: -95, maxValue: -90, label: "≤95% Trump (R)", symbol: { type: "simple-fill", color: [229, 33, 33, 1], outline: null }},
+					  { minValue: -90, maxValue: -85, label: "≤90% Trump (R)", symbol: { type: "simple-fill", color: [232, 55, 55, 1], outline: null }},
+					  { minValue: -85, maxValue: -80, label: "≤85% Trump (R)", symbol: { type: "simple-fill", color: [235, 77, 77, 1], outline: null }},
+					  { minValue: -80, maxValue: -75, label: "≤80% Trump (R)", symbol: { type: "simple-fill", color: [237, 100, 100, 1], outline: null }},
+					  { minValue: -75, maxValue: -70, label: "≤75% Trump (R)", symbol: { type: "simple-fill", color: [240, 122, 122, 1], outline: null }},
+					  { minValue: -70, maxValue: -65, label: "≤70% Trump (R)", symbol: { type: "simple-fill", color: [242, 144, 144, 1], outline: null }},
+					  { minValue: -65, maxValue: -60, label: "≤65% Trump (R)", symbol: { type: "simple-fill", color: [245, 166, 166, 1], outline: null }},
+					  { minValue: -60, maxValue: -55, label: "≤60% Trump (R)", symbol: { type: "simple-fill", color: [247, 188, 188, 1], outline: null }},
+					  { minValue: -55, maxValue: -50, label: "≤55% Trump (R)", symbol: { type: "simple-fill", color: [250, 211, 211, 1], outline: null }},
+					  { minValue: -50, maxValue: 0, label: "≤50% Trump (R)", symbol: { type: "simple-fill", color: [252, 233, 233, 1], outline: null }},
+					  { minValue: -100002, maxValue: -100002, label: "Tie", symbol: { type: "simple-fill", color: [255, 255, 255, 1], outline: null }},
+					  { minValue: 0, maxValue: 50, label: "≤50% Harris (D)", symbol: { type: "simple-fill", color: [222, 238, 250, 1], outline: null }},
+					  { minValue: 50, maxValue: 55, label: "≤55% Harris (D)", symbol: { type: "simple-fill", color: [190, 220, 245, 1], outline: null }},
+					  { minValue: 55, maxValue: 60, label: "≤60% Harris (D)", symbol: { type: "simple-fill", color: [157, 203, 241, 1], outline: null }},
+					  { minValue: 60, maxValue: 65, label: "≤65% Harris (D)", symbol: { type: "simple-fill", color: [125, 185, 236, 1], outline: null }},
+					  { minValue: 65, maxValue: 70, label: "≤70% Harris (D)", symbol: { type: "simple-fill", color: [92, 168, 231, 1], outline: null }},
+					  { minValue: 70, maxValue: 75, label: "≤75% Harris (D)", symbol: { type: "simple-fill", color: [60, 150, 226, 1], outline: null }},
+					  { minValue: 75, maxValue: 80, label: "≤80% Harris (D)", symbol: { type: "simple-fill", color: [32, 132, 217, 1], outline: null }},
+					  { minValue: 80, maxValue: 85, label: "≤85% Harris (D)", symbol: { type: "simple-fill", color: [27, 112, 184, 1], outline: null }},
+					  { minValue: 85, maxValue: 90, label: "≤90% Harris (D)", symbol: { type: "simple-fill", color: [22, 93, 152, 1], outline: null }},
+					  { minValue: 90, maxValue: 95, label: "≤95% Harris (D)", symbol: { type: "simple-fill", color: [18, 73, 119, 1], outline: null }},
+					  { minValue: 95, maxValue: 100, label: "≤100% Harris (D)", symbol: { type: "simple-fill", color: [13, 53, 87, 1], outline: null }},
+					]
+				});
+				const voteCountMarginSymbol = new SimpleMarkerSymbol({
+				  outline: {
+					color: "rgba(0, 0, 0, 0.5)",
+					width: 0.5
+					}
+				});
+				const countyBubbleRenderer = new SimpleRenderer({
+				  symbol: voteCountMarginSymbol,
+				  visualVariables: [
+					{
+					  type: "size",
+					  valueExpression: "$feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump",
+					  stops: [
+						{ value: 1, size: 1 },
+						{ value: 400, size: 10 },
+						{ value: 7000, size: 20 },
+						{ value: -1, size: 1 },
+						{ value: -400, size: 10 },
+						{ value: -7000, size: 20 },
+					  ],
+					  legendOptions: {
+						title: "Number of Harris (D) Votes minus Number of Trump (R) Votes"
+					  }
+					},
+					{
+					  type: "color",
+					  valueExpression: "$feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump",
+					  legendOptions: {
+						showLegend: false
+					  },
+					  stops: [
+						{ value: -1, color: [204, 10, 18, 0.35] },
+						{ value: 1, color: [37, 66, 143, 0.35] }
+					  ]
+					}
+				  ]
+				});
+				
+		  flayer.renderer = flayerRenderer;
+		  bubblePrecinctLayer.renderer = precinctBubbleRenderer;
+		  swingPCTLayer.renderer = swingPCTRenderer;
+		  swingVoteLayer.renderer = swingVoteRenderer;
+		  clayer.renderer = clayerRenderer;
+		  bubbleCountyLayer.renderer = countyBubbleRenderer;
+		 
+		  const featureWidget = new Feature({
+			container: "feature-widget",
+            map: view.map,
+            spatialReference: view.spatialReference
+          });
+		  
+		  view.when(() => {
+			let highlight;
+			let objectId;
+			let currentFeature = null;
+			let currentLayer = null;
+			let countdownInterval;
+			let lastPopupRefreshTime;
+
+			const updateCountdownText = () => {
+				const countdownElement = document.querySelector('.refresh-countdown');
+				if (countdownElement) {
+					const elapsedTime = Date.now() - lastPopupRefreshTime;
+					const nextRefresh = Math.ceil((10000 - elapsedTime) / 1000);
+					if (nextRefresh > 0) {
+						countdownElement.textContent = `${nextRefresh}`;
+					}
+				}
+			};
+
+			// Debounce function for handling mouse movement efficiently
+			const debouncedUpdate = promiseUtils.debounce(async (event) => {
+				// Find the currently visible layer in the group
+				const visibleLayer = groupLayer.layers.find((layer) => layer.visible);
+				if (!visibleLayer) {
+					// No layer is visible, remove highlight and close popup
+					if (highlight) {
+						highlight.remove();
+						highlight = null;
+					}
+					objectId = null;
+					featureWidget.graphic = null;
+					view.ui.remove(featureWidget);
+					currentFeature = null;
+					currentLayer = null;
+					if (countdownInterval) {
+						clearInterval(countdownInterval);
+						countdownInterval = null;
+					}
+					return;
+				}
+
+				// Perform a hitTest on the View with the currently visible layer
+				const hitTest = await view.hitTest(event, { include: visibleLayer });
+				// Filter results to include only features with a popupTemplate
+				const results = hitTest.results.filter((result) => {
+					return result.graphic.layer.popupTemplate;
+				});
+
+				if (results.length > 0) {
+					const result = results[0];
+					const newObjectId = result.graphic.attributes[visibleLayer.objectIdField];
+					// Only update if the hovered feature has changed
+					if (objectId !== newObjectId) {
+						objectId = newObjectId;
+						currentFeature = result.graphic;
+						currentLayer = visibleLayer;
+
+						if (highlight) {
+							highlight.remove();
+						}
+						
+						const layerView = await view.whenLayerView(visibleLayer);
+						highlight = layerView.highlight(result.graphic);
+
+						// Show the popup at the location of the mouse pointer
+						featureWidget.graphic = result.graphic;
+						view.ui.add(featureWidget, "top-right");
+
+						// Initialize countdown when popup first appears
+						if (!countdownInterval) {
+							lastPopupRefreshTime = Date.now();
+							countdownInterval = setInterval(updateCountdownText, 1000);
+							updateCountdownText();
+						}
+					}
+				} else {
+					// Remove highlight and close popup if no features are found
+					if (highlight) {
+						highlight.remove();
+						highlight = null;
+					}
+					objectId = null;
+					featureWidget.graphic = null;
+					view.ui.remove(featureWidget);
+					currentFeature = null;
+					currentLayer = null;
+					if (countdownInterval) {
+						clearInterval(countdownInterval);
+						countdownInterval = null;
+					}
+				}
+			});
+
+			view.on("pointer-move", (event) => {
+				debouncedUpdate(event).catch((err) => {
+					if (!promiseUtils.isAbortError(err)) {
+						throw err;
+					}
+				});
+			});
+
+			// Layer refresh handlers
+			[flayer, bubblePrecinctLayer, swingPCTLayer, swingVoteLayer, clayer, bubbleCountyLayer].forEach(layer => {
+				layer.on("refresh", async () => {
+					if (currentFeature && currentLayer === layer) {
+						// Query for updated feature
+						const query = layer.createQuery();
+						query.objectIds = [currentFeature.attributes[layer.objectIdField]];
+						query.returnGeometry = true;
+						query.outFields = ["*"];
+						try {
+							const results = await layer.queryFeatures(query);
+							if (results.features.length > 0) {
+								// Update the feature widget with new data
+								featureWidget.graphic = results.features[0];
+								// Update countdown reference time when popup content refreshes
+								lastPopupRefreshTime = Date.now();
+							}
+						} catch (error) {
+							console.error("Error updating feature:", error);
+						}
+					}
+				});
+			});
+
+			// Clear countdown when mouse leaves view
+			view.container.addEventListener("mouseleave", () => {
+				if (countdownInterval) {
+					clearInterval(countdownInterval);
+					countdownInterval = null;
+				}
+			});
+		});
+		
+		  function createDarkModeToggle() {
+              function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                const button = document.querySelector('.dark-mode-button');
+                if (document.body.classList.contains('dark-mode')) {
+                  button.setAttribute("icon-start", "brightness");
+                  button.setAttribute("title", "Light Mode");
+                } else {
+                  button.setAttribute("icon-start", "moon");
+                  button.setAttribute("title", "Dark Mode");
+                }
+              }
+              const darkModeAction = new ActionButton({
+                id: "dark-mode-toggle"
+              });
+              darkModeAction.visible = true;
+              darkModeAction.execute = toggleDarkMode;
+              // Create a button element to trigger the action
+              const actionButton = document.createElement("calcite-button");
+              actionButton.iconStart = "moon";
+              actionButton.scale = "m";
+              actionButton.label = "Dark/Light Mode Toggle";
+              actionButton.title = "Dark Mode";
+              actionButton.appearance = "solid";
+              actionButton.kind = "brand";
+              actionButton.classList.add("dark-mode-button");
+              actionButton.addEventListener("click", function() {
+                darkModeAction.execute();
+              });
+              view.when(() => {
+			  view.ui.add(
+                [
+                  actionButton,
+                  new Expand({
+                    view: view,
+					mode: "floating",
+					expandTooltip: "Legend",
+                    content: new Legend({ view: view }),
+                    group: "top-left",
+                    expanded: false
+                  })
+                ],
+                "top-left"
+                );
+              });
+            }
+            // Call the function to create and add the dark mode toggle
+            view.when(createDarkModeToggle);
+	});	  
+  </script>
+</head>
+<body>
+  <div id="feature-widget" class="esri-widget"></div>
+  <div id="viewDiv"></div>
+</body>
+</html>
