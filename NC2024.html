@@ -698,6 +698,15 @@
 					  `
 					},
 					{
+					  name: "totdiff_background",
+					  expression: `
+						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
+						return When(totalDiff > 0, '#e0ecf8',
+									totalDiff < 0, '#f8e0e0',
+									'#e6e6e6');
+					  `
+					},
+					{
 					  name: "shift_color",
 					  expression: `
        						var total2024 = $feature.TOT_US_Pres;
@@ -790,10 +799,11 @@
 						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Shift: " +
 						  "        <span style='color: {expression/shift_color}; font-weight: bold;'>" +
 						  "            {expression/shift_formatted}% {expression/shift_direction}" +
-						  "                    <span style='color: black; font-weight: bold;'>(<span style='color: {expression/totdiff_color}; font-weight: bold;'>{expression/total_diff_formatted} {expression/total_diff_direction} votes<span style='color: black; font-weight: bold;'>)" +
-						  "                </span>" +
-						  "            </span>" +
-						  "        </span>" +
+						  "	   </span>" +
+						  "    </span>" +
+						  "</div>" +
+						  "<div style='background-color: {expression/totdiff_background}; padding: 1px; text-align: center;'>" +
+						  "    <span style='color: black; font-weight: bold;'>(<span style='color: {expression/totdiff_color}; font-weight: bold;'>{expression/total_diff_formatted} {expression/total_diff_direction} votes<span style='color: black; font-weight: bold;'>)" +
 						  "    </span>" +
 						  "</div>"
 				  }]
