@@ -501,15 +501,6 @@
 					  `
 					},
 					{
-					  name: "totdiff_color",
-					  expression: `
-       						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
-						return When(totalDiff > 0, '#1a6aff',
-									totalDiff < 0, '#ff4a43',
-									'#5a5a5a');
-					  `
-					},
-					{
 					  name: "shift_direction",
 					  expression: `
 						var total2024 = $feature.TOT_US_Pres;
@@ -520,28 +511,6 @@
 						return When(shiftValue > 0, 'More Democratic',
 									shiftValue < 0, 'More Republican',
 									'No % Change');
-					  `
-					},
-					{
-					  name: "total_diff",
-					  expression: `
-						return ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
-					  `
-					},
-					{
-					  name: "total_diff_formatted",
-					  expression: `
-						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
-						return Text(Abs(totalDiff), '#,###');
-					  `
-					},
-					{
-					  name: "total_diff_direction",
-					  expression: `
-						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
-						return When(totalDiff > 0, 'Net Democratic',
-									totalDiff < 0, 'Net Republican',
-									'No Change');
 					  `
 					}
 				  ],
@@ -576,16 +545,13 @@
 						  "        </tr>" +
 						  "    </tbody>" +
 						  "</table><br>" +
-						  "<div style='background-color: {expression/shift_background}; padding: 1px; text-align: center;'>" +
-						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Shift: " +
+						 "<div style='background-color: {expression/shift_background}; padding: 1px; text-align: center;'>" +
+						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Percent Shift: " +
 						  "        <span style='color: {expression/shift_color}; font-weight: bold;'>" +
 						  "            {expression/shift_formatted}% {expression/shift_direction}" +
-						  "                    <span style='color: black; font-weight: bold;'>(<span style='color: {expression/totdiff_color}; font-weight: bold;'>{expression/total_diff_formatted} {expression/total_diff_direction} votes<span style='color: black; font-weight: bold;'>)" +
-						  "                </span>" +
-						  "            </span>" +
-						  "        </span>" +
+						  "	   </span>" +
 						  "    </span>" +
-						  "</div>"
+						  "</div>" +
 				  }]
 				}
 		  });
@@ -663,41 +629,6 @@
 					  `
 					},
 					{
-					  name: "shift_value",
-					  expression: `
-						var total2024 = $feature.TOT_US_Pres;
-						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
-						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
-						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
-						return Round(shift2024 - shift2020, 1);
-					  `
-					},
-					{
-					  name: "shift_formatted",
-					  expression: `
-						var total2024 = $feature.TOT_US_Pres;
-						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
-						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
-						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
-						var shiftValue = Round(shift2024 - shift2020, 1);
-						var absValue = Abs(shiftValue);
-						return IIF(Floor(absValue) == absValue, Text(absValue, '#'), Text(absValue, '#.0'));
-					  `
-					},
-					{
-					  name: "shift_background",
-					  expression: `
-						var total2024 = $feature.TOT_US_Pres;
-						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
-						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
-						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
-						var shiftValue = Round(shift2024 - shift2020, 1);
-						return When(shiftValue > 0, '#e0ecf8',
-									shiftValue < 0, '#f8e0e0',
-									'#e6e6e6');
-					  `
-					},
-					{
 					  name: "totdiff_background",
 					  expression: `
 						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
@@ -707,38 +638,12 @@
 					  `
 					},
 					{
-					  name: "shift_color",
-					  expression: `
-       						var total2024 = $feature.TOT_US_Pres;
-						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
-						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
-						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
-						var shiftValue = Round(shift2024 - shift2020, 1);
-						return When(shiftValue > 0, '#1a6aff',
-									shiftValue < 0, '#ff4a43',
-									'#5a5a5a');
-					  `
-					},
-					{
 					  name: "totdiff_color",
 					  expression: `
        						var totalDiff = ($feature.TOT_Kamala_Harris - $feature.TOT_Donald_Trump) - ($feature.G20PreD - $feature.G20PreR);
 						return When(totalDiff > 0, '#1a6aff',
 									totalDiff < 0, '#ff4a43',
 									'#5a5a5a');
-					  `
-					},
-					{
-					  name: "shift_direction",
-					  expression: `
-						var total2024 = $feature.TOT_US_Pres;
-						var total2020 = $feature.G20PreD + $feature.G20PreR + $feature.G20PreO;
-						var shift2024 = (($feature.TOT_Kamala_Harris/total2024) * 100) - (($feature.TOT_Donald_Trump/total2024) * 100);
-						var shift2020 = (($feature.G20PreD/total2020) * 100) - (($feature.G20PreR/total2020) * 100);
-						var shiftValue = Round(shift2024 - shift2020, 1);
-						return When(shiftValue > 0, 'More Democratic',
-									shiftValue < 0, 'More Republican',
-									'No % Change');
 					  `
 					},
 					{
@@ -795,13 +700,6 @@
 						  "        </tr>" +
 						  "    </tbody>" +
 						  "</table><br>" +
-						  "<div style='background-color: {expression/shift_background}; padding: 1px; text-align: center;'>" +
-						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Percent Shift: " +
-						  "        <span style='color: {expression/shift_color}; font-weight: bold;'>" +
-						  "            {expression/shift_formatted}% {expression/shift_direction}" +
-						  "	   </span>" +
-						  "    </span>" +
-						  "</div>" +
 						  "<div style='background-color: {expression/totdiff_background}; padding: 1px; text-align: center;'>" +
 						  "    <span style='font-size:15px; color: black; font-weight: bold;'>Vote Shift: " +
 						  "        <span style='color: black; font-weight: bold;'><span style='color: {expression/totdiff_color}; font-weight: bold;'>{expression/total_diff_formatted} {expression/total_diff_direction} votes<span style='color: black; font-weight: bold;'>" +
