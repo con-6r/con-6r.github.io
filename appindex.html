@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
-    <title>ArcGIS Maps SDK for JavaScript CDN template</title>
+    <title>EPA Region 6 Demographic Explorer</title>
     <link rel="icon" href="data:;base64,=" />
     <style>
       html,
@@ -11,11 +11,6 @@
         background-color: var(--calcite-ui-foreground-2);
         height: 100%;
         margin: 0;
-      }
-
-      arcgis-chart {
-        width: 350px;
-        height: 250px;
       }
     </style>
     <!-- Load the ArcGIS Maps SDK for JavaScript from the CDN -->
@@ -57,12 +52,7 @@
         <arcgis-expand slot="bottom-left">
           <arcgis-legend></arcgis-legend>
         </arcgis-expand>
-        <!-- A Feature Layer in the Web Map has an associated chart (layer-item-id) -->
-        <arcgis-chart
-          layer-item-id="b1717962dab247ad93eaca257b32fe02"
-          chart-index="1"
-          slot="bottom-right"
-        ></arcgis-chart>
+        
       </arcgis-map>
     </calcite-shell>
   </body>
