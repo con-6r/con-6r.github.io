@@ -59,51 +59,51 @@
 
   <script type="module">
     // Import modules from the SDK's core API
-    <!-- const Graphic = await $arcgis.import("@arcgis/core/Graphic.js"); -->
-    <!-- const Point = await $arcgis.import("@arcgis/core/geometry/Point.js"); -->
-    <!-- const SimpleMarkerSymbol = await $arcgis.import("@arcgis/core/symbols/SimpleMarkerSymbol.js"); -->
-    <!-- const SimpleLineSymbol = await $arcgis.import("@arcgis/core/symbols/SimpleLineSymbol.js"); -->
+    const Graphic = await $arcgis.import("@arcgis/core/Graphic.js");
+    const Point = await $arcgis.import("@arcgis/core/geometry/Point.js");
+    const SimpleMarkerSymbol = await $arcgis.import("@arcgis/core/symbols/SimpleMarkerSymbol.js");
+    const SimpleLineSymbol = await $arcgis.import("@arcgis/core/symbols/SimpleLineSymbol.js");
 
-    <!-- const viewElement = document.querySelector("arcgis-map"); -->
-    <!-- const calciteNavLogo = document.querySelector("calcite-navigation-logo"); -->
+    const viewElement = document.querySelector("arcgis-map");
+    const calciteNavLogo = document.querySelector("calcite-navigation-logo");
 
-    <!-- viewElement.addEventListener("arcgisViewReadyChange", () => { -->
-      <!-- // Use metadata from the Web Map to populate the header -->
-      <!-- const { title, description } = viewElement.map.portalItem; -->
+    viewElement.addEventListener("arcgisViewReadyChange", () => {
+      // Use metadata from the Web Map to populate the header
+      const { title, description } = viewElement.map.portalItem;
 
-      <!-- if (calciteNavLogo) { -->
-        <!-- calciteNavLogo.heading = title === "" ? "A web map" : title; -->
-        <!-- calciteNavLogo.description = description === "" ? "ArcGIS Maps SDK for JavaScript template" : description; -->
-      <!-- } -->
+      if (calciteNavLogo) {
+         calciteNavLogo.heading = title === "" ? "A web map" : title; 
+         calciteNavLogo.description = description === "" ? "ArcGIS Maps SDK for JavaScript template" : description; 
+       } 
 
-      <!-- // Define a point geometry -->
-      <!-- const point = new Point({ -->
-        <!-- longitude: -98.38, -->
-        <!-- latitude: 38.34, -->
-      <!-- }); -->
+       // Define a point geometry 
+       const point = new Point({ 
+         longitude: -98.38, 
+         latitude: 38.34, 
+       }); 
 
-      <!-- // Create an outline for the marker symbol -->
-      <!-- const outline = new SimpleLineSymbol({ -->
-        <!-- color: "white", -->
-        <!-- width: 2, -->
-      <!-- }); -->
+       // Create an outline for the marker symbol 
+       const outline = new SimpleLineSymbol({ 
+         color: "white", 
+         width: 2, 
+       }); 
 
-      <!-- // Create a symbol for drawing the point -->
-      <!-- const symbol = new SimpleMarkerSymbol({ -->
-        <!-- style: "triangle", -->
-        <!-- size: 20, -->
-        <!-- color: "red", -->
-        <!-- outline, -->
-      <!-- }); -->
+       // Create a symbol for drawing the point 
+       const symbol = new SimpleMarkerSymbol({ 
+         style: "triangle", 
+         size: 20, 
+         color: "red", 
+         outline, 
+       }); 
 
-      <!-- // Create a graphic and add the geometry and symbol to it -->
-      <!-- const pointGraphic = new Graphic({ -->
-        <!-- geometry: point, -->
-        <!-- symbol, -->
-      <!-- }); -->
+       // Create a graphic and add the geometry and symbol to it 
+       const pointGraphic = new Graphic({ 
+         geometry: point, 
+         symbol, 
+       }); 
 
-      <!-- // Add a graphic to demonstrate custom visualizations beyond Web Map content -->
-      <!-- viewElement.graphics.add(pointGraphic); -->
+       // Add a graphic to demonstrate custom visualizations beyond Web Map content 
+       viewElement.graphics.add(pointGraphic); 
     });
   </script>
 </html>
