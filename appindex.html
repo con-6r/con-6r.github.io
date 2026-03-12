@@ -310,6 +310,9 @@
     // Graphics layer for buffer visualization
     const graphicsLayer = new GraphicsLayer({ title: "Buffer Graphics" });
 
+    // Graphics layer for block highlight
+    const blkHighLayer = new GraphicsLayer({ title: "Block Highlight" });
+
     // Symbols
     const pointSymbol = new SimpleMarkerSymbol({
       style: "circle",
@@ -335,6 +338,11 @@
     const bandFillSymbol = new SimpleFillSymbol({
       color: [0, 121, 193, 0.2],
       outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2 })
+    });
+
+    const blkHighlight = new SimpleFillSymbol({
+      color: [0, 0, 0, 0],
+      outline: new SimpleLineSymbol({ color: [6, 104, 179, 100], width: 1})
     });
 
     // DOM references
@@ -429,7 +437,7 @@
       // Choose layer
       const useBlocks = dataSourceSelect.value === "blocks";
       const layer = useBlocks ? blockLayer : bgLayer;
-      const layerLabel = useBlocks ? "2020 Census Blocks" : "2020 Block Groups";
+      const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
       setStatus("Calculating population...", "loading");
       resultsEl.style.display = "none";
