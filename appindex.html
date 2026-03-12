@@ -719,7 +719,6 @@
         const bandPop = outerPop - innerPop;
 
         // Create buffer band geometry
-        await differenceOperator.load();
         const bandGeo = differenceOperator.execute(outerBuffer, innerBuffer);
         
         // Highlight intersecting features within the band
