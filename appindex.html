@@ -6,6 +6,546 @@
     <title>EPA Region 6 Demographic Explorer</title>
     <link rel="icon" href="data:;base64,=" />
     <style>
+      html, body {
+        background-color: var(--calcite-color-background);
+        height: 100%;
+        margin: 0;
+        font-family: var(--calcite-font-family);
+      }
+
+```
+  /* Panel styling */
+  .panel-content {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .input-row calcite-input-number {
+    flex: 1;
+  }
+
+  .input-row calcite-select {
+    width: 140px;
+  }
+
+  .instructions {
+    font-size: var(--calcite-font-size--1);
+    color: var(--calcite-color-text-3);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .result-card {
+    background: var(--calcite-color-foreground-2);
+    border: 1px solid var(--calcite-color-border-3);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .result-label {
+    font-size: var(--calcite-font-size--2);
+    color: var(--calcite-color-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 4px 0;
+  }
+
+  .result-value {
+    font-size: var(--calcite-font-size-2);
+    font-weight: var(--calcite-font-weight-bold);
+    color: var(--calcite-color-text-1);
+    margin: 0;
+  }
+
+  .result-card.band {
+    border-color: var(--calcite-color-brand);
+    background: var(--calcite-color-brand-hover);
+  }
+
+  .result-card.band .result-value {
+    font-size: var(--calcite-font-size-4);
+    color: var(--calcite-color-brand);
+  }
+
+  .result-note {
+    font-size: var(--calcite-font-size--2);
+    color: var(--calcite-color-text-3);
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  .status-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: var(--calcite-font-size--1);
+  }
+
+  .status-message.ready {
+    background: var(--calcite-color-status-info-subtle);
+    color: var(--calcite-color-status-info);
+  }
+
+  .status-message.loading {
+    background: var(--calcite-color-status-warning-subtle);
+    color: var(--calcite-color-status-warning);
+  }
+
+  .status-message.error {
+    background: var(--calcite-color-status-danger-subtle);
+    color: var(--calcite-color-status-danger);
+  }
+
+  .status-message.success {
+    background: var(--calcite-color-status-success-subtle);
+    color: var(--calcite-color-status-success);
+  }
+
+  #clearBtn {
+    width: 100%;
+  }
+</style>
+
+<!-- Load the ArcGIS Maps SDK for JavaScript 5.0 from the CDN -->
+<script type="module" src="https://js.arcgis.com/5.0/"></script>
+
+<!-- Configure OAuth before components load -->
+<script type="module">
+  const [config, idMgr, OAuthInfo] = await $arcgis.import([
+    "@arcgis/core/config.js",
+    "@arcgis/core/identity/IdentityManager.js",
+    "@arcgis/core/identity/OAuthInfo.js",
+  ]);
+
+  const oAuthInfo = new OAuthInfo({
+    appId: "dY1uuKoXcEBt44zy",
+  });
+  idMgr.registerOAuthInfos([oAuthInfo]);
+</script>
+```
+
+  </head>
+
+  <body>
+    <calcite-shell content-behind>
+      <calcite-navigation slot="header">
+        <calcite-navigation-logo
+          heading-level="1"
+          slot="logo"
+          heading="EPA Region 6 Demographic Explorer"
+          description="Population analysis by buffer band"
+        ></calcite-navigation-logo>
+      </calcite-navigation>
+
+```
+  <!-- Shell panel for the analysis controls -->
+  <calcite-shell-panel slot="panel-start" position="start" display-mode="float">
+    <calcite-panel heading="Population Band Query">
+      <div class="panel-content">
+
+        <!-- Instructions -->
+        <calcite-notice open icon="cursor-click">
+          <span slot="message">Click the map to place a center point, then configure your buffer distances below.</span>
+        </calcite-notice>
+
+        <!-- Outer distance -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Outer Distance
+            <div class="input-row">
+              <calcite-input-number
+                id="outerDistance"
+                placeholder="e.g. 3"
+                value="3"
+                min="0.1"
+                step="0.5"
+                scale="s"
+              ></calcite-input-number>
+              <calcite-select id="units" scale="s">
+                <calcite-option value="miles" selected>Miles</calcite-option>
+                <calcite-option value="kilometers">Kilometers</calcite-option>
+                <calcite-option value="feet">Feet</calcite-option>
+                <calcite-option value="meters">Meters</calcite-option>
+              </calcite-select>
+            </div>
+          </calcite-label>
+        </div>
+
+        <!-- Inner distance -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Inner Distance (0 for full circle)
+            <calcite-input-number
+              id="innerDistance"
+              placeholder="e.g. 2"
+              value="2"
+              min="0"
+              step="0.5"
+              scale="s"
+            ></calcite-input-number>
+          </calcite-label>
+        </div>
+
+        <!-- Data source toggle -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Data Source
+            <calcite-select id="dataSource" scale="s">
+              <calcite-option value="blocks" selected>2020 Census Blocks (precise, slower)</calcite-option>
+              <calcite-option value="blockgroups">2020 Block Groups (faster, less precise)</calcite-option>
+            </calcite-select>
+          </calcite-label>
+        </div>
+
+        <calcite-button id="clearBtn" appearance="outline-fill" kind="neutral" icon-start="trash" scale="s" disabled>
+          Clear
+        </calcite-button>
+
+        <!-- Status -->
+        <div id="status" class="status-message ready">
+          <calcite-icon icon="information" scale="s"></calcite-icon>
+          <span>Click the map to begin</span>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="results-container" style="display: none;">
+          <div class="result-card band">
+            <p class="result-label">Band Population</p>
+            <p class="result-value" id="bandPop">—</p>
+            <p class="result-note" id="bandDesc"></p>
+          </div>
+          <div class="result-card">
+            <p class="result-label">Outer Buffer Population</p>
+            <p class="result-value" id="outerPop">—</p>
+          </div>
+          <div class="result-card">
+            <p class="result-label">Inner Buffer Population</p>
+            <p class="result-value" id="innerPop">—</p>
+          </div>
+          <div class="result-card">
+            <p class="result-label">Data Source Used</p>
+            <p class="result-value" id="layerUsed">—</p>
+          </div>
+        </div>
+
+      </div>
+    </calcite-panel>
+  </calcite-shell-panel>
+
+  <!-- Map -->
+  <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c">
+    <arcgis-zoom slot="top-left"></arcgis-zoom>
+    <arcgis-search slot="top-right"></arcgis-search>
+    <arcgis-expand slot="bottom-left">
+      <arcgis-legend></arcgis-legend>
+    </arcgis-expand>
+  </arcgis-map>
+</calcite-shell>
+```
+
+  </body>
+
+  <script type="module">
+    // ================================================================
+    // IMPORTS
+    // ================================================================
+    const [
+      Graphic,
+      Point,
+      FeatureLayer,
+      SimpleFillSymbol,
+      SimpleMarkerSymbol,
+      SimpleLineSymbol,
+      GraphicsLayer,
+      geodesicBufferOperator,
+      StatisticDefinition
+    ] = await $arcgis.import([
+      "@arcgis/core/Graphic.js",
+      "@arcgis/core/geometry/Point.js",
+      "@arcgis/core/layers/FeatureLayer.js",
+      "@arcgis/core/symbols/SimpleFillSymbol.js",
+      "@arcgis/core/symbols/SimpleMarkerSymbol.js",
+      "@arcgis/core/symbols/SimpleLineSymbol.js",
+      "@arcgis/core/layers/GraphicsLayer.js",
+      "@arcgis/core/geometry/operators/geodesicBufferOperator.js",
+      "@arcgis/core/rest/support/StatisticDefinition.js"
+    ]);
+
+    // ================================================================
+    // CONFIGURATION — UPDATE THESE TO MATCH YOUR LAYERS
+    // ================================================================
+    const BLOCK_LAYER_URL =
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Block_Points_in_Region_6/FeatureServer/0";
+    const BG_LAYER_URL =
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
+    const POP_FIELD = "POP20"; // Your population field name
+    // ================================================================
+
+    // Create FeatureLayer references (not added to map — query only)
+    const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
+    const bgLayer = new FeatureLayer({ url: BG_LAYER_URL });
+
+    // Graphics layer for buffer visualization
+    const graphicsLayer = new GraphicsLayer({ title: "Buffer Graphics" });
+
+    // Symbols
+    const pointSymbol = new SimpleMarkerSymbol({
+      style: "circle",
+      size: 10,
+      color: [0, 121, 193, 0.9],
+      outline: new SimpleLineSymbol({ color: "white", width: 1.5 })
+    });
+
+    const outerBufferSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.08],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2 })
+    });
+
+    const innerBufferSymbol = new SimpleFillSymbol({
+      color: [255, 255, 255, 0.3],
+      outline: new SimpleLineSymbol({
+        color: [0, 121, 193, 0.5],
+        width: 1.5,
+        style: "dash"
+      })
+    });
+
+    const bandFillSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.2],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2 })
+    });
+
+    // DOM references
+    const viewElement = document.querySelector("arcgis-map");
+    const outerDistInput = document.getElementById("outerDistance");
+    const innerDistInput = document.getElementById("innerDistance");
+    const unitsSelect = document.getElementById("units");
+    const dataSourceSelect = document.getElementById("dataSource");
+    const clearBtn = document.getElementById("clearBtn");
+    const statusEl = document.getElementById("status");
+    const resultsEl = document.getElementById("results");
+    const bandPopEl = document.getElementById("bandPop");
+    const outerPopEl = document.getElementById("outerPop");
+    const innerPopEl = document.getElementById("innerPop");
+    const layerUsedEl = document.getElementById("layerUsed");
+    const bandDescEl = document.getElementById("bandDesc");
+
+    // State
+    let activePoint = null;
+
+    // ================================================================
+    // UTILITY FUNCTIONS
+    // ================================================================
+
+    function setStatus(message, type = "ready") {
+      const icons = {
+        ready: "information",
+        loading: "clock",
+        error: "exclamation-mark-triangle",
+        success: "check-circle"
+      };
+      statusEl.className = `status-message ${type}`;
+      statusEl.innerHTML = `
+        <calcite-icon icon="${icons[type]}" scale="s"></calcite-icon>
+        <span>${message}</span>
+      `;
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString("en-US");
+    }
+
+    /**
+     * Query population within a buffer geometry using server-side outStatistics.
+     * Returns a single number — the sum of the population field.
+     */
+    async function queryPopulation(bufferGeometry, layer) {
+      const query = layer.createQuery();
+      query.geometry = bufferGeometry;
+      query.spatialRelationship = "intersects";
+      query.returnGeometry = false;
+      query.outStatistics = [
+        new StatisticDefinition({
+          statisticType: "sum",
+          onStatisticField: POP_FIELD,
+          outStatisticFieldName: "TotalPopulation"
+        })
+      ];
+
+      const result = await layer.queryFeatures(query);
+
+      if (!result.features || result.features.length === 0) {
+        return 0;
+      }
+      return result.features[0].attributes.TotalPopulation || 0;
+    }
+
+    /**
+     * Main analysis function — builds buffers, queries population, displays results.
+     */
+    async function runAnalysis() {
+      if (!activePoint) return;
+
+      const outerDist = parseFloat(outerDistInput.value);
+      const innerDist = parseFloat(innerDistInput.value);
+      const unit = unitsSelect.value;
+
+      // Validation
+      if (!outerDist || outerDist <= 0) {
+        setStatus("Enter a valid outer distance.", "error");
+        return;
+      }
+      if (innerDist < 0) {
+        setStatus("Inner distance cannot be negative.", "error");
+        return;
+      }
+      if (innerDist >= outerDist) {
+        setStatus("Inner distance must be less than outer distance.", "error");
+        return;
+      }
+
+      // Choose layer
+      const useBlocks = dataSourceSelect.value === "blocks";
+      const layer = useBlocks ? blockLayer : bgLayer;
+      const layerLabel = useBlocks ? "2020 Census Blocks" : "2020 Block Groups";
+
+      setStatus("Calculating population...", "loading");
+      resultsEl.style.display = "none";
+      graphicsLayer.removeAll();
+
+      // Draw the center point
+      graphicsLayer.add(new Graphic({ geometry: activePoint, symbol: pointSymbol }));
+
+      try {
+        // Load the geodesicBufferOperator
+        await geodesicBufferOperator.load();
+
+        // Create outer buffer
+        const outerBuffer = geodesicBufferOperator.execute(activePoint, outerDist, { unit });
+
+        // Draw outer buffer
+        graphicsLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
+
+        // Query outer population
+        const outerPop = await queryPopulation(outerBuffer, layer);
+
+        // Handle inner buffer
+        let innerPop = 0;
+        if (innerDist > 0) {
+          const innerBuffer = geodesicBufferOperator.execute(activePoint, innerDist, { unit });
+
+          // Draw inner buffer (dashed)
+          graphicsLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
+
+          innerPop = await queryPopulation(innerBuffer, layer);
+        }
+
+        const bandPop = outerPop - innerPop;
+
+        // Zoom to outer buffer
+        const view = viewElement.view;
+        if (view) {
+          view.goTo(outerBuffer.extent.expand(1.4));
+        }
+
+        // Display results
+        outerPopEl.textContent = formatNumber(outerPop);
+        innerPopEl.textContent = innerDist > 0 ? formatNumber(innerPop) : "N/A (full circle)";
+        bandPopEl.textContent = formatNumber(bandPop);
+        layerUsedEl.textContent = layerLabel;
+
+        if (innerDist > 0) {
+          bandDescEl.textContent = `Population between ${innerDist} and ${outerDist} ${unit} from the selected point`;
+        } else {
+          bandDescEl.textContent = `Total population within ${outerDist} ${unit} of the selected point`;
+        }
+
+        resultsEl.style.display = "flex";
+        setStatus("Analysis complete", "success");
+
+      } catch (err) {
+        console.error("Analysis error:", err);
+        setStatus(`Error: ${err.message}`, "error");
+      }
+    }
+
+    // ================================================================
+    // EVENT HANDLERS
+    // ================================================================
+
+    viewElement.addEventListener("arcgisViewReadyChange", () => {
+      const view = viewElement.view;
+
+      // Add graphics layer to the map
+      viewElement.map.add(graphicsLayer);
+
+      // Map click handler
+      view.on("click", (event) => {
+        activePoint = event.mapPoint;
+        clearBtn.disabled = false;
+        runAnalysis();
+      });
+    });
+
+    // Re-run analysis when parameters change (if a point is already placed)
+    outerDistInput.addEventListener("calciteInputNumberChange", () => {
+      if (activePoint) runAnalysis();
+    });
+    innerDistInput.addEventListener("calciteInputNumberChange", () => {
+      if (activePoint) runAnalysis();
+    });
+    unitsSelect.addEventListener("calciteSelectChange", () => {
+      if (activePoint) runAnalysis();
+    });
+    dataSourceSelect.addEventListener("calciteSelectChange", () => {
+      if (activePoint) runAnalysis();
+    });
+
+    // Clear button
+    clearBtn.addEventListener("click", () => {
+      graphicsLayer.removeAll();
+      activePoint = null;
+      clearBtn.disabled = true;
+      resultsEl.style.display = "none";
+      setStatus("Click the map to begin", "ready");
+    });
+  </script>
+
+</html>
+
+
+On Mar 11, 2026, at 5:12 PM, Brooks, Connor <brooks.connor@epa.gov> wrote:
+ 
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+    <title>EPA Region 6 Demographic Explorer</title>
+    <link rel="icon" href="data:;base64,=" />
+    <style>
       html,
       body {
         background-color: var(--calcite-ui-foreground-2);
@@ -14,8 +554,8 @@
       }
     </style>
     <!-- Load the ArcGIS Maps SDK for JavaScript from the CDN -->
-    <script type="module" src="https://js.arcgis.com/5.0/"></script>
-
+    <script type="module" src=https://js.arcgis.com/5.0/></script>
+ 
     <!-- Optional: If you're loading secure web maps -->
     <!-- Configure the IdentityManager before the SDK's components load -->
     <script type="module">
@@ -24,7 +564,7 @@
         "@arcgis/core/identity/IdentityManager.js",
         "@arcgis/core/identity/OAuthInfo.js",
       ]);
-
+ 
       // Default portalUrl is ArcGIS Online
       // Only set if using other portals
       //config.portalUrl = "YOUR_PORTAL_URL";
@@ -35,7 +575,7 @@
       idMgr.registerOAuthInfos([oAuthInfo]);
     </script> -->
   </head>
-
+ 
   <body>
     <!-- The Shell component is used as a layout for this template -->
     <calcite-shell content-behind>
@@ -43,7 +583,7 @@
         <!-- Heading and description dynamically populated below using JavaScript -->
         <calcite-navigation-logo heading-level="1" slot="logo"></calcite-navigation-logo>
       </calcite-navigation>
-
+ 
       <!-- The Map component fits to the size of the parent element -->
       <!-- The basemap, extent, zoom and more are provided by the Web Map (item-id) -->
       <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c">
@@ -56,38 +596,38 @@
       </arcgis-map>
     </calcite-shell>
   </body>
-
+ 
   <script type="module">
     // Import modules from the SDK's core API
     const Graphic = await $arcgis.import("@arcgis/core/Graphic.js");
     const Point = await $arcgis.import("@arcgis/core/geometry/Point.js");
     const SimpleMarkerSymbol = await $arcgis.import("@arcgis/core/symbols/SimpleMarkerSymbol.js");
     const SimpleLineSymbol = await $arcgis.import("@arcgis/core/symbols/SimpleLineSymbol.js");
-
+ 
     const viewElement = document.querySelector("arcgis-map");
     const calciteNavLogo = document.querySelector("calcite-navigation-logo");
-
+ 
     viewElement.addEventListener("arcgisViewReadyChange", () => {
       // Use metadata from the Web Map to populate the header
       const { title, description } = viewElement.map.portalItem;
-
+ 
       if (calciteNavLogo) {
          calciteNavLogo.heading = title === "" ? "A web map" : title; 
          calciteNavLogo.description = description === "" ? "ArcGIS Maps SDK for JavaScript template" : description; 
        } 
-
+ 
        // Define a point geometry 
        const point = new Point({ 
          longitude: -98.38, 
          latitude: 38.34, 
        }); 
-
+ 
        // Create an outline for the marker symbol 
        const outline = new SimpleLineSymbol({ 
          color: "white", 
          width: 2, 
        }); 
-
+ 
        // Create a symbol for drawing the point 
        const symbol = new SimpleMarkerSymbol({ 
          style: "triangle", 
@@ -95,13 +635,13 @@
          color: "red", 
          outline, 
        }); 
-
+ 
        // Create a graphic and add the geometry and symbol to it 
        const pointGraphic = new Graphic({ 
          geometry: point, 
          symbol, 
        }); 
-
+ 
        // Add a graphic to demonstrate custom visualizations beyond Web Map content 
        viewElement.graphics.add(pointGraphic); 
     });
