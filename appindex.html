@@ -214,7 +214,7 @@
             Data Source
             <calcite-select id="dataSource" scale="s">
               <calcite-option value="blocks" selected>2020 Census Blocks (precise, slower)</calcite-option>
-              <calcite-option value="blockgroups">2020 Block Groups (faster, less precise)</calcite-option>
+              <calcite-option value="blockgroups">2024 Block Groups (faster, less precise)</calcite-option>
             </calcite-select>
           </calcite-label>
         </div>
@@ -297,10 +297,10 @@
     // CONFIGURATION — UPDATE THESE TO MATCH YOUR LAYERS
     // ================================================================
     const BLOCK_LAYER_URL =
-      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Block_Points_in_Region_6/FeatureServer/0";
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
     const BG_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
-    const POP_FIELD = "POP20"; // Your population field name
+    const POP_FIELD = "POP20"; // 2020 Blocks & 2024 BGs population field
     // ================================================================
 
     // Create FeatureLayer references (not added to map — query only)
