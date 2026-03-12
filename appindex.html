@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html>
   <head>
     <meta charset="utf-8" />
@@ -42,13 +43,6 @@
     width: 140px;
   }
 
-  .instructions {
-    font-size: var(--calcite-font-size--1);
-    color: var(--calcite-color-text-3);
-    line-height: 1.4;
-    margin: 0;
-  }
-
   .results-container {
     display: flex;
     flex-direction: column;
@@ -60,6 +54,7 @@
     border: 1px solid var(--calcite-color-border-3);
     border-radius: 8px;
     padding: 12px;
+    position: relative;
   }
 
   .result-label {
@@ -79,7 +74,6 @@
 
   .result-card.band {
     border-color: var(--calcite-color-brand);
-    background: var(--calcite-color-brand-hover);
   }
 
   .result-card.band .result-value {
@@ -123,8 +117,114 @@
     color: var(--calcite-color-status-success);
   }
 
-  #clearBtn {
+  /* Draw mode toolbar */
+  .draw-toolbar {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .draw-toolbar calcite-button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Custom cursor when in draw mode */
+  .draw-active .esri-view-surface {
+    cursor: crosshair !important;
+  }
+
+  /* Analysis result block (one per analysis) */
+  .analysis-block {
+    border: 1px solid var(--calcite-color-border-3);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .analysis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--calcite-color-foreground-2);
+    cursor: pointer;
+    gap: 8px;
+  }
+
+  .analysis-header:hover {
+    background: var(--calcite-color-foreground-3);
+  }
+
+  .analysis-header-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .analysis-title {
+    font-size: var(--calcite-font-size--1);
+    font-weight: var(--calcite-font-weight-bold);
+    color: var(--calcite-color-text-1);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .analysis-subtitle {
+    font-size: var(--calcite-font-size--2);
+    color: var(--calcite-color-text-3);
+    margin: 2px 0 0 0;
+  }
+
+  .analysis-band-value {
+    font-size: var(--calcite-font-size-1);
+    font-weight: var(--calcite-font-weight-bold);
+    color: var(--calcite-color-brand);
+    white-space: nowrap;
+  }
+
+  .analysis-body {
+    padding: 8px 12px 12px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid var(--calcite-color-border-3);
+  }
+
+  .analysis-body.open {
+    display: flex;
+  }
+
+  .analysis-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--calcite-font-size--1);
+  }
+
+  .analysis-detail-label {
+    color: var(--calcite-color-text-3);
+  }
+
+  .analysis-detail-value {
+    font-weight: var(--calcite-font-weight-bold);
+    color: var(--calcite-color-text-1);
+  }
+
+  .analysis-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  #clearAllBtn {
     width: 100%;
+  }
+
+  /* Scrollable results area */
+  .results-scroll {
+    max-height: 400px;
+    overflow-y: auto;
   }
 </style>
 
@@ -165,10 +265,50 @@
     <calcite-panel heading="Population Band Query">
       <div class="panel-content">
 
-        <!-- Instructions -->
-        <calcite-notice open icon="cursor-click">
-          <span slot="message">Click the map to place a center point, then configure your buffer distances below.</span>
-        </calcite-notice>
+        <!-- Step 1: Draw mode selection -->
+        <calcite-label scale="s">
+          Step 1: Draw a shape on the map
+        </calcite-label>
+        <div class="draw-toolbar">
+          <calcite-button
+            id="drawPoint"
+            appearance="outline-fill"
+            kind="brand"
+            icon-start="pin"
+            scale="s"
+            title="Place a point"
+          >Point</calcite-button>
+          <calcite-button
+            id="drawLine"
+            appearance="outline-fill"
+            kind="brand"
+            icon-start="line"
+            scale="s"
+            title="Draw a line"
+          >Line</calcite-button>
+          <calcite-button
+            id="drawPolygon"
+            appearance="outline-fill"
+            kind="brand"
+            icon-start="polygon"
+            scale="s"
+            title="Draw a polygon"
+          >Polygon</calcite-button>
+          <calcite-button
+            id="drawCancel"
+            appearance="outline-fill"
+            kind="neutral"
+            icon-start="x"
+            scale="s"
+            title="Cancel drawing"
+            disabled
+          >Cancel</calcite-button>
+        </div>
+
+        <!-- Step 2: Buffer parameters -->
+        <calcite-label scale="s">
+          Step 2: Set buffer distances
+        </calcite-label>
 
         <!-- Outer distance -->
         <div class="input-group">
@@ -219,36 +359,24 @@
           </calcite-label>
         </div>
 
-        <calcite-button id="clearBtn" appearance="outline-fill" kind="neutral" icon-start="trash" scale="s" disabled>
-          Clear
-        </calcite-button>
-
         <!-- Status -->
         <div id="status" class="status-message ready">
           <calcite-icon icon="information" scale="s"></calcite-icon>
-          <span>Click the map to begin</span>
+          <span>Click a draw button to begin</span>
         </div>
 
-        <!-- Results -->
-        <div id="results" class="results-container" style="display: none;">
-          <div class="result-card band">
-            <p class="result-label">Band Population</p>
-            <p class="result-value" id="bandPop">—</p>
-            <p class="result-note" id="bandDesc"></p>
-          </div>
-          <div class="result-card">
-            <p class="result-label">Outer Buffer Population</p>
-            <p class="result-value" id="outerPop">—</p>
-          </div>
-          <div class="result-card">
-            <p class="result-label">Inner Buffer Population</p>
-            <p class="result-value" id="innerPop">—</p>
-          </div>
-          <div class="result-card">
-            <p class="result-label">Data Source Used</p>
-            <p class="result-value" id="layerUsed">—</p>
-          </div>
-        </div>
+        <!-- Clear all -->
+        <calcite-button
+          id="clearAllBtn"
+          appearance="outline-fill"
+          kind="danger"
+          icon-start="trash"
+          scale="s"
+          disabled
+        >Clear All Results</calcite-button>
+
+        <!-- Results list -->
+        <div id="resultsList" class="results-scroll"></div>
 
       </div>
     </calcite-panel>
@@ -280,7 +408,9 @@
       SimpleLineSymbol,
       GraphicsLayer,
       geodesicBufferOperator,
-      StatisticDefinition
+      StatisticDefinition,
+      SketchViewModel,
+      reactiveUtils
     ] = await $arcgis.import([
       "@arcgis/core/Graphic.js",
       "@arcgis/core/geometry/Point.js",
@@ -290,7 +420,9 @@
       "@arcgis/core/symbols/SimpleLineSymbol.js",
       "@arcgis/core/layers/GraphicsLayer.js",
       "@arcgis/core/geometry/operators/geodesicBufferOperator.js",
-      "@arcgis/core/rest/support/StatisticDefinition.js"
+      "@arcgis/core/rest/support/StatisticDefinition.js",
+      "@arcgis/core/widgets/Sketch/SketchViewModel.js",
+      "@arcgis/core/core/reactiveUtils.js"
     ]);
 
     // ================================================================
@@ -300,18 +432,20 @@
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
     const BG_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
-    const POP_FIELD = "POP20"; // 2020 Blocks & 2024 BGs population field
+    const POP_FIELD = "POP20";
     // ================================================================
 
-    // Create FeatureLayer references (not added to map — query only)
+    // ================================================================
+    // LAYERS AND SYMBOLS
+    // ================================================================
+
+    // Query-only feature layers (not added to the map for drawing)
     const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
     const bgLayer = new FeatureLayer({ url: BG_LAYER_URL });
 
-    // Graphics layer for buffer visualization
-    const graphicsLayer = new GraphicsLayer({ title: "Buffer Graphics" });
-
-    // Graphics layer for block highlight
-    const blkHighLayer = new GraphicsLayer({ title: "Block Highlight" });
+    // Each analysis gets its own graphics layer so it can be removed independently.
+    // We also have a shared sketch layer for the SketchViewModel to draw on.
+    const sketchLayer = new GraphicsLayer({ title: "Sketches" });
 
     // Symbols
     const pointSymbol = new SimpleMarkerSymbol({
@@ -319,6 +453,16 @@
       size: 10,
       color: [0, 121, 193, 0.9],
       outline: new SimpleLineSymbol({ color: "white", width: 1.5 })
+    });
+
+    const drawnLineSymbol = new SimpleLineSymbol({
+      color: [0, 121, 193, 0.9],
+      width: 2.5
+    });
+
+    const drawnPolygonSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.15],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.9], width: 2 })
     });
 
     const outerBufferSymbol = new SimpleFillSymbol({
@@ -335,33 +479,39 @@
       })
     });
 
-    const bandFillSymbol = new SimpleFillSymbol({
-      color: [0, 121, 193, 0.2],
-      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2 })
-    });
-
-    const blkHighlight = new SimpleFillSymbol({
+    const highlightSymbol = new SimpleFillSymbol({
       color: [0, 0, 0, 0],
-      outline: new SimpleLineSymbol({ color: [6, 104, 179, 100], width: 1})
+      outline: new SimpleLineSymbol({ color: [6, 104, 179, 0.4], width: 1 })
     });
 
-    // DOM references
+    // ================================================================
+    // DOM REFERENCES
+    // ================================================================
     const viewElement = document.querySelector("arcgis-map");
     const outerDistInput = document.getElementById("outerDistance");
     const innerDistInput = document.getElementById("innerDistance");
     const unitsSelect = document.getElementById("units");
     const dataSourceSelect = document.getElementById("dataSource");
-    const clearBtn = document.getElementById("clearBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
     const statusEl = document.getElementById("status");
-    const resultsEl = document.getElementById("results");
-    const bandPopEl = document.getElementById("bandPop");
-    const outerPopEl = document.getElementById("outerPop");
-    const innerPopEl = document.getElementById("innerPop");
-    const layerUsedEl = document.getElementById("layerUsed");
-    const bandDescEl = document.getElementById("bandDesc");
+    const resultsListEl = document.getElementById("resultsList");
 
-    // State
-    let activePoint = null;
+    const drawPointBtn = document.getElementById("drawPoint");
+    const drawLineBtn = document.getElementById("drawLine");
+    const drawPolygonBtn = document.getElementById("drawPolygon");
+    const drawCancelBtn = document.getElementById("drawCancel");
+
+    // ================================================================
+    // STATE
+    // ================================================================
+
+    // Each completed analysis is stored here so we can manage multiple results.
+    // Structure: { id, graphicsLayer, outerPop, innerPop, bandPop, label, expanded }
+    let analyses = [];
+    let analysisCounter = 0;
+
+    // Reference to the SketchViewModel (created after the view is ready)
+    let sketchVM = null;
 
     // ================================================================
     // UTILITY FUNCTIONS
@@ -386,12 +536,80 @@
     }
 
     /**
-     * Query population within a buffer geometry using server-side outStatistics.
+     * Returns a human-readable label for the geometry type the user drew.
+     */
+    function getGeometryLabel(geometry) {
+      switch (geometry.type) {
+        case "point":
+          return `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`;
+        case "polyline":
+          return "Line";
+        case "polygon":
+          return "Polygon";
+        default:
+          return "Shape";
+      }
+    }
+
+    // ================================================================
+    // DRAW MODE MANAGEMENT
+    // ================================================================
+
+    /**
+     * Sets the visual state of the draw toolbar buttons.
+     * The active tool's button appears solid/filled; others appear outlined.
+     */
+    function setActiveDrawButton(activeId) {
+      const buttons = [drawPointBtn, drawLineBtn, drawPolygonBtn];
+      buttons.forEach(btn => {
+        if (btn.id === activeId) {
+          btn.appearance = "solid";
+        } else {
+          btn.appearance = "outline-fill";
+        }
+      });
+      drawCancelBtn.disabled = !activeId;
+
+      // Toggle crosshair cursor class on the map container
+      const mapContainer = viewElement.closest("calcite-shell") || document.body;
+      if (activeId) {
+        mapContainer.classList.add("draw-active");
+      } else {
+        mapContainer.classList.remove("draw-active");
+      }
+    }
+
+    function startDraw(tool) {
+      if (!sketchVM) return;
+
+      // tool is "point", "polyline", or "polygon"
+      sketchVM.create(tool);
+      setActiveDrawButton({
+        point: "drawPoint",
+        polyline: "drawLine",
+        polygon: "drawPolygon"
+      }[tool]);
+      setStatus(`Click the map to draw a ${tool === "polyline" ? "line" : tool}. Double-click to finish.`, "ready");
+    }
+
+    function cancelDraw() {
+      if (!sketchVM) return;
+      sketchVM.cancel();
+      setActiveDrawButton(null);
+      setStatus("Drawing cancelled. Click a draw button to begin.", "ready");
+    }
+
+    // ================================================================
+    // QUERY FUNCTIONS
+    // ================================================================
+
+    /**
+     * Query population within a geometry using server-side outStatistics.
      * Returns a single number — the sum of the population field.
      */
-    async function queryPopulation(bufferGeometry, layer) {
+    async function queryPopulation(geometry, layer) {
       const query = layer.createQuery();
-      query.geometry = bufferGeometry;
+      query.geometry = geometry;
       query.spatialRelationship = "intersects";
       query.returnGeometry = false;
       query.outStatistics = [
@@ -403,7 +621,6 @@
       ];
 
       const result = await layer.queryFeatures(query);
-
       if (!result.features || result.features.length === 0) {
         return 0;
       }
@@ -411,11 +628,33 @@
     }
 
     /**
-     * Main analysis function — builds buffers, queries population, displays results.
+     * Query the actual features that intersect the geometry and return
+     * their geometries for highlighting on the map.
+     * We only request the geometry and OID — no attributes needed.
      */
-    async function runAnalysis() {
-      if (!activePoint) return;
+    async function queryFeaturesForHighlight(geometry, layer) {
+      const query = layer.createQuery();
+      query.geometry = geometry;
+      query.spatialRelationship = "intersects";
+      query.returnGeometry = true;
+      query.outFields = [layer.objectIdField || "OBJECTID"];
+      // Limit to prevent massive transfers on very large buffers
+      query.maxRecordCount = 10000;
 
+      const result = await layer.queryFeatures(query);
+      return result.features || [];
+    }
+
+    // ================================================================
+    // ANALYSIS EXECUTION
+    // ================================================================
+
+    /**
+     * Runs the full band population analysis for a given drawn geometry.
+     * Creates buffer(s), queries population, highlights features,
+     * stores the result, and updates the UI.
+     */
+    async function runAnalysis(drawnGeometry) {
       const outerDist = parseFloat(outerDistInput.value);
       const innerDist = parseFloat(innerDistInput.value);
       const unit = unitsSelect.value;
@@ -440,21 +679,29 @@
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
       setStatus("Calculating population...", "loading");
-      resultsEl.style.display = "none";
-      graphicsLayer.removeAll();
 
-      // Draw the center point
-      graphicsLayer.add(new Graphic({ geometry: activePoint, symbol: pointSymbol }));
+      // Create a dedicated graphics layer for this analysis
+      const analysisId = ++analysisCounter;
+      const gfxLayer = new GraphicsLayer({ title: `Analysis ${analysisId}` });
+      viewElement.map.add(gfxLayer);
 
       try {
-        // Load the geodesicBufferOperator
         await geodesicBufferOperator.load();
 
-        // Create outer buffer
-        const outerBuffer = geodesicBufferOperator.execute(activePoint, outerDist, { unit });
+        // Draw the original geometry on the analysis layer
+        let sourceSymbol;
+        if (drawnGeometry.type === "point") {
+          sourceSymbol = pointSymbol;
+        } else if (drawnGeometry.type === "polyline") {
+          sourceSymbol = drawnLineSymbol;
+        } else {
+          sourceSymbol = drawnPolygonSymbol;
+        }
+        gfxLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
 
-        // Draw outer buffer
-        graphicsLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
+        // Create outer buffer
+        const outerBuffer = geodesicBufferOperator.execute(drawnGeometry, outerDist, { unit });
+        gfxLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
 
         // Query outer population
         const outerPop = await queryPopulation(outerBuffer, layer);
@@ -462,82 +709,260 @@
         // Handle inner buffer
         let innerPop = 0;
         if (innerDist > 0) {
-          const innerBuffer = geodesicBufferOperator.execute(activePoint, innerDist, { unit });
-
-          // Draw inner buffer (dashed)
-          graphicsLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
-
+          const innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
+          gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
           innerPop = await queryPopulation(innerBuffer, layer);
         }
 
         const bandPop = outerPop - innerPop;
 
-        // Zoom to outer buffer
+        // Highlight intersecting features within the outer buffer
+        const features = await queryFeaturesForHighlight(outerBuffer, layer);
+        features.forEach(f => {
+          gfxLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
+        });
+
+        // Zoom to the outer buffer
         const view = viewElement.view;
         if (view) {
           view.goTo(outerBuffer.extent.expand(1.4));
         }
 
-        // Display results
-        outerPopEl.textContent = formatNumber(outerPop);
-        innerPopEl.textContent = innerDist > 0 ? formatNumber(innerPop) : "N/A (full circle)";
-        bandPopEl.textContent = formatNumber(bandPop);
-        layerUsedEl.textContent = layerLabel;
-
+        // Build the description string
+        const geoLabel = getGeometryLabel(drawnGeometry);
+        let bandDesc;
         if (innerDist > 0) {
-          bandDescEl.textContent = `Population between ${innerDist} and ${outerDist} ${unit} from the selected point`;
+          bandDesc = `${innerDist}–${outerDist} ${unit} band around ${geoLabel}`;
         } else {
-          bandDescEl.textContent = `Total population within ${outerDist} ${unit} of the selected point`;
+          bandDesc = `Within ${outerDist} ${unit} of ${geoLabel}`;
         }
 
-        resultsEl.style.display = "flex";
-        setStatus("Analysis complete", "success");
+        // Store the result
+        const analysisResult = {
+          id: analysisId,
+          graphicsLayer: gfxLayer,
+          outerPop,
+          innerPop,
+          bandPop,
+          bandDesc,
+          layerLabel,
+          geoLabel,
+          outerDist,
+          innerDist,
+          unit,
+          featureCount: features.length,
+          expanded: true // newest result starts expanded
+        };
+
+        // Collapse all previous results
+        analyses.forEach(a => a.expanded = false);
+
+        analyses.push(analysisResult);
+        renderResults();
+
+        clearAllBtn.disabled = false;
+        setStatus(`Analysis complete — ${formatNumber(bandPop)} people in band`, "success");
 
       } catch (err) {
         console.error("Analysis error:", err);
+        // Clean up the graphics layer if the analysis failed
+        viewElement.map.remove(gfxLayer);
         setStatus(`Error: ${err.message}`, "error");
       }
     }
 
     // ================================================================
-    // EVENT HANDLERS
+    // RESULTS RENDERING
+    // ================================================================
+
+    /**
+     * Renders the full results list from the analyses array.
+     * Each analysis becomes a collapsible block showing the band population
+     * prominently, with details expandable inside.
+     */
+    function renderResults() {
+      resultsListEl.innerHTML = "";
+
+      // Render newest first
+      const sorted = [...analyses].reverse();
+
+      sorted.forEach(a => {
+        const block = document.createElement("div");
+        block.className = "analysis-block";
+        block.dataset.id = a.id;
+
+        // Header (always visible) — shows band pop and a brief description
+        const header = document.createElement("div");
+        header.className = "analysis-header";
+        header.innerHTML = `
+          <div class="analysis-header-text">
+            <p class="analysis-title">#${a.id}: ${a.bandDesc}</p>
+            <p class="analysis-subtitle">${a.layerLabel} · ${formatNumber(a.featureCount)} features</p>
+          </div>
+          <span class="analysis-band-value">${formatNumber(a.bandPop)}</span>
+          <calcite-icon icon="${a.expanded ? "chevron-up" : "chevron-down"}" scale="s"></calcite-icon>
+        `;
+
+        // Click header to toggle expand/collapse
+        header.addEventListener("click", () => {
+          a.expanded = !a.expanded;
+          renderResults();
+        });
+
+        // Body (collapsible details)
+        const body = document.createElement("div");
+        body.className = `analysis-body ${a.expanded ? "open" : ""}`;
+        body.innerHTML = `
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Band Population</span>
+            <span class="analysis-detail-value">${formatNumber(a.bandPop)}</span>
+          </div>
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
+            <span class="analysis-detail-value">${formatNumber(a.outerPop)}</span>
+          </div>
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
+            <span class="analysis-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
+          </div>
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Features Counted</span>
+            <span class="analysis-detail-value">${formatNumber(a.featureCount)}</span>
+          </div>
+          <div class="analysis-actions">
+            <calcite-button
+              class="zoom-btn"
+              appearance="outline-fill"
+              kind="neutral"
+              icon-start="zoom-to-object"
+              scale="s"
+              width="half"
+            >Zoom To</calcite-button>
+            <calcite-button
+              class="remove-btn"
+              appearance="outline-fill"
+              kind="danger"
+              icon-start="x"
+              scale="s"
+              width="half"
+            >Remove</calcite-button>
+          </div>
+        `;
+
+        // Zoom to button
+        body.querySelector(".zoom-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const view = viewElement.view;
+          if (view && a.graphicsLayer.graphics.length > 0) {
+            // Find the buffer graphic (largest extent) to zoom to
+            let maxExtent = null;
+            a.graphicsLayer.graphics.forEach(g => {
+              if (g.geometry && g.geometry.extent) {
+                if (!maxExtent || g.geometry.extent.width > maxExtent.width) {
+                  maxExtent = g.geometry.extent;
+                }
+              }
+            });
+            if (maxExtent) {
+              view.goTo(maxExtent.expand(1.4));
+            }
+          }
+        });
+
+        // Remove button
+        body.querySelector(".remove-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          removeAnalysis(a.id);
+        });
+
+        block.appendChild(header);
+        block.appendChild(body);
+        resultsListEl.appendChild(block);
+      });
+    }
+
+    /**
+     * Removes a single analysis by ID — clears its graphics and removes
+     * it from the results list.
+     */
+    function removeAnalysis(id) {
+      const index = analyses.findIndex(a => a.id === id);
+      if (index === -1) return;
+
+      const analysis = analyses[index];
+      viewElement.map.remove(analysis.graphicsLayer);
+      analyses.splice(index, 1);
+      renderResults();
+
+      if (analyses.length === 0) {
+        clearAllBtn.disabled = true;
+      }
+    }
+
+    /**
+     * Removes all analyses.
+     */
+    function clearAll() {
+      analyses.forEach(a => {
+        viewElement.map.remove(a.graphicsLayer);
+      });
+      analyses = [];
+      renderResults();
+      clearAllBtn.disabled = true;
+      setStatus("Click a draw button to begin", "ready");
+    }
+
+    // ================================================================
+    // INITIALIZATION — runs when the map view is ready
     // ================================================================
 
     viewElement.addEventListener("arcgisViewReadyChange", () => {
       const view = viewElement.view;
 
-      // Add graphics layer to the map
-      viewElement.map.add(graphicsLayer);
+      // Add the sketch layer to the map
+      viewElement.map.add(sketchLayer);
 
-      // Map click handler
-      view.on("click", (event) => {
-        activePoint = event.mapPoint;
-        clearBtn.disabled = false;
-        runAnalysis();
+      // Create the SketchViewModel
+      // This is the engine that handles all drawing interaction on the map.
+      // It manages the cursor, click handling, vertex placement, and
+      // fires events when the user finishes drawing.
+      sketchVM = new SketchViewModel({
+        view: view,
+        layer: sketchLayer,
+        // These symbols control how the shape looks WHILE the user is drawing
+        pointSymbol: pointSymbol,
+        polylineSymbol: drawnLineSymbol,
+        polygonSymbol: drawnPolygonSymbol
+      });
+
+      // When the user finishes drawing a shape, this event fires.
+      // The event object contains the completed geometry.
+      sketchVM.on("create", (event) => {
+        if (event.state === "complete") {
+          // Reset the draw toolbar UI
+          setActiveDrawButton(null);
+
+          // Remove the sketch graphic — we'll re-draw it on the
+          // analysis-specific graphics layer inside runAnalysis()
+          sketchLayer.removeAll();
+
+          // Run the analysis with the drawn geometry
+          runAnalysis(event.graphic.geometry);
+        }
       });
     });
 
-    // Re-run analysis when parameters change (if a point is already placed)
-    outerDistInput.addEventListener("calciteInputNumberChange", () => {
-      if (activePoint) runAnalysis();
-    });
-    innerDistInput.addEventListener("calciteInputNumberChange", () => {
-      if (activePoint) runAnalysis();
-    });
-    unitsSelect.addEventListener("calciteSelectChange", () => {
-      if (activePoint) runAnalysis();
-    });
-    dataSourceSelect.addEventListener("calciteSelectChange", () => {
-      if (activePoint) runAnalysis();
-    });
+    // ================================================================
+    // EVENT HANDLERS — draw toolbar buttons
+    // ================================================================
 
-    // Clear button
-    clearBtn.addEventListener("click", () => {
-      graphicsLayer.removeAll();
-      activePoint = null;
-      clearBtn.disabled = true;
-      resultsEl.style.display = "none";
-      setStatus("Click the map to begin", "ready");
-    });
+    drawPointBtn.addEventListener("click", () => startDraw("point"));
+    drawLineBtn.addEventListener("click", () => startDraw("polyline"));
+    drawPolygonBtn.addEventListener("click", () => startDraw("polygon"));
+    drawCancelBtn.addEventListener("click", () => cancelDraw());
+
+    // Clear all button
+    clearAllBtn.addEventListener("click", () => clearAll());
   </script>
+
 </html>
