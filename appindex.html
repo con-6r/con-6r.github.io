@@ -408,6 +408,7 @@
       SimpleLineSymbol,
       GraphicsLayer,
       geodesicBufferOperator,
+      differenceOperator,
       StatisticDefinition,
       SketchViewModel,
       reactiveUtils
@@ -420,6 +421,7 @@
       "@arcgis/core/symbols/SimpleLineSymbol.js",
       "@arcgis/core/layers/GraphicsLayer.js",
       "@arcgis/core/geometry/operators/geodesicBufferOperator.js",
+      "@arcgis/core/geometry/operators/differenceOperator.js",
       "@arcgis/core/rest/support/StatisticDefinition.js",
       "@arcgis/core/widgets/Sketch/SketchViewModel.js",
       "@arcgis/core/core/reactiveUtils.js"
@@ -466,22 +468,22 @@
     });
 
     const outerBufferSymbol = new SimpleFillSymbol({
-      color: [0, 121, 193, 0.08],
+      color: [0, 121, 193, 0.15],
       outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2 })
     });
 
     const innerBufferSymbol = new SimpleFillSymbol({
-      color: [255, 255, 255, 0.3],
+      color: [255, 255, 255, 0.33],
       outline: new SimpleLineSymbol({
         color: [0, 121, 193, 0.5],
-        width: 1.5,
+        width: 2,
         style: "dash"
       })
     });
 
     const highlightSymbol = new SimpleFillSymbol({
       color: [0, 0, 0, 0],
-      outline: new SimpleLineSymbol({ color: [6, 104, 179, 0.4], width: 1 })
+      outline: new SimpleLineSymbol({ color: [6, 104, 179, 0.8], width: 0.8 })
     });
 
     // ================================================================
@@ -716,8 +718,13 @@
 
         const bandPop = outerPop - innerPop;
 
-        // Highlight intersecting features within the outer buffer
-        const features = await queryFeaturesForHighlight(outerBuffer, layer);
+        // Create buffer band geometry
+        await differenceOperator.load();
+        const bandGeo = differenceOperator.execute(outerBuffer, innerBuffer);
+        
+        // Highlight intersecting features within the band
+        const highlightGeo = innerDist > 0 ? bandGeometry : outerBuffer;
+        const features = await queryFeaturesForHighlight(highlightGeo, layer);
         features.forEach(f => {
           gfxLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
         });
