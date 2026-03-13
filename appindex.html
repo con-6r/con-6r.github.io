@@ -261,7 +261,7 @@
 
 ```
   <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-start" position="start" display-mode="float">
+  <calcite-shell-panel slot="panel-end" position="end" display-mode="float">
     <calcite-panel heading="Population Band Query">
       <div class="panel-content">
 
@@ -469,21 +469,21 @@
 
     const outerBufferSymbol = new SimpleFillSymbol({
       color: [0, 121, 193, 0.15],
-      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2 })
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2.1 })
     });
 
     const innerBufferSymbol = new SimpleFillSymbol({
-      color: [255, 255, 255, 0.33],
+      color: [255, 255, 255, 0.25],
       outline: new SimpleLineSymbol({
         color: [0, 121, 193, 0.8],
-        width: 2,
+        width: 2.1,
         style: "dash"
       })
     });
 
     const highlightSymbol = new SimpleFillSymbol({
       color: [0, 0, 0, 0],
-      outline: new SimpleLineSymbol({ color: [6, 104, 179, 0.1], width: 0.9 })
+      outline: new SimpleLineSymbol({ color: [6, 104, 179, 0.33], width: 1 })
     });
 
     // ================================================================
@@ -804,7 +804,7 @@
         header.innerHTML = `
           <div class="analysis-header-text">
             <p class="analysis-title">#${a.id}: ${a.bandDesc}</p>
-            <p class="analysis-subtitle">${a.layerLabel} · ${formatNumber(a.featureCount)} blocks/block groups</p>
+            <p class="analysis-subtitle">${formatNumber(a.featureCount)} · ${a.layerLabel}</p>
           </div>
           <span class="analysis-band-value">${formatNumber(a.bandPop)}</span>
           <calcite-icon icon="${a.expanded ? "chevron-up" : "chevron-down"}" scale="s"></calcite-icon>
@@ -833,7 +833,7 @@
             <span class="analysis-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Blocks/Block Groups Counted</span>
+            <span class="analysis-detail-label">Blocks/Block Groups</span>
             <span class="analysis-detail-value">${formatNumber(a.featureCount)}</span>
           </div>
           <div class="analysis-actions">
