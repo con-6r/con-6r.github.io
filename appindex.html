@@ -722,7 +722,7 @@
         const bandGeo = differenceOperator.execute(outerBuffer, innerBuffer);
         
         // Highlight intersecting features within the band
-        const highlightGeo = innerDist > 0 ? bandGeometry : outerBuffer;
+        const highlightGeo = innerDist > 0 ? bandGeo : outerBuffer;
         const features = await queryFeaturesForHighlight(highlightGeo, layer);
         features.forEach(f => {
           gfxLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
