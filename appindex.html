@@ -710,7 +710,7 @@
 
         // Handle inner buffer
         let innerPop = 0;
-        let innerBuffer = undefined;
+        let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
           gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
@@ -719,11 +719,8 @@
 
         const bandPop = outerPop - innerPop;
 
-        // Create buffer band geometry
-        const bandGeo = differenceOperator.execute(outerBuffer, innerBuffer);
-        
-        // Highlight intersecting features within the band
-        const highlightGeo = innerDist > 0 ? bandGeo : outerBuffer;
+        // Create buffer band geometry and highlight intersecting features within the band
+        const highlightGeo = innerBuffer ? differenceOperator.execute(outerBuffer, innerBuffer) : outerBuffer;
         const features = await queryFeaturesForHighlight(highlightGeo, layer);
         features.forEach(f => {
           gfxLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
