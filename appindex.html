@@ -223,7 +223,7 @@
 
   /* Scrollable results area */
   .results-scroll {
-    max-height: 400px;
+    max-height: 200px;
     overflow-y: auto;
   }
 </style>
@@ -428,7 +428,7 @@
     ]);
 
     // ================================================================
-    // CONFIGURATION — UPDATE THESE TO MATCH YOUR LAYERS
+    // CONFIGURATION
     // ================================================================
     const BLOCK_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
@@ -483,7 +483,7 @@
 
     const highlightSymbol = new SimpleFillSymbol({
       color: [0, 0, 0, 0],
-      outline: new SimpleLineSymbol({ color: [6, 104, 179, 0.33], width: 1 })
+      outline: new SimpleLineSymbol({ color: [50, 181, 205, 0.2], width: 1 })
     });
 
     // ================================================================
@@ -507,7 +507,7 @@
     // STATE
     // ================================================================
 
-    // Each completed analysis is stored here so we can manage multiple results.
+    // Each completed analysis is stored here
     // Structure: { id, graphicsLayer, outerPop, innerPop, bandPop, label, expanded }
     let analyses = [];
     let analysisCounter = 0;
@@ -538,7 +538,7 @@
     }
 
     /**
-     * Returns a human-readable label for the geometry type the user drew.
+     * Returns a human-readable label for the geometry type the user drew
      */
     function getGeometryLabel(geometry) {
       switch (geometry.type) {
@@ -559,7 +559,7 @@
 
     /**
      * Sets the visual state of the draw toolbar buttons.
-     * The active tool's button appears solid/filled; others appear outlined.
+     * The active tool's button appears solid/filled; others appear outlined
      */
     function setActiveDrawButton(activeId) {
       const buttons = [drawPointBtn, drawLineBtn, drawPolygonBtn];
