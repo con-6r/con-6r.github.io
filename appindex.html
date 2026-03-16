@@ -710,7 +710,7 @@
 
         // Handle inner buffer
         let innerPop = 0;
-        let innerBuffer = null;
+        let innerBuffer = undefined;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
           gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
