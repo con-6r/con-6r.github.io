@@ -261,7 +261,14 @@
 
 ```
   <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-start" position="start" display-mode="float">
+  <calcite-shell-panel slot="panel-start" position="start" display-mode="float" collapsed>
+    <calcite-action-bar slot="action-bar">
+      <calcite-action
+        id="togglePanel"
+        text="Population Query"
+        icon="analysis"
+        ></calcite-action>
+      ></calcite-action-bar>
     <calcite-panel heading="Population Band Query">
       <div class="panel-content">
 
@@ -482,8 +489,8 @@
     });
 
     const highlightSymbol = new SimpleFillSymbol({
-      color: [0, 0, 0, 0],
-      outline: new SimpleLineSymbol({ color: [128, 128, 128, 0.8], width: 1 })
+      color: [47, 79, 79, 0.1],
+      outline: new SimpleLineSymbol({ color: [47, 79, 79, 0.8], width: 0.5 })
     });
 
     // ================================================================
@@ -497,7 +504,9 @@
     const clearAllBtn = document.getElementById("clearAllBtn");
     const statusEl = document.getElementById("status");
     const resultsListEl = document.getElementById("resultsList");
-
+    const shellPanel = document.querySelector("calcite-shell-panel");
+    const toggleAction = document.getElementById("togglePanel");
+    const panel = document.querySelector("calcite-panel");
     const drawPointBtn = document.getElementById("drawPoint");
     const drawLineBtn = document.getElementById("drawLine");
     const drawPolygonBtn = document.getElementById("drawPolygon");
@@ -964,7 +973,19 @@
     drawLineBtn.addEventListener("click", () => startDraw("polyline"));
     drawPolygonBtn.addEventListener("click", () => startDraw("polygon"));
     drawCancelBtn.addEventListener("click", () => cancelDraw());
-
+    
+    // Click the action bar icon to toggle the panel open/closed
+    toggleAction.addEventListener("click", () => {
+      shellPanel.collapsed = !shellPanel.collapsed;
+      toggleAction.active = !shellPanel.collapsed;
+    });
+    
+    // Click the panel's X button to close it
+    panel.addEventListener("calcitePanelClose", () => {
+      shellPanel.collapsed = true;
+      toggleAction.active = false;
+    });
+        
     // Clear all button
     clearAllBtn.addEventListener("click", () => clearAll());
   </script>
