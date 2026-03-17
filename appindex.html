@@ -253,20 +253,18 @@
           heading-level="1"
           slot="logo"
           heading="EPA Region 6 Demographic Explorer"
-          description="Population analysis by buffer band"
         ></calcite-navigation-logo>
+        <calcite-action
+          id="togglePanel"
+          slot="content-end"
+          text="Create Buffers"
+          icon="buffer-point"
+        ></calcite-action>
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-start" position="start" display-mode="float" collapsed>
-    <calcite-action-bar slot="action-bar">
-      <calcite-action
-        id="togglePanel"
-        text="Population Query"
-        icon="template-group-point-buffer"
-        ></calcite-action>
-      </calcite-action-bar>
-    <calcite-panel heading="Population Band Query">
+  <calcite-shell-panel slot="panel-end" position="start" display-mode="float" collapsed>
+    <calcite-panel heading="Create Buffers">
       <div class="panel-content">
 
         <!-- Step 1: Draw mode selection -->
