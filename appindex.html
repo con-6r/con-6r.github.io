@@ -787,10 +787,18 @@
         const geoLabel = await getLocationName(drawnGeometry);
         let bandDesc;
         if (innerDist > 0) {
-          bandDesc = `${geoLabel} Band (${innerDist}–${outerDist} ${unit})`;
+          bandDesc = `${geoLabel} Buffer Band`;
         } else {
-          bandDesc = `${geoLabel} Buffer (${outerDist} ${unit})`;
+          bandDesc = `${geoLabel} Buffer`;
         }
+        let subDesc;
+        if (innerDist > 0) {
+          subDesc = `${innerDist}–${outerDist} ${unit}`;
+        } else {
+          bandDesc = `${outerDist} ${unit}`;
+        }
+
+        
 
         // Store the result
         const analysisResult = {
@@ -852,7 +860,7 @@
         header.innerHTML = `
           <div class="analysis-header-text">
             <p class="analysis-title">${a.id}: ${a.bandDesc}</p>
-            <p class="analysis-subtitle">${a.layerLabel}: ${formatNumber(a.featureCount)}</p>
+            <p class="analysis-subtitle">${a.subDesc}</p>
           </div>
           <span class="analysis-band-value">${formatNumber(a.bandPop)}</span>
           <calcite-icon icon="${a.expanded ? "chevron-up" : "chevron-down"}" scale="s"></calcite-icon>
