@@ -220,7 +220,7 @@
     width: 100%;
   }
 
-  #togglePanel {
+  /*#togglePanel {
     flex-direction: column;
     gap: 2px;
   }  
@@ -261,16 +261,17 @@
           heading="EPA Region 6 Demographic Explorer"
           thumbnail="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
         ></calcite-navigation-logo>
-        <div slot="content-end" style="display: flex; align-items: center; padding-right: 16px">
+        <!--<div slot="content-end" style="display: flex; align-items: center; padding-right: 16px">-->
           <calcite-action
             id="togglePanel"
+            slot="content-end"
             text="Create Buffers"
             icon="template-group-point-buffer"
             text-enabled
-            scale="2"
+            scale="3"
             style="--calcite-action-text-color: var(--calcite-color-text-1);"
           ></calcite-action>
-        </div>
+        <!--</div>-->
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
