@@ -787,15 +787,15 @@
         const geoLabel = await getLocationName(drawnGeometry);
         let bandDesc;
         if (innerDist > 0) {
-          bandDesc = `${geoLabel} Buffer Band`;
+          bandDesc = `${geoLabel}`;
         } else {
-          bandDesc = `${geoLabel} Buffer`;
+          bandDesc = `${geoLabel}`;
         }
         let subDesc;
         if (innerDist > 0) {
-          subDesc = `${innerDist}–${outerDist} ${unit}`;
+          subDesc = `Buffer Band: ${innerDist}–${outerDist} ${unit}`;
         } else {
-          bandDesc = `${outerDist} ${unit}`;
+          bandDesc = `Buffer: ${outerDist} ${unit}`;
         }
 
         
