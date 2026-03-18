@@ -427,6 +427,7 @@
       differenceOperator,
       StatisticDefinition,
       SketchViewModel,
+      locator,
       reactiveUtils
     ] = await $arcgis.import([
       "@arcgis/core/Graphic.js",
@@ -440,6 +441,7 @@
       "@arcgis/core/geometry/operators/differenceOperator.js",
       "@arcgis/core/rest/support/StatisticDefinition.js",
       "@arcgis/core/widgets/Sketch/SketchViewModel.js",
+      "@arcgis/core/rest/locator.js"
       "@arcgis/core/core/reactiveUtils.js"
     ]);
 
@@ -749,9 +751,40 @@
         if (view) {
           view.goTo(outerBuffer.extent.expand(1.4));
         }
-
+        
         // Build the description string
-        const geoLabel = getGeometryLabel(drawnGeometry);
+
+        const GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
+
+        async function getLocationName(geometry) {
+          // Only reverse geocode points — lines and polygons get a generic label
+          try {
+            const response = await locator.locationToAddress(GEOCODE_URL, {
+              location: geometry
+            });
+        
+            // The response contains address attributes at various levels of detail
+            const attrs = response.attributes;
+        
+            // Build a label from city and state, falling back through options
+            const city = attrs.City || attrs.Subregion || attrs.Region || "";
+            const state = attrs.RegionAbbr || attrs.Region || "";
+        
+            if (city && state) {
+              return `${city}, ${state}`;
+            } else if (city) {
+              return `${city}`;
+            } else {
+              // Fall back to coordinates if geocoding returns nothing useful
+              return `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`;
+            }
+          } catch (err) {
+            console.warn("Reverse geocode failed, falling back to coordinates:", err);
+            return `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`;
+          }
+        }
+        
+        const geoLabel = await getLocationName(drawnGeometry);
         let bandDesc;
         if (innerDist > 0) {
           bandDesc = `${geoLabel} Band (${innerDist}–${outerDist} ${unit})`;
