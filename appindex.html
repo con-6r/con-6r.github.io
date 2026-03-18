@@ -119,12 +119,13 @@
   /* Draw mode toolbar */
   .draw-toolbar {
     display: flex;
+    flex: 5;
     gap: 4px;
     flex-wrap: wrap;
   }
 
   .draw-toolbar calcite-button {
-    flex: 5;
+    flex: 1;
     min-width: 0;
   }
 
@@ -397,7 +398,7 @@
   </calcite-shell-panel>
 
   <!-- Map -->
-  <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c">
+  <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="100">
     <arcgis-zoom slot="top-left"></arcgis-zoom>
     <!--<arcgis-search slot="top-right"></arcgis-search>-->
     <arcgis-expand slot="top-left">
