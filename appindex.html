@@ -220,9 +220,14 @@
     width: 100%;
   }
 
+  #togglePanel {
+    flex-direction: column;
+    gap: 2px;
+  }  
+
   /* Scrollable results area */
   .results-scroll {
-    max-height: 200px;
+    max-height: 100px;
     overflow-y: auto;
   }
 </style>
@@ -253,13 +258,17 @@
           heading-level="1"
           slot="logo"
           heading="EPA Region 6 Demographic Explorer"
+          thumbnail="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
         ></calcite-navigation-logo>
-        <calcite-action
-          id="togglePanel"
-          slot="content-end"
-          text="Create Buffers"
-          icon="buffer-point"
-        ></calcite-action>
+        <div slot="content-end" style="display: flex; align-items: center; padding-right: 16px;">
+          <calcite-action
+            id="togglePanel"
+            text="Create Buffers"
+            icon="template-group-point-buffer"
+            text-enabled
+            scale="1"
+            style="--calcite-action-text-color: var(--calcite-color-text-1);"
+          ></calcite-action>
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
@@ -388,6 +397,9 @@
   <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c">
     <arcgis-zoom slot="top-left"></arcgis-zoom>
     <!--<arcgis-search slot="top-right"></arcgis-search>-->
+    <arcgis-expand slot="top-left">
+      <arcgis-layer-list></arcgis-layer-list>
+    </arcgis-expand>
     <arcgis-expand slot="bottom-left">
       <arcgis-legend></arcgis-legend>
     </arcgis-expand>
