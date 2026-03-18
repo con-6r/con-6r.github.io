@@ -279,6 +279,12 @@
     <calcite-panel heading="Create Buffers">
       <div class="panel-content">
 
+        <!-- Status -->
+        <div id="status" class="status-message ready">
+          <calcite-icon icon="information" scale="s"></calcite-icon>
+          <span>Click a draw button to begin</span>
+        </div>
+        
         <!-- Step 1: Draw mode selection -->
         <calcite-label scale="s">
           Step 1: Draw a shape on the map
@@ -334,7 +340,7 @@
                 placeholder="e.g. 3"
                 value="3"
                 min="0.1"
-                step="0.5"
+                step="0.1"
                 scale="s"
               ></calcite-input-number>
               <calcite-select id="units" scale="s">
@@ -356,7 +362,7 @@
               placeholder="e.g. 2"
               value="2"
               min="0"
-              step="0.5"
+              step="0.1"
               scale="s"
             ></calcite-input-number>
           </calcite-label>
@@ -371,12 +377,6 @@
               <calcite-option value="blockgroups">2024 Block Groups (faster, less precise)</calcite-option>
             </calcite-select>
           </calcite-label>
-        </div>
-
-        <!-- Status -->
-        <div id="status" class="status-message ready">
-          <calcite-icon icon="information" scale="s"></calcite-icon>
-          <span>Click a draw button to begin</span>
         </div>
 
         <!-- Clear all -->
@@ -754,9 +754,9 @@
         const geoLabel = getGeometryLabel(drawnGeometry);
         let bandDesc;
         if (innerDist > 0) {
-          bandDesc = `${innerDist}–${outerDist} ${unit} band around ${geoLabel}`;
+          bandDesc = `${geoLabel} Band (${innerDist}–${outerDist} ${unit})`;
         } else {
-          bandDesc = `Within ${outerDist} ${unit} of ${geoLabel}`;
+          bandDesc = `${geoLabel} Buffer (${outerDist} ${unit})`;
         }
 
         // Store the result
@@ -818,8 +818,8 @@
         header.className = "analysis-header";
         header.innerHTML = `
           <div class="analysis-header-text">
-            <p class="analysis-title">#${a.id}: ${a.bandDesc}</p>
-            <p class="analysis-subtitle">${formatNumber(a.featureCount)} · ${a.layerLabel}</p>
+            <p class="analysis-title">${a.id}: ${a.bandDesc}</p>
+            <p class="analysis-subtitle">${a.layerLabel}: ${formatNumber(a.featureCount)}</p>
           </div>
           <span class="analysis-band-value">${formatNumber(a.bandPop)}</span>
           <calcite-icon icon="${a.expanded ? "chevron-up" : "chevron-down"}" scale="s"></calcite-icon>
