@@ -119,13 +119,12 @@
   /* Draw mode toolbar */
   .draw-toolbar {
     display: flex;
-    flex-grow: 1;
     gap: 4px;
     flex-wrap: wrap;
   }
 
   .draw-toolbar calcite-button {
-    flex: 1;
+    flex-grow: 1;
     min-width: 0;
   }
 
@@ -276,7 +275,7 @@
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-end" position="start" display-mode="float" collapsed>
+  <calcite-shell-panel slot="panel-end" position="start" display-mode="float" width="l" collapsed>
     <calcite-panel heading="Create Buffers">
       <div class="panel-content">
 
