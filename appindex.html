@@ -275,7 +275,7 @@
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-end" position="start" display-mode="float" width="l" collapsed>
+  <calcite-shell-panel slot="panel-end" position="start" display-mode="float" collapsed>
     <calcite-panel heading="Create Buffers">
       <div class="panel-content">
 
@@ -397,8 +397,7 @@
   </calcite-shell-panel>
 
   <!-- Map -->
-  <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="500000000">
-    <arcgis-zoom slot="top-left"></arcgis-zoom>
+  <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="1000000">
     <!--<arcgis-search slot="top-right"></arcgis-search>-->
     <arcgis-expand slot="top-left">
       <arcgis-legend></arcgis-legend>
@@ -406,6 +405,7 @@
     <arcgis-expand slot="bottom-left">
       <arcgis-layer-list></arcgis-layer-list>
     </arcgis-expand>
+    <arcgis-zoom slot="bottom-right"></arcgis-zoom>
     <arcgis-compass slot="bottom-right"></arcgis-compass>
     <arcgis-scale-bar slot="bottom-right"></arcgis-scale-bar>
   </arcgis-map>
