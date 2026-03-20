@@ -759,7 +759,11 @@
         const GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
 
         async function getLocationName(geometry) {
-          // Only reverse geocode points — lines and polygons get a generic label
+          
+          if (geometry.type !== "point") {
+            return geometry.type === "polyline" ? "Line" : "Polygon";
+          }
+          
           try {
             const response = await locator.locationToAddress(GEOCODE_URL, {
               location: geometry
