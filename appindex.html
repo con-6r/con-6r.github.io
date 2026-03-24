@@ -760,33 +760,56 @@
 
         async function getLocationName(geometry) {
           
-          if (geometry.type !== "point") {
-            return geometry.type === "polyline" ? "Line" : "Polygon";
+          let pointToGeocode;
+        
+          switch (geometry.type) {
+            case "point":
+              pointToGeocode = geometry;
+              break;
+            case "polyline":
+              const path = geometry.paths[0];
+              const midIndex = Math.floor(path.length / 2);
+              pointToGeocode = new Point({
+                x: path[midIndex][0],
+                y: path[midIndex][1],
+                spatialReference: geometry.spatialReference
+              });
+              break;
+            case "polygon":
+              // centroid is a built-in property on Polygon geometries
+              pointToGeocode = geometry.centroid;
+              break;
+            default:
+              return "Shape";
           }
-          
+        
           try {
             const response = await locator.locationToAddress(GEOCODE_URL, {
-              location: geometry
+              location: pointToGeocode
             });
         
-            // The response contains address attributes at various levels of detail
             const attrs = response.attributes;
-        
-            // Build a label from city and state, falling back through options
             const city = attrs.City || attrs.Subregion || attrs.Region || "";
             const state = attrs.RegionAbbr || attrs.Region || "";
+        
+            const typeLabel = {
+              point: "Point",
+              polyline: "Line",
+              polygon: "Polygon"
+            }[geometry.type];
         
             if (city && state) {
               return `${city}, ${state}`;
             } else if (city) {
               return `${city}`;
             } else {
-              // Fall back to coordinates if geocoding returns nothing useful
-              return `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`;
+              return typeLabel;
             }
           } catch (err) {
-            console.warn("Reverse geocode failed, falling back to coordinates:", err);
-            return `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`;
+            console.warn("Reverse geocode failed:", err);
+            return geometry.type === "point"
+              ? `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`
+              : geometry.type === "polyline" ? "Line" : "Polygon";
           }
         }
         
