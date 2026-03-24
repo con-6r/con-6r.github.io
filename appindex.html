@@ -118,6 +118,11 @@
     color: var(--calcite-color-status-success);
   }
 
+  .main-headers {
+    font-size: var(--calcite-font-size--1);
+    font-weight: var(--calcite-font-weight-medium);
+  }
+      
   /* Draw mode toolbar */
   .draw-toolbar {
     display: flex;
@@ -262,7 +267,7 @@
           slot="logo"
           heading="EPA Region 6 Demographic Explorer"
           thumbnail="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
-          style="--calcite-color-brand;"
+          style="--calcite-color: var(--calcite-color-brand);"
         ></calcite-navigation-logo>
         <!--<div slot="content-end" style="display: flex; align-items: center; padding-right: 16px">-->
           <calcite-action
@@ -289,9 +294,11 @@
         </div>
         
         <!-- Step 1: Draw mode selection -->
-        <calcite-label scale="m">
-          Step 1: Draw a shape on the map
-        </calcite-label>
+         <div class="main-headers">
+          <calcite-label>
+            Step 1: Draw a shape on the map
+          </calcite-label>
+         </div>
         <div class="draw-toolbar">
           <calcite-button
             id="drawPoint"
@@ -329,10 +336,11 @@
         </div>
 
         <!-- Step 2: Buffer parameters -->
-        <calcite-label scale="m">
-          Step 2: Set buffer distances
-        </calcite-label>
-
+        <div class="main-headers">
+          <calcite-label scale="m">
+            Step 2: Set buffer distances
+          </calcite-label>
+        </div>
         <!-- Outer distance -->
         <div class="input-group">
           <calcite-label scale="s">
