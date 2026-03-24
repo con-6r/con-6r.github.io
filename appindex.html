@@ -254,7 +254,7 @@
 
   <body>
     <calcite-shell>
-      <calcite-navigation slot="header">
+      <calcite-navigation slot="header" style="--calcite-color-brand">
         <calcite-navigation-logo
           heading-level="1"
           slot="logo"
@@ -398,7 +398,9 @@
 
   <!-- Map -->
   <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="5000000">
-    <!--<arcgis-search slot="top-right"></arcgis-search>-->
+    <arcgis-expand slot="top-right" expand-tooltip="Search">
+      <arcgis-search></arcgis-search>
+    </arcgis-expand>
     <arcgis-expand slot="top-left" expand-tooltip="Legend">
       <arcgis-legend></arcgis-legend>
     </arcgis-expand>
