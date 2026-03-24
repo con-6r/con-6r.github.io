@@ -399,14 +399,14 @@
   <!-- Map -->
   <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="5000000">
     <!--<arcgis-search slot="top-right"></arcgis-search>-->
-    <arcgis-expand slot="top-left">
+    <arcgis-expand slot="top-left" expand-tooltip="Legend" auto-collapse>
       <arcgis-legend></arcgis-legend>
     </arcgis-expand>
-    <arcgis-expand slot="top-left">
+    <arcgis-expand slot="top-left" expand-tooltip="Map Layers" auto-collapse>
       <arcgis-layer-list visibility-appearance="checkbox"></arcgis-layer-list>
     </arcgis-expand>
-    <arcgis-expand slot="top-left" show-title>
-      <arcgis-basemap-toggle></arcgis-basemap-toggle>
+    <arcgis-expand slot="top-left" expand-tooltip="Basemaps" auto-collapse>
+      <arcgis-basemap-toggle show-title></arcgis-basemap-toggle>
     </arcgis-expand>
     <arcgis-zoom slot="bottom-right"></arcgis-zoom>
     <arcgis-compass slot="bottom-left"></arcgis-compass>
