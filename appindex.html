@@ -240,15 +240,6 @@
       flex: 1;
       overflow-y: auto;
     }
-
-    .image {
-      block-size: 3rem;
-    }
-      
-    calcite-navigation-logo {
-      --calcite-color-text-1: white;
-      --calcite-color-text-2: rgba(255, 255, 255, 0.8);
-    }
     
     calcite-navigation {
       --calcite-navigation-background-color: var(--calcite-color-brand-press);
@@ -281,25 +272,28 @@
   <body>
     <calcite-shell>
       <calcite-navigation slot="header">
-        <div class="image">
-          <calcite-navigation-logo
-            heading-level="1"
-            slot="logo"
-            heading="EPA Region 6 Demographic Explorer"
-            thumbnail="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
-          ></calcite-navigation-logo>
+        <div slot="logo" style="display: flex; align-items: center; gap: 12px; padding: 0 12px;">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
+            alt="EPA Seal"
+            style="height: 48px; width: 48px;"
+          />
+          <div>
+            <div style="font-size: 16px; font-weight: bold; color: white;">
+              EPA Region 6 Demographic Explorer
+            </div>
+          </div>
         </div>
-        <!--<div slot="content-end" style="display: flex; align-items: center; padding-right: 16px">-->
-          <calcite-action
-            id="togglePanel"
-            slot="content-end"
-            text="Create Buffers"
-            icon="template-group-point-buffer"
-            text-enabled
-            scale="l"
-            style="--calcite-action-text-color: var(--calcite-color-text-1);"
-          ></calcite-action>
-        <!--</div>-->
+      
+        <calcite-action
+          id="togglePanel"
+          slot="content-end"
+          text="Create Buffers"
+          icon="template-group-point-buffer"
+          text-enabled
+          scale="l"
+          style="--calcite-action-text-color: var(--calcite-color-text-1);"
+        ></calcite-action>
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
