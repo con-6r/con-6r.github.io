@@ -14,253 +14,253 @@
         font-family: var(--calcite-font-family);
       }
 
-  /* Panel styling */
-  .panel-content {
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-weight: var(--calcite-font-weight-medium);
-  }
-
-  .input-row {
-    display: flex;
-    gap: 4px;
-    align-items: flex-end;
-  }
-
-  .input-row calcite-input-number {
-    flex: 1;
-  }
-
-  .input-row calcite-select {
-    width: 140px;
-  }
-
-  .results-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .result-card {
-    background: var(--calcite-color-foreground-2);
-    border: 1px solid var(--calcite-color-border-3);
-    border-radius: 8px;
-    padding: 12px;
-    position: relative;
-  }
-
-  .result-label {
-    font-size: var(--calcite-font-size--2);
-    color: var(--calcite-color-text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 4px 0;
-  }
-
-  .result-value {
-    font-size: var(--calcite-font-size-2);
-    font-weight: var(--calcite-font-weight-bold);
-    color: var(--calcite-color-text-1);
-    margin: 0;
-  }
-
-  .result-card.band {
-    border-color: var(--calcite-color-brand);
-  }
-
-  .result-card.band .result-value {
-    font-size: var(--calcite-font-size-4);
-    color: var(--calcite-color-brand);
-  }
-
-  .result-note {
-    font-size: var(--calcite-font-size--2);
-    color: var(--calcite-color-text-3);
-    margin: 4px 0 0 0;
-    font-style: italic;
-  }
-
-  .status-message {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    /*padding: 8px 12px;
-    border-radius: 6px;*/
-    font-size: var(--calcite-font-size--2);
-    font-weight: var(--calcite-font-weight-medium);
-  }
-
-  .status-message.ready {
-    background: var(--calcite-color-status-info-subtle);
-    color: var(--calcite-color-status-info);
-  }
-
-  .status-message.loading {
-    background: var(--calcite-color-status-warning-subtle);
-    color: var(--calcite-color-status-warning);
-  }
-
-  .status-message.error {
-    background: var(--calcite-color-status-danger-subtle);
-    color: var(--calcite-color-status-danger);
-  }
-
-  .status-message.success {
-    background: var(--calcite-color-status-success-subtle);
-    color: var(--calcite-color-status-success);
-  }
-
-  .main-headers {
-    align-items: center;
-    font-size: var(--calcite-font-size--1);
-    font-weight: var(--calcite-font-weight-medium);
-  }
-      
-  /* Draw mode toolbar */
-  .draw-toolbar {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
-
-  .draw-toolbar calcite-button {
-    flex-grow: 1;
-    min-width: 0;
-  }
-
-  /* Custom cursor when in draw mode */
-  .draw-active .esri-view-surface {
-    cursor: crosshair !important;
-  }
-
-  /* Analysis result block (one per analysis) */
-  .analysis-block {
-    border: 1px solid var(--calcite-color-border-3);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 4px;
-  }
-
-  .analysis-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background: var(--calcite-color-foreground-2);
-    cursor: pointer;
-    gap: 8px;
-  }
-
-  .analysis-header:hover {
-    background: var(--calcite-color-foreground-3);
-  }
-
-  .analysis-header-text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .analysis-title {
-    font-size: var(--calcite-font-size--1);
-    font-weight: var(--calcite-font-weight-bold);
-    color: var(--calcite-color-text-1);
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .analysis-subtitle {
-    font-size: var(--calcite-font-size--2);
-    color: var(--calcite-color-text-3);
-    margin: 2px 0 0 0;
-  }
-
-  .analysis-band-value {
-    font-size: var(--calcite-font-size-0);
-    font-weight: var(--calcite-font-weight-bold);
-    color: var(--calcite-color-brand);
-    white-space: nowrap;
-  }
-
-  .analysis-body {
-    padding: 8px 12px 12px;
-    display: none;
-    flex-direction: column;
-    gap: 6px;
-    border-top: 1px solid var(--calcite-color-border-3);
-  }
-
-  .analysis-body.open {
-    display: flex;
-  }
-
-  .analysis-detail {
-    display: flex;
-    justify-content: space-between;
-    font-size: var(--calcite-font-size--1);
-  }
-
-  .analysis-detail-label {
-    color: var(--calcite-color-text-3);
-  }
-
-  .analysis-detail-value {
-    font-weight: var(--calcite-font-weight-bold);
-    color: var(--calcite-color-text-1);
-  }
-
-  .analysis-actions {
-    display: flex;
-    gap: 4px;
-    margin-top: 4px;
-  }
-
-  #clearAllBtn {
-    width: 100%;
-  }
-
-  /*#togglePanel {
-    flex-direction: column;
-    gap: 2px;
-  }  
-
-  /* Scrollable results area */
-  .results-scroll {
-    max-height: auto;
-    overflow-y: auto;
-  }
-
-  calcite-navigation-logo {
-    --calcite-navigation-logo-thumbnail-size: 50px;
-  }
-      
-</style>
-
-<!-- Load the ArcGIS Maps SDK for JavaScript 5.0 from the CDN -->
-<script type="module" src="https://js.arcgis.com/5.0/"></script>
-
-<!-- Configure OAuth before components load -->
-<script type="module">
-  const [config, idMgr, OAuthInfo] = await $arcgis.import([
-    "@arcgis/core/config.js",
-    "@arcgis/core/identity/IdentityManager.js",
-    "@arcgis/core/identity/OAuthInfo.js",
-  ]);
-
-  const oAuthInfo = new OAuthInfo({
-    appId: "dY1uuKoXcEBt44zy",
-  });
-  idMgr.registerOAuthInfos([oAuthInfo]);
-</script>
+    /* Panel styling */
+    .panel-content {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-weight: var(--calcite-font-weight-medium);
+    }
+  
+    .input-row {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+    }
+  
+    .input-row calcite-input-number {
+      flex: 1;
+    }
+  
+    .input-row calcite-select {
+      width: 140px;
+    }
+  
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  
+    .result-card {
+      background: var(--calcite-color-foreground-2);
+      border: 1px solid var(--calcite-color-border-3);
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+    }
+  
+    .result-label {
+      font-size: var(--calcite-font-size--2);
+      color: var(--calcite-color-text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 4px 0;
+    }
+  
+    .result-value {
+      font-size: var(--calcite-font-size-2);
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-text-1);
+      margin: 0;
+    }
+  
+    .result-card.band {
+      border-color: var(--calcite-color-brand);
+    }
+  
+    .result-card.band .result-value {
+      font-size: var(--calcite-font-size-4);
+      color: var(--calcite-color-brand);
+    }
+  
+    .result-note {
+      font-size: var(--calcite-font-size--2);
+      color: var(--calcite-color-text-3);
+      margin: 4px 0 0 0;
+      font-style: italic;
+    }
+  
+    .status-message {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /*padding: 8px 12px;
+      border-radius: 6px;*/
+      font-size: var(--calcite-font-size--2);
+      font-weight: var(--calcite-font-weight-medium);
+    }
+  
+    .status-message.ready {
+      background: var(--calcite-color-status-info-subtle);
+      color: var(--calcite-color-status-info);
+    }
+  
+    .status-message.loading {
+      background: var(--calcite-color-status-warning-subtle);
+      color: var(--calcite-color-status-warning);
+    }
+  
+    .status-message.error {
+      background: var(--calcite-color-status-danger-subtle);
+      color: var(--calcite-color-status-danger);
+    }
+  
+    .status-message.success {
+      background: var(--calcite-color-status-success-subtle);
+      color: var(--calcite-color-status-success);
+    }
+  
+    .main-headers {
+      align-items: center;
+      font-size: var(--calcite-font-size--1);
+      font-weight: var(--calcite-font-weight-medium);
+    }
+        
+    /* Draw mode toolbar */
+    .draw-toolbar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+  
+    .draw-toolbar calcite-button {
+      flex-grow: 1;
+      min-width: 0;
+    }
+  
+    /* Custom cursor when in draw mode */
+    .draw-active .esri-view-surface {
+      cursor: crosshair !important;
+    }
+  
+    /* Analysis result block (one per analysis) */
+    .analysis-block {
+      border: 1px solid var(--calcite-color-border-3);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+  
+    .analysis-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--calcite-color-foreground-2);
+      cursor: pointer;
+      gap: 8px;
+    }
+  
+    .analysis-header:hover {
+      background: var(--calcite-color-foreground-3);
+    }
+  
+    .analysis-header-text {
+      flex: 1;
+      min-width: 0;
+    }
+  
+    .analysis-title {
+      font-size: var(--calcite-font-size--1);
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-text-1);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    .analysis-subtitle {
+      font-size: var(--calcite-font-size--2);
+      color: var(--calcite-color-text-3);
+      margin: 2px 0 0 0;
+    }
+  
+    .analysis-band-value {
+      font-size: var(--calcite-font-size-0);
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-brand);
+      white-space: nowrap;
+    }
+  
+    .analysis-body {
+      padding: 8px 12px 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid var(--calcite-color-border-3);
+    }
+  
+    .analysis-body.open {
+      display: flex;
+    }
+  
+    .analysis-detail {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--calcite-font-size--1);
+    }
+  
+    .analysis-detail-label {
+      color: var(--calcite-color-text-3);
+    }
+  
+    .analysis-detail-value {
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-text-1);
+    }
+  
+    .analysis-actions {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+  
+    #clearAllBtn {
+      width: 100%;
+    }
+  
+    /*#togglePanel {
+      flex-direction: column;
+      gap: 2px;
+    }  
+  
+    /* Scrollable results area */
+    .results-scroll {
+      max-height: auto;
+      overflow-y: auto;
+    }
+  
+    calcite-navigation-logo {
+      --calcite-navigation-logo-thumbnail-size: 75%;
+    }
+        
+  </style>
+  
+  <!-- Load the ArcGIS Maps SDK for JavaScript 5.0 from the CDN -->
+  <script type="module" src="https://js.arcgis.com/5.0/"></script>
+  
+  <!-- Configure OAuth before components load -->
+  <script type="module">
+    const [config, idMgr, OAuthInfo] = await $arcgis.import([
+      "@arcgis/core/config.js",
+      "@arcgis/core/identity/IdentityManager.js",
+      "@arcgis/core/identity/OAuthInfo.js",
+    ]);
+  
+    const oAuthInfo = new OAuthInfo({
+      appId: "dY1uuKoXcEBt44zy",
+    });
+    idMgr.registerOAuthInfos([oAuthInfo]);
+  </script>
 
   </head>
 
