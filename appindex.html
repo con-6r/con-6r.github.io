@@ -238,6 +238,10 @@
     max-height: auto;
     overflow-y: auto;
   }
+
+  calcite-navigation-logo {
+  --calcite-navigation-logo-thumbnail-size: 50px;
+}
       
 </style>
 
@@ -260,9 +264,9 @@
 
   </head>
 
-  <body>
+  <body class="calcite-mode-light">
     <calcite-shell>
-      <calcite-navigation slot="header" style="--calcite-navigation-background-color: var(--calcite-color-brand-press);" calcite-mode-light>
+      <calcite-navigation slot="header" style="--calcite-navigation-background-color: var(--calcite-color-brand-press);">
         <calcite-navigation-logo
           heading-level="1"
           slot="logo"
