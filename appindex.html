@@ -91,8 +91,8 @@
   
     .status-message {
       display: flex;
-      align-content: center;
-      gap: 8px;
+      align-items: center;
+      gap: 6px;
       /*padding: 8px 12px;
       border-radius: 6px;*/
       font-size: var(--calcite-font-size--1);
@@ -245,17 +245,6 @@
       overflow-y: auto;
     }
     
-    calcite-navigation {
-      --calcite-navigation-background-color: var(--calcite-color-brand-press);
-      --calcite-color-text-1: white;
-      --calcite-color-text-2: rgba(255, 255, 255, 0.8);
-      --calcite-color-text-3: rgba(255, 255, 255, 0.6);
-    }
-
-    calcite-navigation::part(container) {
-      height: 40px;
-      min-height: 40px;
-    }
         
   </style>
   
@@ -280,30 +269,29 @@
 
   <body>
     <calcite-shell>
-      <calcite-navigation slot="header">
-        <div slot="logo" style="display: flex; align-items: center; gap: 12px; padding: 0 12px;">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
-            alt="EPA Seal"
-            style="height: 2rem; width: 2rem;"
-          />
-          <div>
-            <div style="font-size: 1rem; font-weight: bold; color: white;">
-              EPA Region 6 Demographic Explorer
-            </div>
-          </div>
+      <div slot="header" style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--calcite-color-brand-press);
+        height: 2.5rem;
+        padding: 0 12px;
+      ">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
+            alt="EPA Seal" style="height: 28px; width: 28px;" />
+          <span style="color: white; font-size: 15px; font-weight: bold; font-family: var(--calcite-font-family);">
+            EPA Region 6 Demographic Explorer
+          </span>
         </div>
-      
         <calcite-action
           id="togglePanel"
-          slot="content-end"
           text="Create Buffers"
           icon="template-group-point-buffer"
           text-enabled
           scale="m"
-          style="--calcite-action-text-color: var(--calcite-color-text-1);"
         ></calcite-action>
-      </calcite-navigation>
+      </div>
 
   <!-- Shell panel for the analysis controls -->
   <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
@@ -859,7 +847,7 @@
         renderResults();
 
         clearAllBtn.disabled = false;
-        setStatus(`Analysis complete — ${formatNumber(bandPop)} people in band`, "success");
+        setStatus(`Complete — ${formatNumber(bandPop)} people in band`, "success");
 
       } catch (err) {
         console.error("Analysis error:", err);
