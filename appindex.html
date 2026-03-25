@@ -46,6 +46,7 @@
     .results-container {
       display: flex;
       flex-direction: column;
+      height: 100%;
       gap: 8px;
     }
   
@@ -231,16 +232,24 @@
     /*#togglePanel {
       flex-direction: column;
       gap: 2px;
-    }  
+    }*/ 
   
     /* Scrollable results area */
     .results-scroll {
-      max-height: auto;
+      flex: 1;
       overflow-y: auto;
     }
   
+    calcite-navigation-logo {
+      --calcite-navigation-logo-thumbnail-size: 50px;
+      --calcite-color-text-1: white;
+      --calcite-color-text-2: rgba(255, 255, 255, 0.8);
+    }
+    
     calcite-navigation {
-      --calcite-navigation-logo-thumbnail-size: 75%;
+      --calcite-color-text-1: white;
+      --calcite-color-text-2: rgba(255, 255, 255, 0.8);
+      --calcite-color-text-3: rgba(255, 255, 255, 0.6);
     }
         
   </style>
@@ -266,7 +275,7 @@
 
   <body>
     <calcite-shell>
-      <calcite-navigation slot="header" style="--calcite-navigation-background-color: var(--calcite-color-brand-press); --calcite-navigation-text-color: var(--calcite-color-text-1);">
+      <calcite-navigation slot="header">
         <calcite-navigation-logo
           heading-level="1"
           slot="logo"
@@ -287,7 +296,7 @@
       </calcite-navigation>
 
   <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-end" position="start" display-mode="float" collapsed>
+  <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
     <calcite-panel heading="Create Buffers">
       <div class="panel-content">
 
@@ -560,7 +569,58 @@
     // ================================================================
     // UTILITY FUNCTIONS
     // ================================================================
+    const GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
 
+    // Build the description string
+    async function getLocationName(geometry) {
+      
+      let pointToGeocode;
+    
+      switch (geometry.type) {
+        case "point":
+          pointToGeocode = geometry;
+          break;
+        case "polyline":
+          const path = geometry.paths[0];
+          const midIndex = Math.floor(path.length / 2);
+          pointToGeocode = new Point({
+            x: path[midIndex][0],
+            y: path[midIndex][1],
+            spatialReference: geometry.spatialReference
+          });
+          break;
+        case "polygon":
+          // centroid is a built-in property on Polygon geometries
+          pointToGeocode = geometry.centroid;
+          break;
+        default:
+          return "Shape";
+      }
+    
+      try {
+        const response = await locator.locationToAddress(GEOCODE_URL, {
+          location: pointToGeocode
+        });
+    
+        const attrs = response.attributes;
+        const city = attrs.City || attrs.Subregion || attrs.Region || "";
+        const state = attrs.RegionAbbr || attrs.Region || "";
+    
+        if (city && state) {
+          return `${city}, ${state}`;
+        } else if (city) {
+          return `${city}`;
+        } else {
+          return typeLabel;
+        }
+      } catch (err) {
+        console.warn("Reverse geocode failed:", err);
+        return geometry.type === "point"
+          ? `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`
+          : geometry.type === "polyline" ? "Line" : "Polygon";
+      }
+    }
+    
     function setStatus(message, type = "ready") {
       const icons = {
         ready: "information",
@@ -577,22 +637,6 @@
 
     function formatNumber(num) {
       return num.toLocaleString("en-US");
-    }
-
-    /**
-     * Returns a human-readable label for the geometry type the user drew
-     */
-    function getGeometryLabel(geometry) {
-      switch (geometry.type) {
-        case "point":
-          return `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`;
-        case "polyline":
-          return "Line";
-        case "polygon":
-          return "Polygon";
-        default:
-          return "Shape";
-      }
     }
 
     // ================================================================
@@ -774,80 +818,11 @@
           view.goTo(outerBuffer.extent.expand(1.4));
         }
         
-        // Build the description string
-
-        const GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-
-        async function getLocationName(geometry) {
-          
-          let pointToGeocode;
-        
-          switch (geometry.type) {
-            case "point":
-              pointToGeocode = geometry;
-              break;
-            case "polyline":
-              const path = geometry.paths[0];
-              const midIndex = Math.floor(path.length / 2);
-              pointToGeocode = new Point({
-                x: path[midIndex][0],
-                y: path[midIndex][1],
-                spatialReference: geometry.spatialReference
-              });
-              break;
-            case "polygon":
-              // centroid is a built-in property on Polygon geometries
-              pointToGeocode = geometry.centroid;
-              break;
-            default:
-              return "Shape";
-          }
-        
-          try {
-            const response = await locator.locationToAddress(GEOCODE_URL, {
-              location: pointToGeocode
-            });
-        
-            const attrs = response.attributes;
-            const city = attrs.City || attrs.Subregion || attrs.Region || "";
-            const state = attrs.RegionAbbr || attrs.Region || "";
-        
-            const typeLabel = {
-              point: "Point",
-              polyline: "Line",
-              polygon: "Polygon"
-            }[geometry.type];
-        
-            if (city && state) {
-              return `${city}, ${state}`;
-            } else if (city) {
-              return `${city}`;
-            } else {
-              return typeLabel;
-            }
-          } catch (err) {
-            console.warn("Reverse geocode failed:", err);
-            return geometry.type === "point"
-              ? `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`
-              : geometry.type === "polyline" ? "Line" : "Polygon";
-          }
-        }
-        
         const geoLabel = await getLocationName(drawnGeometry);
-        let bandDesc;
-        if (innerDist > 0) {
-          bandDesc = `${geoLabel}`;
-        } else {
-          bandDesc = `${geoLabel}`;
-        }
-        let subDesc;
-        if (innerDist > 0) {
-          subDesc = `Buffer Band: ${innerDist}–${outerDist} ${unit}`;
-        } else {
-          bandDesc = `Buffer: ${outerDist} ${unit}`;
-        }
-
-        
+        const bandDesc = geoLabel;
+        const subDesc = innerDist > 0
+          ? `Buffer Band: ${innerDist}–${outerDist} ${unit}`
+          : `Buffer: ${outerDist} ${unit}`;
 
         // Store the result
         const analysisResult = {
