@@ -274,7 +274,7 @@
         align-items: center;
         justify-content: space-between;
         background: var(--calcite-color-brand-press);
-        height: 2.5rem;
+        height: 3.5rem;
         padding: 0 12px;
       ">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -847,7 +847,12 @@
         renderResults();
 
         clearAllBtn.disabled = false;
-        setStatus(`Complete — ${formatNumber(bandPop)} people in band`, "success");
+
+        if (innerDist > 0) {
+          setStatus(`Analysis Complete: ${formatNumber(bandPop)} people in band`, "success");
+        } else {
+          setStatus(`Analysis Complete: ${formatNumber(bandPop)} people in buffer`, "success");
+        }
 
       } catch (err) {
         console.error("Analysis error:", err);
