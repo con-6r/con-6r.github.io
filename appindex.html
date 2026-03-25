@@ -850,9 +850,9 @@
         clearAllBtn.disabled = false;
 
         if (innerDist > 0) {
-          setStatus(`Analysis Complete: ${formatNumber(bandPop)} people in band`, "success");
+          setStatus(`Done: ${formatNumber(bandPop)} people in band`, "success");
         } else {
-          setStatus(`Analysis Complete: ${formatNumber(bandPop)} people in buffer`, "success");
+          setStatus(`Done: ${formatNumber(bandPop)} people in buffer`, "success");
         }
 
       } catch (err) {
