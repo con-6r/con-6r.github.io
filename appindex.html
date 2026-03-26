@@ -1080,9 +1080,9 @@
       toggleAction.active = !shellPanel.collapsed;
     });
 
-    toolbarAction.addEventListener("click", () => {
-      shellPanel.collapsed = !shellPanel.collapsed;
-      toggleAction.active = !shellPanel.collapsed;
+    measureAction.addEventListener("click", () => {
+      toolbar.collapsed = !toolbar.collapsed;
+      toolbar.active = !toolbar.collapsed;
     });
    
     // Clear all button
