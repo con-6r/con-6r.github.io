@@ -129,7 +129,13 @@
       margin: 0;
       padding: 0;
     }
-        
+
+    .tabs {
+      --calcite-button-background-color: var(--calcite-color-brand);
+      --calcite-button-icon-color: white;
+      --calcite-button-text-color: white;
+    }
+      
     /* Draw mode toolbar */
     .draw-toolbar {
       display: flex;
@@ -268,31 +274,31 @@
   </head>
 
   <body>
-    <calcite-shell>
-      <div slot="header" style="
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: var(--calcite-color-brand-press);
-        height: 3.5rem;
-        padding: 0 12px;
-      ">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
-            alt="EPA Seal" style="height: 2.8rem; width: 2.8rem;" />
-          <span style="color: white; font-size: 1.5rem; font-weight: bold; font-family: var(--calcite-font-family);">
-            EPA Region 6 Demographic Explorer
-          </span>
-        </div>
+    <div slot="header" style="
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--calcite-color-brand-press);
+      height: 3.5rem;
+      padding: 0 12px;
+    ">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
+          alt="EPA Seal" style="height: 2.67rem; width: 2.67rem;" />
+        <span style="color: white; font-size: 1.2rem; font-weight: bold; font-family: var(--calcite-font-family);">
+          EPA Region 6 Demographic Explorer
+        </span>
+      </div>
+      <div class="tabs">
         <calcite-action
           id="togglePanel"
           text="Create Buffers"
           icon="template-group-point-buffer"
           text-enabled
           scale="m"
-          style="--calcite-button-background-color: var(--calcite-color-brand);"
         ></calcite-action>
       </div>
+    </div>
 
   <!-- Shell panel for the analysis controls -->
   <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
