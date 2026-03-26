@@ -239,10 +239,10 @@
       --calcite-action-text-color: white;
     }
       
-    #togglePanel {
+    /* #togglePanel {
       flex-direction: column;
       gap: 2px;
-    }
+    } */
   
     /* Scrollable results area */
     .results-scroll {
@@ -290,7 +290,7 @@
       </div>
       <div style="display: flex; align-items: center; gap: 10px;">
         <calcite-action
-          id="toolbar"
+          id="measure"
           text="Measure"
           icon="measure-line"
           text-enabled
@@ -306,6 +306,13 @@
       </div>
     </div>
 
+<!-- Toolbar for measurement -->
+<calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
+  <calcite-action><arcgis-distance-measurement-2d reference-element="arcgis-map" id="distance2d" slot="top-right" hidden></calcite-action>
+  <calcite-action><arcgis-area-measurement-2d reference-element="arcgis-map" id="area2d" slot="top-right" hidden></calcite-action>
+  <calcite-action id="clearAction" text="Clear" icon="trash"></calcite-action>
+</calcite-action-bar>
+    
 <!-- Shell panel for the analysis controls -->
 <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
   <calcite-panel heading="Create Buffers" scale="s">
@@ -559,8 +566,9 @@
     const resultsListEl = document.getElementById("resultsList");
     const shellPanel = document.querySelector("calcite-shell-panel");
     const toggleAction = document.getElementById("togglePanel");
-    const toolbarAction = document.getElementById("toolbar");
+    const measureAction = document.getElementById("measure");
     const panel = document.querySelector("calcite-panel");
+    const toolbar = document.querySelector("calcite-action-bar");
     const drawPointBtn = document.getElementById("drawPoint");
     const drawLineBtn = document.getElementById("drawLine");
     const drawPolygonBtn = document.getElementById("drawPolygon");
