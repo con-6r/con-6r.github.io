@@ -244,14 +244,14 @@
       gap: 2px;
     } */
 
-    .toolbar {
+    /* .toolbar {
       position: absolute;
       top: 3.5rem;
       right: 10px;
       border-radius: 6px;
       box-shadow: rgba(0, 0, 0, 0.2) 0 1px 6px;
       background: var(--calcite-color-foreground-1);
-    }
+    } */
   
     /* Scrollable results area */
     .results-scroll {
@@ -316,13 +316,11 @@
     </div>
 
   <!-- Toolbar for measurement -->
-  <div class="toolbar">
-    <calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
-      <calcite-action><arcgis-distance-measurement-2d reference-element="arcgis-map" id="distance2d"></arcgis-distance-measurement-2d></calcite-action>
-      <calcite-action><arcgis-area-measurement-2d reference-element="arcgis-map" id="area2d"></arcgis-area-measurement-2d></calcite-action>
-      <calcite-action id="clearAction" text="Clear" icon="trash"></calcite-action>
-    </calcite-action-bar>
-  </div>    
+  <calcite-action-bar id="toolbar" position="end" layout="horizontal" floating expand-disabled>
+    <calcite-action><arcgis-distance-measurement-2d reference-element="arcgis-map" id="distance2d"></arcgis-distance-measurement-2d></calcite-action>
+    <calcite-action><arcgis-area-measurement-2d reference-element="arcgis-map" id="area2d"></arcgis-area-measurement-2d></calcite-action>
+    <calcite-action id="clearAction" text="Clear" icon="trash"></calcite-action>
+  </calcite-action-bar> 
   <!-- Shell panel for the analysis controls -->
   <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
     <calcite-panel heading="Create Buffers" scale="s">
