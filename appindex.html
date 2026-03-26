@@ -243,6 +243,15 @@
       flex-direction: column;
       gap: 2px;
     }*/ 
+
+    #toolbar {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      border-radius: 6px;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 1px 6px;
+      background: var(--calcite-color-foreground-1);
+    }
   
     /* Scrollable results area */
     .results-scroll {
@@ -295,6 +304,14 @@
             text-enabled
             scale="m"
           ></calcite-action>
+          <calcite-action
+            id="toolbar"
+            text="Measure"
+            icon="measure-line"
+            text-enabled
+            scale="m">
+              <arcgis-distance-measurement-2d reference-element="arcgis-map"></arcgis-distance-measurement-2d>
+          </calcite-action>
       </div>
 
   <!-- Shell panel for the analysis controls -->
@@ -424,9 +441,9 @@
 
   <!-- Map -->
   <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="5000000">
-    <arcgis-expand slot="top-right" expand-tooltip="Search">
+    <!--<arcgis-expand slot="top-right" expand-tooltip="Search">
       <arcgis-search></arcgis-search>
-    </arcgis-expand>
+    </arcgis-expand>-->
     <arcgis-expand slot="top-left" expand-tooltip="Legend">
       <arcgis-legend></arcgis-legend>
     </arcgis-expand>
