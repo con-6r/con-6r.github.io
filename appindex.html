@@ -243,6 +243,15 @@
       flex-direction: column;
       gap: 2px;
     } */
+
+    #toolbar {
+      position: absolute;
+      top: 3.6rem;
+      right: 10px;
+      border-radius: 6px;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 1px 6px;
+      background: var(--calcite-color-foreground-1);
+    }
   
     /* Scrollable results area */
     .results-scroll {
@@ -307,7 +316,7 @@
     </div>
 
 <!-- Toolbar for measurement -->
-<calcite-action-bar id="toolbar" layout="horizontal">
+<calcite-action-bar id="toolbar" expand-disabled layout="horizontal">
   <calcite-action><arcgis-distance-measurement-2d reference-element="arcgis-map" id="distance2d" slot="top-right"></calcite-action>
   <calcite-action><arcgis-area-measurement-2d reference-element="arcgis-map" id="area2d" slot="top-right"></calcite-action>
   <calcite-action id="clearAction" text="Clear" icon="trash"></calcite-action>
