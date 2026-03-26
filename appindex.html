@@ -287,23 +287,20 @@
           <span style="color: white; font-size: 1.2rem; font-weight: bold; font-family: var(--calcite-font-family);">
             EPA Region 6 Demographic Explorer
           </span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <calcite-action
-            id="togglePanel"
-            text="Create Buffers"
-            icon="template-group-point-buffer"
-            text-enabled
-            scale="m"
-          ></calcite-action>
-          <calcite-action
-            id="toolbar"
-            text="Measure"
-            icon="measure-line"
-            text-enabled
-            scale="m"
-          ></calcite-action>
-        </div>
+        <calcite-action
+          id="toolbar"
+          text="Measure"
+          icon="measure-line"
+          text-enabled
+          scale="m"
+        ></calcite-action>
+        <calcite-action
+          id="togglePanel"
+          text="Create Buffers"
+          icon="template-group-point-buffer"
+          text-enabled
+          scale="m"
+        ></calcite-action>
       </div>
 
   <!-- Shell panel for the analysis controls -->
@@ -559,7 +556,7 @@
     const resultsListEl = document.getElementById("resultsList");
     const shellPanel = document.querySelector("calcite-shell-panel");
     const toggleAction = document.getElementById("togglePanel");
-    const toolbar = document.getElementByID("toolbar");
+    const toolbarAction = document.getElementByID("toolbar");
     const panel = document.querySelector("calcite-panel");
     const drawPointBtn = document.getElementById("drawPoint");
     const drawLineBtn = document.getElementById("drawLine");
@@ -1071,8 +1068,12 @@
       shellPanel.collapsed = !shellPanel.collapsed;
       toggleAction.active = !shellPanel.collapsed;
     });
-  
-        
+
+    toolbarAction.addEventListener("click", () => {
+      shellPanel.collapsed = !shellPanel.collapsed;
+      toggleAction.active = !shellPanel.collapsed;
+    });
+   
     // Clear all button
     clearAllBtn.addEventListener("click", () => clearAll());
   </script>
