@@ -309,9 +309,8 @@
             text="Measure"
             icon="measure-line"
             text-enabled
-            scale="m">
-              <arcgis-distance-measurement-2d reference-element="arcgis-map"></arcgis-distance-measurement-2d>
-          </calcite-action>
+            scale="m"
+          ></calcite-action>
       </div>
 
   <!-- Shell panel for the analysis controls -->
@@ -1077,12 +1076,6 @@
     toggleAction.addEventListener("click", () => {
       shellPanel.collapsed = !shellPanel.collapsed;
       toggleAction.active = !shellPanel.collapsed;
-    });
-    
-    // Click the panel's X button to close it
-    panel.addEventListener("calcitePanelClose", () => {
-      shellPanel.collapsed = true;
-      toggleAction.active = false;
     });
         
     // Clear all button
