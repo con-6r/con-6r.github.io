@@ -317,7 +317,7 @@
             scale="m"
           ></calcite-action>
           <calcite-action
-            id="print"
+            id="printAction"
             text="Print"
             icon="print"
             text-enabled
@@ -338,7 +338,7 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 8px;
     ">
-      <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+      <div style="display: flex; gap: 4px; margin-bottom: 4px;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
           icon-start="measure-line" scale="s">Distance</calcite-button>
         <calcite-button id="measureArea" appearance="outline-fill" kind="brand"
@@ -362,8 +362,8 @@
       ></arcgis-area-measurement-2d>
     </div>
     <!-- Shell panel for the analysis controls -->
-    <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
-      <calcite-panel heading="Create Buffers" scale="s">
+    <calcite-shell-panel id="bufferShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
+      <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
         <div class="panel-content">
   
           <!-- Status -->
@@ -486,11 +486,11 @@
     </calcite-panel>
   </calcite-shell-panel>
   <!-- Print -->
-  <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
-    <calcite-panel heading="Print" scale="s">
+  <calcite-shell-panel id="printShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
+    <calcite-panel id="printPanel" heading="Print" scale="s">
       <div class="panel-content">
         <arcgis-print
-          id="print"
+          id="printWidget"
           reference-element="arcgis-map"
           allowed-formats="all"
           allowed-layouts="all"
@@ -619,6 +619,7 @@
     // DOM REFERENCES
     // ================================================================
     const viewElement = document.querySelector("arcgis-map");
+    // Buffer tool DOMs
     const outerDistInput = document.getElementById("outerDistance");
     const innerDistInput = document.getElementById("innerDistance");
     const unitsSelect = document.getElementById("units");
@@ -626,17 +627,21 @@
     const clearAllBtn = document.getElementById("clearAllBtn");
     const statusEl = document.getElementById("status");
     const resultsListEl = document.getElementById("resultsList");
-    const shellPanel = document.querySelector("calcite-shell-panel");
+    const bufferShellPanel = document.getElementById("bufferShellPanel");
+    const bufferPanel = document.getElementById("bufferPanel");
     const toggleAction = document.getElementById("togglePanel");
-    const measureAction = document.getElementById("measure");
-    const print = document.getElementById("print");
+    // Print tool DOMs
+    const printShellPanel = document.getElementById("printShellPanel");
+    const printPanel = document.getElementById("printPanel");
+    const printAction = document.getElementById("printAction");
+    // Measure tool DOMs
     const measureToolbar = document.getElementById("measureToolbar");
     const measureDistBtn = document.getElementById("measureDistance");
     const measureAreaBtn = document.getElementById("measureArea");
     const measureClearBtn = document.getElementById("measureClear");
     const distanceTool = document.getElementById("distanceTool");
     const areaTool = document.getElementById("areaTool");
-    const panel = document.querySelector("calcite-panel");
+    const measureAction = document.getElementById("measure");
     const drawPointBtn = document.getElementById("drawPoint");
     const drawLineBtn = document.getElementById("drawLine");
     const drawPolygonBtn = document.getElementById("drawPolygon");
@@ -1145,15 +1150,53 @@
     drawPolygonBtn.addEventListener("click", () => startDraw("polygon"));
     drawCancelBtn.addEventListener("click", () => cancelDraw());
     
-    // Click the action bar icon to toggle the panel open/closed
+    // ================================================================
+    // PANEL/TOOLBAR MANAGEMENT — only one open at a time
+    // ================================================================
+    
+    function closeAllTools() {
+      // Close buffer panel
+      bufferShellPanel.collapsed = true;
+      toggleAction.active = false;
+    
+      // Close print panel
+      printShellPanel.collapsed = true;
+      printAction.active = false;
+    
+      // Close measure toolbar
+      measureToolbar.style.display = "none";
+      showMeasureTool(null);
+      measureAction.active = false;
+    }
+    
+    // Buffer panel toggle
     toggleAction.addEventListener("click", () => {
-      shellPanel.collapsed = !shellPanel.collapsed;
-      toggleAction.active = !shellPanel.collapsed;
+      const isOpening = bufferShellPanel.collapsed; // if currently collapsed, we're about to open it
+      closeAllTools();
+      if (isOpening) {
+        bufferShellPanel.collapsed = false;
+        toggleAction.active = true;
+      }
     });
-
-    print.addEventListener("click", () => {
-      shellPanel.collapsed = !shellPanel.collapsed;
-      toggleAction.active = !shellPanel.collapsed;
+    
+    // Print panel toggle
+    printAction.addEventListener("click", () => {
+      const isOpening = printShellPanel.collapsed;
+      closeAllTools();
+      if (isOpening) {
+        printShellPanel.collapsed = false;
+        printAction.active = true;
+      }
+    });
+    
+    // Measure toolbar toggle
+    measureAction.addEventListener("click", () => {
+      const isOpening = measureToolbar.style.display === "none";
+      closeAllTools();
+      if (isOpening) {
+        measureToolbar.style.display = "block";
+        measureAction.active = true;
+      }
     });
 
     let activeMeasureTool = null; // "distance", "area", or null
@@ -1183,19 +1226,6 @@
         activeMeasureTool = null;
       }
     }
-    
-    // Toggle the toolbar open/closed
-    measureAction.addEventListener("click", () => {
-      const isOpen = measureToolbar.style.display !== "none";
-      if (isOpen) {
-        measureToolbar.style.display = "none";
-        showMeasureTool(null);
-        measureAction.active = false;
-      } else {
-        measureToolbar.style.display = "block";
-        measureAction.active = true;
-      }
-    });
     
     // Tool buttons
     measureDistBtn.addEventListener("click", () => showMeasureTool("distance"));
