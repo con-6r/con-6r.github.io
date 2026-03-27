@@ -366,53 +366,53 @@
       <calcite-panel heading="Create Buffers" scale="s">
         <div class="panel-content">
   
-        <!-- Status -->
-        <div id="status" class="status-message ready">
-          <calcite-icon icon="information" scale="s"></calcite-icon>
-          <span>Click a draw button to begin</span>
-        </div>
-        
-        <!-- Step 1: Draw mode selection -->
-         <div class="main-headers">
-          <calcite-label>
-            Step 1: Draw a shape on the map
-          </calcite-label>
-         </div>
-        <div class="draw-toolbar">
-          <calcite-button
-            id="drawPoint"
-            appearance="outline-fill"
-            kind="brand"
-            icon-start="pin"
-            scale="s"
-            title="Place a point"
-          >Point</calcite-button>
-          <calcite-button
-            id="drawLine"
-            appearance="outline-fill"
-            kind="brand"
-            icon-start="line"
-            scale="s"
-            title="Draw a line"
-          >Line</calcite-button>
-          <calcite-button
-            id="drawPolygon"
-            appearance="outline-fill"
-            kind="brand"
-            icon-start="polygon"
-            scale="s"
-            title="Draw a polygon"
-          >Polygon</calcite-button>
-          <calcite-button
-            id="drawCancel"
-            appearance="outline-fill"
-            kind="danger"
-            icon-start="x"
-            scale="s"
-            title="Cancel drawing"
-            disabled
-          ></calcite-button>
-        </div>
+          <!-- Status -->
+          <div id="status" class="status-message ready">
+            <calcite-icon icon="information" scale="s"></calcite-icon>
+            <span>Click a draw button to begin</span>
+          </div>
+          
+          <!-- Step 1: Draw mode selection -->
+           <div class="main-headers">
+            <calcite-label>
+              Step 1: Draw a shape on the map
+            </calcite-label>
+           </div>
+          <div class="draw-toolbar">
+            <calcite-button
+              id="drawPoint"
+              appearance="outline-fill"
+              kind="brand"
+              icon-start="pin"
+              scale="s"
+              title="Place a point"
+            >Point</calcite-button>
+            <calcite-button
+              id="drawLine"
+              appearance="outline-fill"
+              kind="brand"
+              icon-start="line"
+              scale="s"
+              title="Draw a line"
+            >Line</calcite-button>
+            <calcite-button
+              id="drawPolygon"
+              appearance="outline-fill"
+              kind="brand"
+              icon-start="polygon"
+              scale="s"
+              title="Draw a polygon"
+            >Polygon</calcite-button>
+            <calcite-button
+              id="drawCancel"
+              appearance="outline-fill"
+              kind="danger"
+              icon-start="x"
+              scale="s"
+              title="Cancel drawing"
+              disabled
+            ></calcite-button>
+          </div>
   
         <!-- Step 2: Buffer parameters -->
         <div class="main-headers">
@@ -481,7 +481,19 @@
   
         <!-- Results list -->
         <div id="resultsList" class="results-scroll"></div>
-  
+
+      </div>
+    </calcite-panel>
+    <!-- Print -->
+    <calcite-panel heading="Print" scale="s">
+      <div class="panel-content">
+        <arcgis-print
+          id="print"
+          reference-element="arcgis-map"
+          allowed-formats="all"
+          allowed-layouts="all"
+          hide-header
+        ></arcgis-print>
       </div>
     </calcite-panel>
   </calcite-shell-panel>
