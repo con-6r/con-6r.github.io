@@ -234,7 +234,7 @@
       width: 100%;
     }
 
-    calcite-action {
+    div[slot="header"] calcite-action {
       --calcite-action-background-color: var(--calcite-color-brand);
       --calcite-action-text-color: white;
     }
@@ -280,195 +280,211 @@
   </script>
 
 </head>
- <calcite-shell>
   <body>
-    <div slot="header" style="
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--calcite-color-brand-press);
-      height: 3.5rem;
-      padding: 0 12px;
+    <calcite-shell>
+      <div slot="header" style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--calcite-color-brand-press);
+        height: 3.5rem;
+        padding: 0 12px;
+      ">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
+            alt="EPA Seal" style="height: 2.67rem; width: 2.67rem;" />
+          <span style="color: white; font-size: 1.2rem; font-weight: bold; font-family: var(--calcite-font-family);">
+            EPA Region 6 Demographic Explorer
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <calcite-action
+            id="measure"
+            text="Measure"
+            icon="measure-line"
+            text-enabled
+            scale="m"
+          ></calcite-action>
+          <calcite-action
+            id="togglePanel"
+            text="Create Buffers"
+            icon="template-group-point-buffer"
+            text-enabled
+            scale="m"
+          ></calcite-action>
+        </div>
+      </div>
+  
+    <!-- Toolbar for measurement -->
+    <div id="measureToolbar" style="
+      display: none;
+      position: absolute;
+      top: 3.5rem;
+      right: 12px;
+      z-index: 10;
+      background: var(--calcite-color-foreground-1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      padding: 8px;
     ">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
-          alt="EPA Seal" style="height: 2.67rem; width: 2.67rem;" />
-        <span style="color: white; font-size: 1.2rem; font-weight: bold; font-family: var(--calcite-font-family);">
-          EPA Region 6 Demographic Explorer
-        </span>
+      <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+        <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
+          icon-start="measure-line" scale="s">Distance</calcite-button>
+        <calcite-button id="measureArea" appearance="outline-fill" kind="brand"
+          icon-start="measure-area" scale="s">Area</calcite-button>
+        <calcite-button id="measureClear" appearance="outline-fill" kind="danger"
+          icon-start="trash" scale="s"></calcite-button>
       </div>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <calcite-action
-          id="measure"
-          text="Measure"
-          icon="measure-line"
-          text-enabled
-          scale="m"
-        ></calcite-action>
-        <calcite-action
-          id="togglePanel"
-          text="Create Buffers"
-          icon="template-group-point-buffer"
-          text-enabled
-          scale="m"
-        ></calcite-action>
-      </div>
+      <div id="measureWidgetContainer"></div>
     </div>
-
-  <!-- Toolbar for measurement -->
-  <calcite-action-bar id="toolbar" position="end" layout="horizontal" floating expand-disabled>
-    <calcite-action><arcgis-distance-measurement-2d reference-element="arcgis-map" id="distance2d"></arcgis-distance-measurement-2d></calcite-action>
-    <calcite-action><arcgis-area-measurement-2d reference-element="arcgis-map" id="area2d"></arcgis-area-measurement-2d></calcite-action>
-    <calcite-action id="clearAction" text="Clear" icon="trash"></calcite-action>
-  </calcite-action-bar> 
-  <!-- Shell panel for the analysis controls -->
-  <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
-    <calcite-panel heading="Create Buffers" scale="s">
-      <div class="panel-content">
-
-      <!-- Status -->
-      <div id="status" class="status-message ready">
-        <calcite-icon icon="information" scale="s"></calcite-icon>
-        <span>Click a draw button to begin</span>
-      </div>
-      
-      <!-- Step 1: Draw mode selection -->
-       <div class="main-headers">
-        <calcite-label>
-          Step 1: Draw a shape on the map
-        </calcite-label>
-       </div>
-      <div class="draw-toolbar">
-        <calcite-button
-          id="drawPoint"
-          appearance="outline-fill"
-          kind="brand"
-          icon-start="pin"
-          scale="s"
-          title="Place a point"
-        >Point</calcite-button>
-        <calcite-button
-          id="drawLine"
-          appearance="outline-fill"
-          kind="brand"
-          icon-start="line"
-          scale="s"
-          title="Draw a line"
-        >Line</calcite-button>
-        <calcite-button
-          id="drawPolygon"
-          appearance="outline-fill"
-          kind="brand"
-          icon-start="polygon"
-          scale="s"
-          title="Draw a polygon"
-        >Polygon</calcite-button>
-        <calcite-button
-          id="drawCancel"
-          appearance="outline-fill"
-          kind="danger"
-          icon-start="x"
-          scale="s"
-          title="Cancel drawing"
-          disabled
-        ></calcite-button>
-      </div>
-
-      <!-- Step 2: Buffer parameters -->
-      <div class="main-headers">
-        <calcite-label scale="m">
-          Step 2: Set buffer distances
-        </calcite-label>
-      </div>
-      <!-- Outer distance -->
-      <div class="input-group">
-        <calcite-label scale="s">
-          Outer Distance
-          <div class="input-row">
+    <!-- Shell panel for the analysis controls -->
+    <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
+      <calcite-panel heading="Create Buffers" scale="s">
+        <div class="panel-content">
+  
+        <!-- Status -->
+        <div id="status" class="status-message ready">
+          <calcite-icon icon="information" scale="s"></calcite-icon>
+          <span>Click a draw button to begin</span>
+        </div>
+        
+        <!-- Step 1: Draw mode selection -->
+         <div class="main-headers">
+          <calcite-label>
+            Step 1: Draw a shape on the map
+          </calcite-label>
+         </div>
+        <div class="draw-toolbar">
+          <calcite-button
+            id="drawPoint"
+            appearance="outline-fill"
+            kind="brand"
+            icon-start="pin"
+            scale="s"
+            title="Place a point"
+          >Point</calcite-button>
+          <calcite-button
+            id="drawLine"
+            appearance="outline-fill"
+            kind="brand"
+            icon-start="line"
+            scale="s"
+            title="Draw a line"
+          >Line</calcite-button>
+          <calcite-button
+            id="drawPolygon"
+            appearance="outline-fill"
+            kind="brand"
+            icon-start="polygon"
+            scale="s"
+            title="Draw a polygon"
+          >Polygon</calcite-button>
+          <calcite-button
+            id="drawCancel"
+            appearance="outline-fill"
+            kind="danger"
+            icon-start="x"
+            scale="s"
+            title="Cancel drawing"
+            disabled
+          ></calcite-button>
+        </div>
+  
+        <!-- Step 2: Buffer parameters -->
+        <div class="main-headers">
+          <calcite-label scale="m">
+            Step 2: Set buffer distances
+          </calcite-label>
+        </div>
+        <!-- Outer distance -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Outer Distance
+            <div class="input-row">
+              <calcite-input-number
+                id="outerDistance"
+                placeholder="e.g. 3"
+                value="3"
+                min="0.1"
+                step="0.1"
+                scale="s"
+              ></calcite-input-number>
+              <calcite-select id="units" scale="s">
+                <calcite-option value="miles" selected>Miles</calcite-option>
+                <calcite-option value="kilometers">Kilometers</calcite-option>
+                <calcite-option value="feet">Feet</calcite-option>
+                <calcite-option value="meters">Meters</calcite-option>
+              </calcite-select>
+            </div>
+          </calcite-label>
+        </div>
+  
+        <!-- Inner distance -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Inner Distance (0 for full circle)
             <calcite-input-number
-              id="outerDistance"
-              placeholder="e.g. 3"
-              value="3"
-              min="0.1"
+              id="innerDistance"
+              placeholder="e.g. 2"
+              value="2"
+              min="0"
               step="0.1"
               scale="s"
             ></calcite-input-number>
-            <calcite-select id="units" scale="s">
-              <calcite-option value="miles" selected>Miles</calcite-option>
-              <calcite-option value="kilometers">Kilometers</calcite-option>
-              <calcite-option value="feet">Feet</calcite-option>
-              <calcite-option value="meters">Meters</calcite-option>
+          </calcite-label>
+        </div>
+  
+        <!-- Data source toggle -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Data Source
+            <calcite-select id="dataSource" scale="s">
+              <calcite-option value="blocks" selected>2020 Census Blocks (precise, slower)</calcite-option>
+              <calcite-option value="blockgroups">2024 Block Groups (faster, less precise)</calcite-option>
             </calcite-select>
-          </div>
-        </calcite-label>
+          </calcite-label>
+        </div>
+  
+        <!-- Clear all -->
+        <calcite-button
+          id="clearAllBtn"
+          appearance="outline-fill"
+          kind="danger"
+          icon-start="trash"
+          scale="s"
+          disabled
+        >Clear All Results</calcite-button>
+  
+        <!-- Results list -->
+        <div id="resultsList" class="results-scroll"></div>
+  
       </div>
+    </calcite-panel>
+  </calcite-shell-panel>
+  
+    <!-- Map -->
+    <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="5000000">
+      <!--<arcgis-expand slot="top-right" expand-tooltip="Search">
+        <arcgis-search></arcgis-search>
+      </arcgis-expand>-->
+      <arcgis-expand slot="top-left" expand-tooltip="Legend">
+        <arcgis-legend></arcgis-legend>
+      </arcgis-expand>
+      <arcgis-expand slot="top-left" expand-tooltip="Map Layers">
+        <arcgis-layer-list visibility-appearance="checkbox"></arcgis-layer-list>
+      </arcgis-expand>
+      <arcgis-expand slot="top-left" expand-tooltip="Basemaps">
+        <arcgis-basemap-layer-list visibility-appearance="checkbox" icon="basemap" selection-mode="single" hide-reference-layers hide-heading></arcgis-basemap-layer-list>
+      </arcgis-expand>
+      <arcgis-zoom slot="bottom-right"></arcgis-zoom>
+      <arcgis-compass slot="bottom-left"></arcgis-compass>
+      <arcgis-scale-bar slot="bottom-left"></arcgis-scale-bar>
+    </arcgis-map>
+  </calcite-shell>
 
-      <!-- Inner distance -->
-      <div class="input-group">
-        <calcite-label scale="s">
-          Inner Distance (0 for full circle)
-          <calcite-input-number
-            id="innerDistance"
-            placeholder="e.g. 2"
-            value="2"
-            min="0"
-            step="0.1"
-            scale="s"
-          ></calcite-input-number>
-        </calcite-label>
-      </div>
+ </body>
 
-      <!-- Data source toggle -->
-      <div class="input-group">
-        <calcite-label scale="s">
-          Data Source
-          <calcite-select id="dataSource" scale="s">
-            <calcite-option value="blocks" selected>2020 Census Blocks (precise, slower)</calcite-option>
-            <calcite-option value="blockgroups">2024 Block Groups (faster, less precise)</calcite-option>
-          </calcite-select>
-        </calcite-label>
-      </div>
-
-      <!-- Clear all -->
-      <calcite-button
-        id="clearAllBtn"
-        appearance="outline-fill"
-        kind="danger"
-        icon-start="trash"
-        scale="s"
-        disabled
-      >Clear All Results</calcite-button>
-
-      <!-- Results list -->
-      <div id="resultsList" class="results-scroll"></div>
-
-    </div>
-  </calcite-panel>
-</calcite-shell-panel>
-
-  <!-- Map -->
-  <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="5000000">
-    <!--<arcgis-expand slot="top-right" expand-tooltip="Search">
-      <arcgis-search></arcgis-search>
-    </arcgis-expand>-->
-    <arcgis-expand slot="top-left" expand-tooltip="Legend">
-      <arcgis-legend></arcgis-legend>
-    </arcgis-expand>
-    <arcgis-expand slot="top-left" expand-tooltip="Map Layers">
-      <arcgis-layer-list visibility-appearance="checkbox"></arcgis-layer-list>
-    </arcgis-expand>
-    <arcgis-expand slot="top-left" expand-tooltip="Basemaps">
-      <arcgis-basemap-layer-list visibility-appearance="checkbox" icon="basemap" selection-mode="single" hide-reference-layers hide-heading></arcgis-basemap-layer-list>
-    </arcgis-expand>
-    <arcgis-zoom slot="bottom-right"></arcgis-zoom>
-    <arcgis-compass slot="bottom-left"></arcgis-compass>
-    <arcgis-scale-bar slot="bottom-left"></arcgis-scale-bar>
-  </arcgis-map>
-</calcite-shell>
-
-  </body>
-
-  <script type="module">
+<script type="module">
     // ================================================================
     // IMPORTS
     // ================================================================
@@ -482,6 +498,8 @@
       GraphicsLayer,
       geodesicBufferOperator,
       differenceOperator,
+      DistanceMeasurement2D,
+      AreaMeasurement2D,
       StatisticDefinition,
       SketchViewModel,
       locator,
@@ -496,6 +514,8 @@
       "@arcgis/core/layers/GraphicsLayer.js",
       "@arcgis/core/geometry/operators/geodesicBufferOperator.js",
       "@arcgis/core/geometry/operators/differenceOperator.js",
+      "@arcgis/core/widgets/DistanceMeasurement2D.js",
+      "@arcgis/core/widgets/AreaMeasurement2D.js",
       "@arcgis/core/rest/support/StatisticDefinition.js",
       "@arcgis/core/widgets/Sketch/SketchViewModel.js",
       "@arcgis/core/rest/locator.js",
@@ -575,8 +595,13 @@
     const shellPanel = document.querySelector("calcite-shell-panel");
     const toggleAction = document.getElementById("togglePanel");
     const measureAction = document.getElementById("measure");
+    const measureAction = document.getElementById("measure");
+    const measureToolbar = document.getElementById("measureToolbar");
+    const measureDistBtn = document.getElementById("measureDistance");
+    const measureAreaBtn = document.getElementById("measureArea");
+    const measureClearBtn = document.getElementById("measureClear");
+    const measureContainer = document.getElementById("measureWidgetContainer");
     const panel = document.querySelector("calcite-panel");
-    const toolbar = document.querySelector("calcite-action-bar");
     const drawPointBtn = document.getElementById("drawPoint");
     const drawLineBtn = document.getElementById("drawLine");
     const drawPolygonBtn = document.getElementById("drawPolygon");
@@ -639,8 +664,11 @@
         } else if (city) {
           return `${city}`;
         } else {
-          return typeLabel;
+          return geometry.type === "point"
+            ? `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`
+            : geometry.type === "polyline" ? "Line" : "Polygon";
         }
+
       } catch (err) {
         console.warn("Reverse geocode failed:", err);
         return geometry.type === "point"
@@ -1088,12 +1116,59 @@
       toggleAction.active = !shellPanel.collapsed;
     });
 
+    let activeMeasureWidget = null;
+
+    function clearMeasurement() {
+      if (activeMeasureWidget) {
+        activeMeasureWidget.destroy();
+        activeMeasureWidget = null;
+      }
+      measureContainer.innerHTML = "";
+      measureDistBtn.appearance = "outline-fill";
+      measureAreaBtn.appearance = "outline-fill";
+    }
+    
+    function startDistanceMeasure() {
+      clearMeasurement();
+      const view = viewElement.view;
+      if (!view) return;
+    
+      activeMeasureWidget = new DistanceMeasurement2D({
+        view: view,
+        container: measureContainer
+      });
+      measureDistBtn.appearance = "solid";
+    }
+    
+    function startAreaMeasure() {
+      clearMeasurement();
+      const view = viewElement.view;
+      if (!view) return;
+    
+      activeMeasureWidget = new AreaMeasurement2D({
+        view: view,
+        container: measureContainer
+      });
+      measureAreaBtn.appearance = "solid";
+    }
+    
+    // Toggle the measurement toolbar
     measureAction.addEventListener("click", () => {
-      toolbar.collapsed = !toolbar.collapsed;
-      toolbar.active = !toolbar.collapsed;
+      const isOpen = measureToolbar.style.display !== "none";
+      if (isOpen) {
+        measureToolbar.style.display = "none";
+        clearMeasurement();
+        measureAction.active = false;
+      } else {
+        measureToolbar.style.display = "block";
+        measureAction.active = true;
+      }
     });
-   
-    // Clear all button
+    
+    measureDistBtn.addEventListener("click", () => startDistanceMeasure());
+    measureAreaBtn.addEventListener("click", () => startAreaMeasure());
+    measureClearBtn.addEventListener("click", () => clearMeasurement());
+        // Clear all button
     clearAllBtn.addEventListener("click", () => clearAll());
   </script>
 
