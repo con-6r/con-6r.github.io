@@ -305,7 +305,7 @@
           <calcite-action
             id="measure"
             text="Measure"
-            icon="measure-line"
+            icon="measure"
             text-enabled
             scale="m"
           ></calcite-action>
@@ -319,19 +319,17 @@
         </div>
       </div>
   
-    <!-- Toolbar for measurement -->
     <!-- Measurement toolbar — floats below header, hidden by default -->
     <div id="measureToolbar" style="
       display: none;
       position: absolute;
-      top: 1rem;
-      right: 12px;
+      top: 0.8rem;
+      right: 0.8rem;
       z-index: 10;
       background: var(--calcite-color-foreground-1);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 8px;
-      min-width: 240px;
     ">
       <div style="display: flex; gap: 4px; margin-bottom: 8px;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
