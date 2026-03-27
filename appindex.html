@@ -484,7 +484,9 @@
 
       </div>
     </calcite-panel>
-    <!-- Print -->
+  </calcite-shell-panel>
+  <!-- Print -->
+  <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
     <calcite-panel heading="Print" scale="s">
       <div class="panel-content">
         <arcgis-print
@@ -627,6 +629,7 @@
     const shellPanel = document.querySelector("calcite-shell-panel");
     const toggleAction = document.getElementById("togglePanel");
     const measureAction = document.getElementById("measure");
+    const toggleAction = document.getElementById("print");
     const measureToolbar = document.getElementById("measureToolbar");
     const measureDistBtn = document.getElementById("measureDistance");
     const measureAreaBtn = document.getElementById("measureArea");
@@ -1144,6 +1147,11 @@
     
     // Click the action bar icon to toggle the panel open/closed
     toggleAction.addEventListener("click", () => {
+      shellPanel.collapsed = !shellPanel.collapsed;
+      toggleAction.active = !shellPanel.collapsed;
+    });
+
+    print.addEventListener("click", () => {
       shellPanel.collapsed = !shellPanel.collapsed;
       toggleAction.active = !shellPanel.collapsed;
     });
