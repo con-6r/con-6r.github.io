@@ -237,7 +237,7 @@
     div[slot="header"] calcite-action {
       --calcite-action-background-color: var(--calcite-color-brand);
       --calcite-action-background-color-hover: var(--calcite-color-brand-hover);
-      --calcite-action-background-color-press: var(--calcite-color-brand-press);
+      --calcite-action-background-color-press: rgb(0, 57, 92);
       --calcite-action-text-color: white;
       --calcite-action-text-color-hover: white;
       --calcite-action-text-color-press: white;
@@ -339,16 +339,17 @@
         <calcite-button id="measureClear" appearance="outline-fill" kind="danger"
           icon-start="trash" scale="s">Clear</calcite-button>
       </div>
-      <!-- Both components live here permanently, toggled via hidden attribute -->
       <arcgis-distance-measurement-2d
         id="distanceTool"
         reference-element="arcgis-map"
+        unit="miles"
         hidden
         hide-new-measurement-button
       ></arcgis-distance-measurement-2d>
       <arcgis-area-measurement-2d
         id="areaTool"
         reference-element="arcgis-map"
+        unit="miles"
         hidden
         hide-new-measurement-button
       ></arcgis-area-measurement-2d>
@@ -1126,6 +1127,7 @@
     toggleAction.addEventListener("click", () => {
       shellPanel.collapsed = !shellPanel.collapsed;
       toggleAction.active = !shellPanel.collapsed;
+      measureAction.active = !measureAction.active;
     });
 
     let activeMeasureTool = null; // "distance", "area", or null
