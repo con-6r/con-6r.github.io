@@ -237,7 +237,7 @@
     div[slot="header"] calcite-action {
       --calcite-action-background-color: var(--calcite-color-brand);
       --calcite-action-background-color-hover: var(--calcite-color-brand-hover);
-      --calcite-action-background-color-press: var(--calcite-color-brand-hover);
+      --calcite-action-background-color-press: var(--calcite-color-brand-press);
       --calcite-action-text-color: white;
       --calcite-action-text-color-hover: white;
       --calcite-action-text-color-press: white;
@@ -320,16 +320,18 @@
       </div>
   
     <!-- Toolbar for measurement -->
+    <!-- Measurement toolbar — floats below header, hidden by default -->
     <div id="measureToolbar" style="
       display: none;
       position: absolute;
-      top: 3rem;
+      top: 2rem;
       right: 12px;
       z-index: 10;
       background: var(--calcite-color-foreground-1);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 8px;
+      min-width: 240px;
     ">
       <div style="display: flex; gap: 4px; margin-bottom: 8px;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
@@ -339,7 +341,19 @@
         <calcite-button id="measureClear" appearance="outline-fill" kind="danger"
           icon-start="trash" scale="s"></calcite-button>
       </div>
-      <div id="measureWidgetContainer"></div>
+      <!-- Both components live here permanently, toggled via hidden attribute -->
+      <arcgis-distance-measurement-2d
+        id="distanceTool"
+        reference-element="arcgis-map"
+        hidden
+        hide-new-measurement-button
+      ></arcgis-distance-measurement-2d>
+      <arcgis-area-measurement-2d
+        id="areaTool"
+        reference-element="arcgis-map"
+        hidden
+        hide-new-measurement-button
+      ></arcgis-area-measurement-2d>
     </div>
     <!-- Shell panel for the analysis controls -->
     <calcite-shell-panel slot="panel-end" position="end" display-mode="float" collapsed>
@@ -502,8 +516,6 @@
       GraphicsLayer,
       geodesicBufferOperator,
       differenceOperator,
-      DistanceMeasurement2D,
-      AreaMeasurement2D,
       StatisticDefinition,
       SketchViewModel,
       locator,
@@ -518,8 +530,6 @@
       "@arcgis/core/layers/GraphicsLayer.js",
       "@arcgis/core/geometry/operators/geodesicBufferOperator.js",
       "@arcgis/core/geometry/operators/differenceOperator.js",
-      "@arcgis/core/widgets/DistanceMeasurement2D.js",
-      "@arcgis/core/widgets/AreaMeasurement2D.js",
       "@arcgis/core/rest/support/StatisticDefinition.js",
       "@arcgis/core/widgets/Sketch/SketchViewModel.js",
       "@arcgis/core/rest/locator.js",
@@ -603,7 +613,8 @@
     const measureDistBtn = document.getElementById("measureDistance");
     const measureAreaBtn = document.getElementById("measureArea");
     const measureClearBtn = document.getElementById("measureClear");
-    const measureContainer = document.getElementById("measureWidgetContainer");
+    const distanceTool = document.getElementById("distanceTool");
+    const areaTool = document.getElementById("areaTool");
     const panel = document.querySelector("calcite-panel");
     const drawPointBtn = document.getElementById("drawPoint");
     const drawLineBtn = document.getElementById("drawLine");
@@ -1119,48 +1130,40 @@
       toggleAction.active = !shellPanel.collapsed;
     });
 
-    let activeMeasureWidget = null;
+    let activeMeasureTool = null; // "distance", "area", or null
 
-    function clearMeasurement() {
-      if (activeMeasureWidget) {
-        activeMeasureWidget.destroy();
-        activeMeasureWidget = null;
-      }
-      measureContainer.innerHTML = "";
+    function showMeasureTool(tool) {
+      // Hide both first
+      distanceTool.hidden = true;
+      areaTool.hidden = true;
+      distanceTool.clear();
+      areaTool.clear();
+    
+      // Reset button styles
       measureDistBtn.appearance = "outline-fill";
       measureAreaBtn.appearance = "outline-fill";
+    
+      if (tool === "distance") {
+        distanceTool.hidden = false;
+        distanceTool.start();
+        measureDistBtn.appearance = "solid";
+        activeMeasureTool = "distance";
+      } else if (tool === "area") {
+        areaTool.hidden = false;
+        areaTool.start();
+        measureAreaBtn.appearance = "solid";
+        activeMeasureTool = "area";
+      } else {
+        activeMeasureTool = null;
+      }
     }
     
-    function startDistanceMeasure() {
-      clearMeasurement();
-      const view = viewElement.view;
-      if (!view) return;
-    
-      activeMeasureWidget = new DistanceMeasurement2D({
-        view: view,
-        container: measureContainer
-      });
-      measureDistBtn.appearance = "solid";
-    }
-    
-    function startAreaMeasure() {
-      clearMeasurement();
-      const view = viewElement.view;
-      if (!view) return;
-    
-      activeMeasureWidget = new AreaMeasurement2D({
-        view: view,
-        container: measureContainer
-      });
-      measureAreaBtn.appearance = "solid";
-    }
-    
-    // Toggle the measurement toolbar
+    // Toggle the toolbar open/closed
     measureAction.addEventListener("click", () => {
       const isOpen = measureToolbar.style.display !== "none";
       if (isOpen) {
         measureToolbar.style.display = "none";
-        clearMeasurement();
+        showMeasureTool(null);
         measureAction.active = false;
       } else {
         measureToolbar.style.display = "block";
@@ -1168,10 +1171,11 @@
       }
     });
     
-    measureDistBtn.addEventListener("click", () => startDistanceMeasure());
-    measureAreaBtn.addEventListener("click", () => startAreaMeasure());
-    measureClearBtn.addEventListener("click", () => clearMeasurement());
-        // Clear all button
+    // Tool buttons
+    measureDistBtn.addEventListener("click", () => showMeasureTool("distance"));
+    measureAreaBtn.addEventListener("click", () => showMeasureTool("area"));
+    measureClearBtn.addEventListener("click", () => showMeasureTool(null));
+            // Clear all button
     clearAllBtn.addEventListener("click", () => clearAll());
   </script>
 
