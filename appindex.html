@@ -248,12 +248,21 @@
       --calcite-action-text-color-press: white;
     }
 
-    #topleft {
-      position: fixed;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    #legend {
+      position: absolute;
       top: 0.75rem;
+      left: 0.75rem;
+    }
+
+    #maplayers {
+      position: absolute;
+      top: 3.375rem;
+      left: 0.75rem;
+    }
+
+    #basemap {
+      position: absolute;
+      top: 6rem;
       left: 0.75rem;
     }
     /* #togglePanel {
@@ -518,13 +527,13 @@
       <!--<arcgis-expand slot="top-right" expand-tooltip="Search">
         <arcgis-search></arcgis-search>
       </arcgis-expand>-->
-      <arcgis-expand id="topleft" expand-tooltip="Legend" placement="trailing-start">
+      <arcgis-expand id="legend" expand-tooltip="Legend" placement="trailing-start">
         <arcgis-legend></arcgis-legend>
       </arcgis-expand>
-      <arcgis-expand id="topleft" expand-tooltip="Map Layers" placement="trailing-start">
+      <arcgis-expand id="maplayers" expand-tooltip="Map Layers" placement="trailing-start">
         <arcgis-layer-list visibility-appearance="checkbox"></arcgis-layer-list>
       </arcgis-expand>
-      <arcgis-expand id="topleft" expand-tooltip="Basemaps" placement="trailing-start">
+      <arcgis-expand id="basemap" expand-tooltip="Basemaps" placement="trailing-start">
         <arcgis-basemap-layer-list visibility-appearance="checkbox" icon="basemap" selection-mode="single" hide-reference-layers hide-heading></arcgis-basemap-layer-list>
       </arcgis-expand>
       <arcgis-zoom slot="bottom-right"></arcgis-zoom>
