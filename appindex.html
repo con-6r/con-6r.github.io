@@ -1119,6 +1119,8 @@
     viewElement.addEventListener("arcgisViewReadyChange", () => {
       const view = viewElement.view;
 
+      view.ui.padding = { top: 12, right: 12, bottom: 12, left: 12 };
+      
       // Add the sketch layer to the map
       viewElement.map.add(sketchLayer);
 
