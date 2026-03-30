@@ -28,6 +28,10 @@
       gap: 4px;
       font-weight: var(--calcite-font-weight-medium);
     }
+
+    .input-group calcite-label {
+      --calcite-label-bottom-margin: 0;
+    }
   
     .input-row {
       display: flex;
@@ -127,7 +131,7 @@
     .main-headers calcite-label {
       --calcite-label-margin-bottom: 0;
       margin: 0;
-      padding: 4px;
+      padding: 4px 0 4px 0;
     }
 
     /* Draw mode toolbar */
@@ -135,6 +139,7 @@
       display: flex;
       gap: 4px;
       flex-wrap: wrap;
+      align-items: flex-end;
     }
   
     .draw-toolbar calcite-button {
@@ -336,10 +341,8 @@
       background: var(--calcite-color-foreground-1);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      padding-top: 8px;
-      padding-left: 8px;
-      padding-right: 8px;
-      padding-bottom: 2px;
+      padding: 8px 8px 8px 8px;
+      --calcite-label-margin-bottom: 0;
     ">
       <div style="display: flex; gap: 4px; margin-bottom: 6px;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
