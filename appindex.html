@@ -95,11 +95,11 @@
   
     .status-message {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 6px;
       /*padding: 8px 12px;
       border-radius: 6px;*/
-      font-size: 1rem;
+      font-size: 0.8rem;
       font-weight: var(--calcite-font-weight-medium);
       white-space: nowrap;
     }
@@ -150,6 +150,14 @@
     /* Custom cursor when in draw mode */
     .draw-active .esri-view-surface {
       cursor: crosshair !important;
+    }
+
+    .results-header {
+      display: flex;
+    }
+
+    .results-header-text {
+      flex: 1;
     }
   
     /* Analysis result block (one per analysis) */
@@ -390,7 +398,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 8px;
-      max-width: 17.5rem;
+      max-width: 6.129rem;
     ">
       <div style="display: flex; gap: 4px; margin-bottom: 0;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
