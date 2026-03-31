@@ -142,11 +142,6 @@
       flex-wrap: nowrap;
     }
   
-    .draw-toolbar calcite-button {
-      flex: 1 2 0;
-      min-width: 0;
-    }
-  
     /* Custom cursor when in draw mode */
     .draw-active .esri-view-surface {
       cursor: crosshair !important;
@@ -429,12 +424,6 @@
       <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
         <div class="panel-content">
   
-          <!-- Status -->
-          <div id="status" class="status-message ready">
-            <calcite-icon icon="information" scale="s"></calcite-icon>
-            <span>Click a draw button to begin</span>
-          </div>
-          
           <!-- Step 1: Draw mode selection -->
            <div class="main-headers">
             <calcite-label>
@@ -530,6 +519,11 @@
               <calcite-option value="blockgroups">2024 Block Groups (faster, less precise)</calcite-option>
             </calcite-select>
           </calcite-label>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="status-message ready">
+          <span><calcite-icon icon="information" scale="s">Click a draw button to begin</calcite-icon></span>
         </div>
   
         <!-- Clear all -->
