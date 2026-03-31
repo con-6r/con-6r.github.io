@@ -143,7 +143,7 @@
     }
   
     .draw-toolbar calcite-button {
-      flex: 1 1 0:
+      flex: 1 1 0;
       min-width: 0;
     }
   
@@ -1033,14 +1033,15 @@
     function renderResults() {
       resultsListEl.innerHTML = "";
 
+      if (analyses.length > 0) {
+        const resultshead = document.createElement("div");
+        resultshead.className = "results-header";
+        resultshead.innerHTML = `<div class="results-header-text">Results</div>`;
+        resultsListEl.appendChild(resultshead);
+      }
+
       // Render newest first
       const sorted = [...analyses].reverse();
-
-      const resultshead = document.createElement("div");
-      resultshead.className = "results-header";
-      resultshead.innerHTML = `
-      <div class="results-header-text">Results</div>
-      `;
       
       sorted.forEach(a => {
         const block = document.createElement("div");
