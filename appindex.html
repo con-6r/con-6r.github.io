@@ -95,12 +95,13 @@
   
     .status-message {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
       /*padding: 8px 12px;
       border-radius: 6px;*/
-      font-size: 0.75rem;
+      font-size: 1rem;
       font-weight: var(--calcite-font-weight-medium);
+      white-space: nowrap;
     }
   
     .status-message.ready {
@@ -139,11 +140,10 @@
       display: flex;
       gap: 4px;
       flex-wrap: nowrap;
-      align-items: flex-end;
     }
   
     .draw-toolbar calcite-button {
-      display: flex;
+      flex: 1 1 0:
       min-width: 0;
     }
   
@@ -237,6 +237,7 @@
   
     #clearAllBtn {
       width: 100%;
+      padding-top: 4px;
     }
 
     div[slot="header"] calcite-action {
@@ -282,6 +283,17 @@
       position: absolute;
       bottom: 1.75rem;
       right: 0.75rem;
+    }
+
+    #measureToolbar arcgis-distance-measurement-2d,
+    #measureToolbar arcgis-area-measurement-2d {
+      margin-top: 8px;
+      padding: 4px;
+    }
+
+    #bufferShellPanel {
+      --calcite-shell-panel-width: fit-content;
+      --calcite-shell-panel-min-width: 256px;
     }
     
     /* #togglePanel {
@@ -378,6 +390,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 8px;
+      max-width: 17.5rem;
     ">
       <div style="display: flex; gap: 4px; margin-bottom: 0;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
@@ -1016,6 +1029,12 @@
       // Render newest first
       const sorted = [...analyses].reverse();
 
+      const resultshead = document.createElement("div");
+      resultshead.className = "results-header";
+      resultshead.innerHTML = `
+      <span class="results-header-text">Results</span>
+      `;
+      
       sorted.forEach(a => {
         const block = document.createElement("div");
         block.className = "analysis-block";
@@ -1026,7 +1045,7 @@
         header.className = "analysis-header";
         header.innerHTML = `
           <div class="analysis-header-text">
-            <p class="analysis-title">${a.id}: ${a.bandDesc}</p>
+            <p class="analysis-title">#${a.id}: ${a.bandDesc}</p>
             <p class="analysis-subtitle">${a.subDesc}</p>
           </div>
           <span class="analysis-band-value">${formatNumber(a.bandPop)}</span>
