@@ -398,7 +398,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       padding: 8px;
-      max-width: 6.129rem;
+      max-width: 16rem;
     ">
       <div style="display: flex; gap: 4px; margin-bottom: 0;">
         <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
@@ -1040,7 +1040,7 @@
       const resultshead = document.createElement("div");
       resultshead.className = "results-header";
       resultshead.innerHTML = `
-      <span class="results-header-text">Results</span>
+      <div class="results-header-text">Results</div>
       `;
       
       sorted.forEach(a => {
