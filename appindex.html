@@ -265,6 +265,25 @@
       top: 6rem;
       left: 0.75rem;
     }
+
+    #scalebar {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 0.75rem;
+    }
+
+    #compass {
+      position: absolute;
+      bottom: 4.675rem;
+      right: 0.75rem;
+    }
+
+    #zoom {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+    }
+    
     /* #togglePanel {
       flex-direction: column;
       gap: 2px;
@@ -536,9 +555,9 @@
       <arcgis-expand id="basemap" expand-tooltip="Basemaps" placement="trailing-start">
         <arcgis-basemap-layer-list visibility-appearance="checkbox" icon="basemap" selection-mode="single-persist" hide-reference-layers hide-heading></arcgis-basemap-layer-list>
       </arcgis-expand>
-      <arcgis-zoom slot="bottom-right"></arcgis-zoom>
-      <arcgis-compass slot="bottom-left"></arcgis-compass>
-      <arcgis-scale-bar slot="bottom-left"></arcgis-scale-bar>
+      <arcgis-zoom id="zoom"></arcgis-zoom>
+      <arcgis-compass id="compass"></arcgis-compass>
+      <arcgis-scale-bar id="scalebar"></arcgis-scale-bar>
     </arcgis-map>
   </calcite-shell>
 
