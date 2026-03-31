@@ -96,10 +96,9 @@
     .status-message {
       display: flex;
       align-items: center;
-      gap: 6px;
-      /*padding: 8px 12px;
-      border-radius: 6px;*/
-      font-size: 0.9rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
       font-weight: var(--calcite-font-weight-medium);
       white-space: nowrap;
     }
@@ -294,10 +293,6 @@
     #measureToolbar arcgis-area-measurement-2d {
       margin-top: 8px;
       padding: 4px;
-    }
-
-    #bufferShellPanel {
-      --calcite-shell-panel-width: fit-content;
     }
     
     /* #togglePanel {
@@ -523,7 +518,9 @@
 
         <!-- Status -->
         <div id="status" class="status-message ready">
-          <calcite-icon icon="information" scale="s">Click a draw button to begin</calcite-icon>
+          <calcite-notice icon="information" kind="info" scale="m" open>
+            <div slot="title">Click a draw button to begin</div>
+          </calcite-notice>
         </div>
   
         <!-- Clear all -->
