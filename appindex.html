@@ -416,12 +416,13 @@
     <!-- Shell panel for the analysis controls -->
     <calcite-shell-panel id="bufferShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
       <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
+        
+        <!-- Status -->
+        <calcite-notice icon="information" kind="info" scale="s" width="full" open>
+          <div id="status" class="status-message ready" slot="message">Click a draw button to begin</div>
+        </calcite-notice>
+        
         <div class="panel-content">
-
-          <!-- Status -->
-          <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-            <div id="status" class="status-message ready">Click a draw button to begin</div>
-          </calcite-notice>
           
           <!-- Step 1: Draw mode selection -->
            <div class="main-headers">
