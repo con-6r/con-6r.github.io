@@ -95,7 +95,8 @@
   
     .status-message {
       display: flex;
-      padding: 4px 0 4px 0;
+      padding-top: 4px;
+      padding-bottom: 4px;
       font-size: 0.85rem;
       font-weight: var(--calcite-font-weight-medium);
       white-space: nowrap;
@@ -516,8 +517,8 @@
 
         <!-- Status -->
         <div id="status" class="status-message ready">
-          <calcite-notice icon="message" kind="info" scale="m" open>
-            <div slot="title">Click a draw button to begin</div>
+          <calcite-notice icon="info" kind="info" scale="m" open>
+            <div slot="message">Click a draw button to begin</div>
           </calcite-notice>
         </div>
   
