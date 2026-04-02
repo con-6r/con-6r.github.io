@@ -93,9 +93,6 @@
       font-style: italic;
     }
 
-    /*.status calcite-notice {
-      --calcite-notice-
-    */ 
     .status-message {
       font-size: 0.85rem;
       font-weight: var(--calcite-font-weight-medium);
@@ -426,7 +423,7 @@
         
         <!-- Status -->
         <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-          <div id="status-message" class="status-message ready" slot="message">Click a draw button to begin</div>
+          <div slot="message">Click a draw button to begin</div>
         </calcite-notice>
         
         <div class="panel-content">
@@ -622,8 +619,8 @@
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
     const BG_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
-    //const PARCEL_LAYER_URL =
-    //  "https://utility.arcgis.com/usrsvcs/servers/75da303642e74f4b8b25caa6c1bbfad0/rest/services/premium/FeatureServer/0?f=pjson";
+    const PARCEL_LAYER_URL =
+      "https://utility.arcgis.com/usrsvcs/servers/75da303642e74f4b8b25caa6c1bbfad0/rest/services/premium/FeatureServer/0?f=pjson";
     const POP_FIELD = "POP20";
     // ================================================================
 
