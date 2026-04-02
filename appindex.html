@@ -94,31 +94,49 @@
     }
 
     .status-message {
-      font-size: 0.85rem;
+      font-size: 1rem;
       font-weight: var(--calcite-font-weight-medium);
-      white-space: nowrap;
+      white-space: wrap;
     }
   
     .status-message.ready {
       display: flex;
-      height: 1rem;
+      height: 2rem;
+      --calcite-notice-content-text-color: var(--calcite-color-status-info);
+      --calcite-notice-border-color: var(--calcite-color-status-info);
+      --calcite-notice-background-color: var(--calcite-color-status-info-subtle);
       /*background: var(--calcite-color-status-info-subtle);
       color: var(--calcite-color-status-info);*/
     }
   
     .status-message.loading {
-      background: var(--calcite-color-status-warning-subtle);
-      color: var(--calcite-color-status-warning);
+      display: flex;
+      height: 2rem;
+      --calcite-notice-content-text-color: var(--calcite-color-status-warning);
+      --calcite-notice-border-color: var(--calcite-color-status-warning);
+      --calcite-notice-background-color: var(--calcite-color-status-warning-subtle);
+      /*background: var(--calcite-color-status-warning-subtle);
+      color: var(--calcite-color-status-warning);*/
     }
   
     .status-message.error {
-      background: var(--calcite-color-status-danger-subtle);
-      color: var(--calcite-color-status-danger);
+      display: flex;
+      height: 2rem;
+      --calcite-notice-content-text-color: var(--calcite-color-status-danger);
+      --calcite-notice-border-color: var(--calcite-color-status-danger);
+      --calcite-notice-background-color: var(--calcite-color-status-danger-subtle);
+      /*background: var(--calcite-color-status-danger-subtle);
+      color: var(--calcite-color-status-danger);*/
     }
   
     .status-message.success {
-      background: var(--calcite-color-status-success-subtle);
-      color: var(--calcite-color-status-success);
+      display: flex;
+      height: 2rem;
+      --calcite-notice-content-text-color: var(--calcite-color-status-success);
+      --calcite-notice-border-color: var(--calcite-color-status-success);
+      --calcite-notice-background-color: var(--calcite-color-status-success-subtle);
+      /*background: var(--calcite-color-status-success-subtle);
+      color: var(--calcite-color-status-success);*/
     }
   
     .main-headers {   
@@ -788,8 +806,9 @@
       };
       statusEl.className = `status-message ${type}`;
       statusEl.innerHTML = `
-        <calcite-icon icon="${icons[type]}" scale="s"></calcite-icon>
-        <span>  ${message}</span>
+        <calcite-notice icon="${icons[type]}" scale="s" width="full" open>
+          <div slot="message">${message}</div>
+        </calcite-notice>
       `;
     }
 
@@ -924,7 +943,7 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      setStatus("Calculating population...", "loading");
+      setStatus('Calculating population <calcite-loader label="Adjusting polygons..." inline></calcite-loader>', "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
