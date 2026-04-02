@@ -100,8 +100,10 @@
     }
   
     .status-message.ready {
-      background: var(--calcite-color-status-info-subtle);
-      color: var(--calcite-color-status-info);
+      display: flex;
+      height: 1rem;
+      /*background: var(--calcite-color-status-info-subtle);
+      color: var(--calcite-color-status-info);*/
     }
   
     .status-message.loading {
@@ -422,9 +424,11 @@
       <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
         
         <!-- Status -->
-        <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-          <div slot="message">Click a draw button to begin</div>
-        </calcite-notice>
+        <div id="status" class="status-message ready">
+          <calcite-notice icon="information" kind="info" scale="s" width="full" open>
+            <div slot="message">Click a draw button to begin</div>
+          </calcite-notice>
+        </div>
         
         <div class="panel-content">
           
