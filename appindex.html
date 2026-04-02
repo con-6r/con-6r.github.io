@@ -354,25 +354,32 @@
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
           <calcite-action
+            id="search"
+            text="Search"
+            icon="search"
+            scale="m"
+            text-enabled
+          ></calcite-action>
+          <calcite-action
             id="measure"
             text="Measure"
             icon="measure"
+            scale="m" 
             text-enabled
-            scale="m"
           ></calcite-action>
           <calcite-action
             id="togglePanel"
             text="Create Buffers"
             icon="template-group-point-buffer"
-            text-enabled
             scale="m"
+            text-enabled
           ></calcite-action>
           <calcite-action
             id="printAction"
             text="Print"
             icon="print"
-            text-enabled
             scale="m"
+            text-enabled
           ></calcite-action>
         </div>
       </div>
@@ -615,6 +622,8 @@
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
     const BG_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
+    const PARCEL_LAYER_URL =
+      "https://utility.arcgis.com/usrsvcs/servers/75da303642e74f4b8b25caa6c1bbfad0/rest/services/premium/FeatureServer/0?f=pjson";
     const POP_FIELD = "POP20";
     // ================================================================
 
