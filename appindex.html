@@ -93,15 +93,18 @@
       font-style: italic;
     }
 
-    .status-message {
+    div[slot="message"] calcite-notice {
       font-size: 1rem;
       font-weight: var(--calcite-font-weight-medium);
+    }
+    
+    .status-message {
       white-space: wrap;
     }
   
     .status-message.ready {
       display: flex;
-      height: 2rem;
+      height: fit-content;
       --calcite-notice-content-text-color: var(--calcite-color-status-info);
       --calcite-notice-border-color: var(--calcite-color-status-info);
       --calcite-notice-background-color: var(--calcite-color-status-info-subtle);
@@ -443,7 +446,7 @@
         
         <!-- Status -->
         <div id="status" class="status-message ready">
-          <calcite-notice icon="information" kind="info" scale="s" width="full" open>
+          <calcite-notice icon="information" appearance="outline-fill" scale="s" width="full" open>
             <div slot="message">Click a draw button to begin</div>
           </calcite-notice>
         </div>
@@ -806,7 +809,7 @@
       };
       statusEl.className = `status-message ${type}`;
       statusEl.innerHTML = `
-        <calcite-notice icon="${icons[type]}" scale="s" width="full" open>
+        <calcite-notice icon="${icons[type]}" appearance="outline-fill" scale="s" width="full" open>
           <div slot="message">${message}</div>
         </calcite-notice>
       `;
