@@ -102,7 +102,7 @@
     }
 
     #notice-message {
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: var(--calcite-font-weight-medium);
     }
   
@@ -791,7 +791,7 @@
     function setStatus(message, type = "ready") {
       const icons = {
         ready: "information",
-        loading: "clock",
+        loading: '<calcite-loader label="Calculating population..." inline></calcite-loader>',
         error: "exclamation-mark-triangle",
         success: "check-circle"
       };
@@ -940,7 +940,7 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      setStatus('Calculating population <calcite-loader label="Calculating population..." inline></calcite-loader>', "loading");
+      setStatus("Calculating population", "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
