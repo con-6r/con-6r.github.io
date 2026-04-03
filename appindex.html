@@ -791,7 +791,7 @@
     function setStatus(message, type = "ready") {
       const icons = {
         ready: "information",
-        loading: "blank",
+        loading: "",
         error: "exclamation-mark-triangle",
         success: "check-circle"
       };
@@ -940,7 +940,8 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      setStatus('<calcite-loader label="Calculating population..." inline>Calculating population</calcite-loader>', "loading");
+      const loadanimation = '<calcite-loader label="Calculating population..." inline></calcite-loader>'
+      setStatus(`${loadinganimation} Calculating population`, "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
