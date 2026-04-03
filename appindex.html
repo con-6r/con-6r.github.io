@@ -435,7 +435,7 @@
         <!-- Status -->
         <div id="status" class="status-message ready">
           <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-            <div id="notice-message">Click a draw button to begin</div>
+            <div id="notice-message" slot="message">Click a draw button to begin</div>
           </calcite-notice>
         </div>
         
@@ -804,7 +804,7 @@
       statusEl.className = `status-message ${type}`;
       statusEl.innerHTML = `
         <calcite-notice icon="${icons[type]}" kind="${kinds[type]}" scale="s" width="full" open>
-          <div id="notice-message">${message}</div>
+          <div id="notice-message" slot="message">${message}</div>
         </calcite-notice>
       `;
     }
