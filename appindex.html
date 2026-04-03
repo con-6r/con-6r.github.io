@@ -92,52 +92,40 @@
       margin: 4px 0 0 0;
       font-style: italic;
     }
+    
+    .status-message {
+      display: flex;
+      height: fit-content;
+      padding-top: 4px;
+      padding-bottom: 4px;
+      white-space: wrap;
+    }
 
-    div[slot="message"] calcite-notice {
+    .notice-message {
       font-size: 1rem;
       font-weight: var(--calcite-font-weight-medium);
     }
-    
-    .status-message {
-      white-space: wrap;
-    }
   
     .status-message.ready {
-      display: flex;
-      height: fit-content;
       --calcite-notice-content-text-color: var(--calcite-color-status-info);
-      --calcite-notice-border-color: var(--calcite-color-status-info);
-      --calcite-notice-background-color: var(--calcite-color-status-info-subtle);
       /*background: var(--calcite-color-status-info-subtle);
       color: var(--calcite-color-status-info);*/
     }
   
     .status-message.loading {
-      display: flex;
-      height: 2rem;
       --calcite-notice-content-text-color: var(--calcite-color-status-warning);
-      --calcite-notice-border-color: var(--calcite-color-status-warning);
-      --calcite-notice-background-color: var(--calcite-color-status-warning-subtle);
       /*background: var(--calcite-color-status-warning-subtle);
       color: var(--calcite-color-status-warning);*/
     }
   
     .status-message.error {
-      display: flex;
-      height: 2rem;
       --calcite-notice-content-text-color: var(--calcite-color-status-danger);
-      --calcite-notice-border-color: var(--calcite-color-status-danger);
-      --calcite-notice-background-color: var(--calcite-color-status-danger-subtle);
       /*background: var(--calcite-color-status-danger-subtle);
       color: var(--calcite-color-status-danger);*/
     }
   
     .status-message.success {
-      display: flex;
-      height: 2rem;
       --calcite-notice-content-text-color: var(--calcite-color-status-success);
-      --calcite-notice-border-color: var(--calcite-color-status-success);
-      --calcite-notice-background-color: var(--calcite-color-status-success-subtle);
       /*background: var(--calcite-color-status-success-subtle);
       color: var(--calcite-color-status-success);*/
     }
@@ -446,8 +434,8 @@
         
         <!-- Status -->
         <div id="status" class="status-message ready">
-          <calcite-notice icon="information" appearance="outline-fill" scale="s" width="full" open>
-            <div slot="message">Click a draw button to begin</div>
+          <calcite-notice icon="information" kind="info" scale="s" width="full" open>
+            <div id="notice-message">Click a draw button to begin</div>
           </calcite-notice>
         </div>
         
@@ -807,9 +795,15 @@
         error: "exclamation-mark-triangle",
         success: "check-circle"
       };
+      const kinds = {
+        ready: "info",
+        loading: "warning",
+        error: "danger",
+        success: "success"
+      };
       statusEl.className = `status-message ${type}`;
       statusEl.innerHTML = `
-        <calcite-notice icon="${icons[type]}" appearance="outline-fill" scale="s" width="full" open>
+        <calcite-notice icon="${icons[type]}" kinds="${kinds[type]}" scale="s" width="full" open>
           <div slot="message">${message}</div>
         </calcite-notice>
       `;
@@ -946,7 +940,7 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      setStatus('Calculating population <calcite-loader label="Adjusting polygons..." inline></calcite-loader>', "loading");
+      setStatus('<span>Calculating population <calcite-loader label="Calculating population..." inline></calcite-loader></span>', "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
@@ -1187,6 +1181,7 @@
         viewElement.map.remove(a.graphicsLayer);
       });
       analyses = [];
+      analysisCounter = 0;
       renderResults();
       clearAllBtn.disabled = true;
       setStatus("Click a draw button to begin", "ready");
