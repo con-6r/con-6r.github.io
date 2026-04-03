@@ -101,7 +101,7 @@
       white-space: wrap;
     }
 
-    .notice-message {
+    #notice-message {
       font-size: 1rem;
       font-weight: var(--calcite-font-weight-medium);
     }
@@ -803,8 +803,8 @@
       };
       statusEl.className = `status-message ${type}`;
       statusEl.innerHTML = `
-        <calcite-notice icon="${icons[type]}" kinds="${kinds[type]}" scale="s" width="full" open>
-          <div slot="message">${message}</div>
+        <calcite-notice icon="${icons[type]}" kind="${kinds[type]}" scale="s" width="full" open>
+          <div id="notice-message">${message}</div>
         </calcite-notice>
       `;
     }
@@ -940,7 +940,7 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      setStatus('<span>Calculating population <calcite-loader label="Calculating population..." inline></calcite-loader></span>', "loading");
+      setStatus('Calculating population <calcite-loader label="Calculating population..." inline></calcite-loader>', "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
@@ -1166,6 +1166,7 @@
       const analysis = analyses[index];
       viewElement.map.remove(analysis.graphicsLayer);
       analyses.splice(index, 1);
+      --analysisCounter;
       renderResults();
 
       if (analyses.length === 0) {
