@@ -791,7 +791,6 @@
     function setStatus(message, type = "ready") {
       const icons = {
         ready: "information",
-        loading: "",
         error: "exclamation-mark-triangle",
         success: "check-circle"
       };
@@ -801,15 +800,22 @@
         error: "danger",
         success: "success"
       };
-
-      const isLoading = type === "loading";
       
       statusEl.className = `status-message ${type}`;
-      statusEl.innerHTML = `
-        <calcite-notice ${isLoading ? 'loading' : ''} ${!isLoading ? `icon="${icons[type]}"` : ''} kind="${kinds[type]}" scale="s" width="full" open>
-          <div id="notice-message" slot="message">${message}</div>
-        </calcite-notice>
-      `;
+      if (type === "loading") {
+        statusEl.innerHTML = `
+          <calcite-notice kind="warning" scale="s" width="full" open>
+            <calcite-loader slot="icon" label="Calculating population..." inline></calcite-loader>
+            <div id="notice-message" slot="message">${message}</div>
+          </calcite-notice>
+        `;
+      } else {
+        statusEl.innerHTML = `
+          <calcite-notice icon="${icons[type]}" kind="${kinds[type]}" scale="s" width="full" open>
+            <div id="notice-message" slot="message">${message}</div>
+          </calcite-notice>
+        `;
+      }
     }
 
     function formatNumber(num) {
