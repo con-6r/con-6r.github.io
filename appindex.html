@@ -801,9 +801,12 @@
         error: "danger",
         success: "success"
       };
+
+      const isLoading = type === "loading";
+      
       statusEl.className = `status-message ${type}`;
       statusEl.innerHTML = `
-        <calcite-notice icon="${icons[type]}" kind="${kinds[type]}" scale="s" width="full" open>
+        <calcite-notice ${isLoading ? 'loading' : ''} ${!isLoading ? `icon="${icons[type]}"` : ''} kind="${kinds[type]}" scale="s" width="full" open>
           <div id="notice-message" slot="message">${message}</div>
         </calcite-notice>
       `;
@@ -940,8 +943,7 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      const loadanimation = '<calcite-loader label="Calculating population..." inline></calcite-loader>'
-      setStatus(`${loadanimation} Calculating population`, "loading");
+      setStatus("Calculating population", "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
