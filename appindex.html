@@ -804,10 +804,12 @@
       statusEl.className = `status-message ${type}`;
       if (type === "loading") {
         statusEl.innerHTML = `
-          <calcite-notice kind="warning" scale="s" width="full" open>
-            <calcite-loader slot="icon" label="Calculating population..." inline></calcite-loader>
-            <div id="notice-message" slot="message">${message}</div>
-          </calcite-notice>
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px;">
+            <calcite-loader label="Calculating population..." inline></calcite-loader>
+            <span style="font-size: 0.85rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
+             ${message}
+            </span>
+          </div>
         `;
       } else {
         statusEl.innerHTML = `
