@@ -407,7 +407,7 @@
       <arcgis-search
         id="searchWidget"
         reference-element="arcgis-map"
-        include-default-sources
+        include-default-sources-disabled
       ></arcgis-search>
     </div>
     <!-- Measurement toolbar — floats below header, hidden by default -->
@@ -652,6 +652,8 @@
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
     const PARCEL_LAYER_URL =
       "https://utility.arcgis.com/usrsvcs/servers/75da303642e74f4b8b25caa6c1bbfad0/rest/services/premium/FeatureServer/0?f=pjson";
+    const NPL_SITE_LAYER_URL =
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/Superfund_National_Priorities_List_(NPL)_Sites_with_Status_Information/FeatureServer/0";
     const POP_FIELD = "POP20";
     // ================================================================
 
@@ -659,6 +661,11 @@
     // LAYERS AND SYMBOLS
     // ================================================================
 
+    const NPLlayer = new FeatureLayer({ 
+      url: NPL_SITE_LAYER_URL;
+      definitionExpression: "Region_ID = 6"
+    });
+  
     // Query-only feature layers (not added to the map for drawing)
     const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
     const bgLayer = new FeatureLayer({ url: BG_LAYER_URL });
@@ -1235,7 +1242,26 @@
     // ================================================================
     // INITIALIZATION — runs when the map view is ready
     // ================================================================
-
+    await searchWidget.componentOnReady();
+    // set the search sources once the component is ready
+    searchWidget.sources = [
+      {
+        layer: NPLlayer,
+        searchFields: ["*"],
+        displayField: "Site_Name",
+        exactMatch: false,
+        outFields: ["*"],
+        name: "NPL Sites",
+        placeholder: "example: Oklahoma Refining Co.",
+      },
+      {
+        name: "ArcGIS World Geocoding Service",
+        placeholder: "example: Nuuk, GRL",
+        singleLineFieldName: "SingleLine",
+        url: "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer",
+      },
+    ];
+  
     viewElement.addEventListener("arcgisViewReadyChange", () => {
       const view = viewElement.view;
 
@@ -1268,41 +1294,6 @@
 
           // Run the analysis with the drawn geometry
           runAnalysis(event.graphic.geometry);
-        }
-      });
-
-      searchWidget.addEventListener("arcgisReady", () => {
-      // The search component exposes its underlying sources
-      // Adding feature layers lets users search by attribute values
-        const featureLayerSources = [];
-      
-        viewElement.map.allLayers.forEach(layer => {
-          if (layer.type === "feature" && layer.visible) {
-            featureLayerSources.push({
-              layer: layer,
-              searchFields: layer.displayField ? [layer.displayField] : [],
-              displayField: layer.displayField || "",
-              exactMatch: false,
-              outFields: ["*"],
-              name: layer.title,
-              placeholder: `Search ${layer.title}`
-            });
-          }
-        });
-      
-        // Access the widget's sources and add feature layers
-        if (featureLayerSources.length > 0) {
-          searchWidget.sources.addMany(
-            featureLayerSources.map(src => ({
-              layer: src.layer,
-              searchFields: src.searchFields,
-              displayField: src.displayField,
-              exactMatch: src.exactMatch,
-              outFields: src.outFields,
-              name: src.name,
-              placeholder: src.placeholder
-            }))
-          );
         }
       });
     });
