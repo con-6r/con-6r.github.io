@@ -117,12 +117,6 @@
       color: var(--calcite-color-status-info);*/
     }
   
-    .status-message.loading {
-      --calcite-notice-content-text-color: var(--calcite-color-status-warning);
-      /*background: var(--calcite-color-status-warning-subtle);
-      color: var(--calcite-color-status-warning);*/
-    }
-  
     .status-message.error {
       --calcite-notice-content-text-color: var(--calcite-color-status-danger);
       /*background: var(--calcite-color-status-danger-subtle);
@@ -809,7 +803,15 @@
       statusEl.className = `status-message ${type}`;
       if (type === "loading") {
         statusEl.innerHTML = `
-          <div style="display: flex; align-items: center; height: fit-content; background-color: rgb(253, 248, 243); border-color: rgba(218, 124, 11, 0.5); border-width: 0.8px; border-radius: 4px; gap: 10px; padding-top: 4px; padding-bottom: 4px;">
+          <div style="
+            display: flex;
+            align-items: center;
+            background-color: rgb(253, 248, 243);
+            border: 0.8px solid rgba(218, 124, 11, 0.5);
+            border-radius: 4px;
+            gap: 10px;
+            padding: 7px 12px;
+          ">
             <div id="load-color">
               <calcite-loader label="Calculating population..." inline></calcite-loader>
             </div>
