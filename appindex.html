@@ -105,6 +105,10 @@
       font-size: 0.85rem;
       font-weight: var(--calcite-font-weight-medium);
     }
+
+    .load-color {
+      --calcite-loader-track-color: var(--calcite-color-status-warning)
+    }
   
     .status-message.ready {
       --calcite-notice-content-text-color: var(--calcite-color-status-info);
@@ -804,8 +808,10 @@
       statusEl.className = `status-message ${type}`;
       if (type === "loading") {
         statusEl.innerHTML = `
-          <div style="display: flex; align-items: center; background: rgb(252, 247, 242); gap: 8px; padding: 4px 4px;">
-            <calcite-loader --calcite-loader-track-color: var(--calcite-color-status-warning) label="Calculating population..." inline></calcite-loader>
+          <div style="display: flex; align-items: center; background: rgb(253, 248, 243); border-color: rgba(218, 124, 11, 0.5); border-width: 0.8px; border-radius: 4px; gap: 10px; padding: 4px 4px;">
+            <div id="load-color">
+              <calcite-loader label="Calculating population..." inline></calcite-loader>
+            </div>
             <span style="font-size: 0.85rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
               ${message}
             </span>
