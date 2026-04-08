@@ -107,7 +107,8 @@
     }
 
     #load-color {
-      --calcite-loader-track-color: var(--calcite-color-status-warning);
+      --calcite-loader-progress-color-inline: var(--calcite-color-status-warning);
+      --calcite-loader-track-color: rgb(255, 194, 120);
     }
   
     .status-message.ready {
@@ -808,7 +809,7 @@
       statusEl.className = `status-message ${type}`;
       if (type === "loading") {
         statusEl.innerHTML = `
-          <div style="display: flex; align-items: center; background-color: rgb(253, 248, 243); border-color: rgba(218, 124, 11, 0.5); border-width: 0.8px; border-radius: 4px; gap: 10px; padding: 4px 4px;">
+          <div style="display: flex; align-items: center; height: fit-content; background-color: rgb(253, 248, 243); border-color: rgba(218, 124, 11, 0.5); border-width: 0.8px; border-radius: 4px; gap: 10px; padding-top: 4px; padding-bottom: 4px;">
             <div id="load-color">
               <calcite-loader label="Calculating population..." inline></calcite-loader>
             </div>
