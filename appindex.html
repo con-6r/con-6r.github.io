@@ -390,7 +390,26 @@
           ></calcite-action>
         </div>
       </div>
-  
+
+    <!-- Search toolbar — floats below header, hidden by default -->
+    <div id="searchToolbar" style="
+      display: none;
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      z-index: 10;
+      background: var(--calcite-color-foreground-1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      min-width: 320px;
+    ">
+      <arcgis-search
+        id="searchWidget"
+        reference-element="arcgis-map"
+        include-default-sources
+      ></arcgis-search>
+    </div>
     <!-- Measurement toolbar — floats below header, hidden by default -->
     <div id="measureToolbar" style="
       display: none;
@@ -716,6 +735,10 @@
     const drawLineBtn = document.getElementById("drawLine");
     const drawPolygonBtn = document.getElementById("drawPolygon");
     const drawCancelBtn = document.getElementById("drawCancel");
+    // Search tool DOMs
+    const searchAction = document.getElementById("search");
+    const searchToolbar = document.getElementById("searchToolbar");
+    const searchWidget = document.getElementById("searchWidget");
 
     // ================================================================
     // STATE
@@ -805,6 +828,7 @@
         statusEl.innerHTML = `
           <div style="
             display: flex;
+            width: stretch;
             align-items: center;
             background-color: rgb(253, 248, 243);
             border: 0.8px solid rgba(218, 124, 11, 0.5);
@@ -960,7 +984,7 @@
       const layer = useBlocks ? blockLayer : bgLayer;
       const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
 
-      setStatus("Calculating population", "loading");
+      setStatus("Calculating", "loading");
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
@@ -1274,6 +1298,9 @@
       measureToolbar.style.display = "none";
       showMeasureTool(null);
       measureAction.active = false;
+
+      searchToolbar.style.display = "none";
+      searchAction.active = false;
     }
     
     // Buffer panel toggle
@@ -1333,7 +1360,16 @@
         activeMeasureTool = null;
       }
     }
-    
+
+    searchAction.addEventListener("click", () => {
+      const isOpening = searchToolbar.style.display === "none";
+      closeAllTools();
+      if (isOpening) {
+        searchToolbar.style.display = "block";
+        searchAction.active = true;
+      }
+    });
+  
     // Tool buttons
     measureDistBtn.addEventListener("click", () => showMeasureTool("distance"));
     measureAreaBtn.addEventListener("click", () => showMeasureTool("area"));
