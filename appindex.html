@@ -662,7 +662,8 @@
     // ================================================================
 
     const NPLlayer = new FeatureLayer({ 
-      url: NPL_SITE_LAYER_URL
+      url: NPL_SITE_LAYER_URL,
+      definitionExpression: "Region_ID = 6"
     });
   
     // Query-only feature layers (not added to the map for drawing)
@@ -1246,6 +1247,7 @@
         layer: NPLlayer,
         searchFields: ["Site_Name", "Site_Score", "Site_EPA_ID", "SEMS_ID", "SITS_ID", "Longitude", "Latitude"],
         displayField: "Site_Name",
+        popupEnabled: false,
         exactMatch: false,
         name: "NPL Sites",
         placeholder: "Search Site Name or ID",
