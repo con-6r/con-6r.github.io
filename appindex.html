@@ -1270,6 +1270,41 @@
           runAnalysis(event.graphic.geometry);
         }
       });
+
+      searchWidget.addEventListener("arcgisReady", () => {
+      // The search component exposes its underlying sources
+      // Adding feature layers lets users search by attribute values
+      const featureLayerSources = [];
+    
+      viewElement.map.allLayers.forEach(layer => {
+        if (layer.type === "feature" && layer.visible) {
+          featureLayerSources.push({
+            layer: layer,
+            searchFields: layer.displayField ? [layer.displayField] : [],
+            displayField: layer.displayField || "",
+            exactMatch: false,
+            outFields: ["*"],
+            name: layer.title,
+            placeholder: `Search ${layer.title}`
+          });
+        }
+      });
+    
+      // Access the widget's sources and add feature layers
+      if (featureLayerSources.length > 0 && searchWidget.widget) {
+        searchWidget.widget.sources.addMany(
+          featureLayerSources.map(src => ({
+            layer: src.layer,
+            searchFields: src.searchFields,
+            displayField: src.displayField,
+            exactMatch: src.exactMatch,
+            outFields: src.outFields,
+            name: src.name,
+            placeholder: src.placeholder
+          }))
+        );
+      }
+     });
     });
 
     // ================================================================
