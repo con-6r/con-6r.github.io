@@ -662,8 +662,7 @@
     // ================================================================
 
     const NPLlayer = new FeatureLayer({ 
-      url: NPL_SITE_LAYER_URL,
-      definitionExpression: "Region_ID = 6"
+      url: NPL_SITE_LAYER_URL
     });
   
     // Query-only feature layers (not added to the map for drawing)
@@ -1252,11 +1251,11 @@
         exactMatch: false,
         outFields: ["*"],
         name: "NPL Sites",
-        placeholder: "example: Oklahoma Refining Co.",
+        placeholder: "example: RSR Corp.",
       },
       {
         name: "ArcGIS World Geocoding Service",
-        placeholder: "example: Nuuk, GRL",
+        placeholder: "example: Dallas",
         singleLineFieldName: "SingleLine",
         url: "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer",
       },
