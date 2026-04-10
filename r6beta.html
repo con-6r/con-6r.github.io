@@ -328,18 +328,7 @@
   <script type="module" src="https://js.arcgis.com/5.0/"></script>
   
   <!-- Configure OAuth before components load -->
-  <script type="module">
-    const [config, idMgr, OAuthInfo] = await $arcgis.import([
-      "@arcgis/core/config.js",
-      "@arcgis/core/identity/IdentityManager.js",
-      "@arcgis/core/identity/OAuthInfo.js",
-    ]);
-  
-    const oAuthInfo = new OAuthInfo({
-      appId: "30bmTwF1AOcdEsBp",
-    });
-    idMgr.registerOAuthInfos([oAuthInfo]);
-  </script>
+
 
 </head>
   <body>
