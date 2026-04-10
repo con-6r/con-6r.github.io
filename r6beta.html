@@ -1,0 +1,1409 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+    <title>EPA Region 6 Explorer</title>
+    <link rel="icon" href="data:;base64,=" />
+    <style>
+      html, body {
+        background-color: var(--calcite-color-background);
+        height: 100%;
+        margin: 0;
+        font-family: var(--calcite-font-family);
+      }
+
+    /* Panel styling */
+    .panel-content {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-weight: var(--calcite-font-weight-medium);
+    }
+
+    .input-group calcite-label {
+      --calcite-label-margin-bottom: 0;
+    }
+  
+    .input-row {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+    }
+  
+    .input-row calcite-input-number {
+      flex: 1;
+    }
+  
+    .input-row calcite-select {
+      width: 140px;
+    }
+  
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 8px;
+    }
+  
+    .result-card {
+      background: var(--calcite-color-foreground-2);
+      border: 1px solid var(--calcite-color-border-3);
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+    }
+  
+    .result-label {
+      font-size: var(--calcite-font-size--2);
+      color: var(--calcite-color-text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 4px 0;
+    }
+  
+    .result-value {
+      font-size: var(--calcite-font-size-2);
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-text-1);
+      margin: 0;
+    }
+  
+    .result-card.band {
+      border-color: var(--calcite-color-brand);
+    }
+  
+    .result-card.band .result-value {
+      font-size: var(--calcite-font-size-4);
+      color: var(--calcite-color-brand);
+    }
+  
+    .result-note {
+      font-size: var(--calcite-font-size--2);
+      color: var(--calcite-color-text-3);
+      margin: 4px 0 0 0;
+      font-style: italic;
+    }
+    
+    .status-message {
+      display: flex;
+      height: fit-content;
+      padding-top: 4px;
+      padding-bottom: 4px;
+      white-space: wrap;
+    }
+
+    #notice-message {
+      font-size: 0.85rem;
+      font-weight: var(--calcite-font-weight-medium);
+    }
+
+    #load-color {
+      --calcite-loader-progress-color-inline: var(--calcite-color-status-warning);
+      --calcite-loader-track-color: rgb(255, 194, 120);
+    }
+  
+    .status-message.ready {
+      --calcite-notice-content-text-color: var(--calcite-color-status-info);
+      /*background: var(--calcite-color-status-info-subtle);
+      color: var(--calcite-color-status-info);*/
+    }
+  
+    .status-message.error {
+      --calcite-notice-content-text-color: var(--calcite-color-status-danger);
+      /*background: var(--calcite-color-status-danger-subtle);
+      color: var(--calcite-color-status-danger);*/
+    }
+  
+    .status-message.success {
+      --calcite-notice-content-text-color: var(--calcite-color-status-success);
+      /*background: var(--calcite-color-status-success-subtle);
+      color: var(--calcite-color-status-success);*/
+    }
+  
+    .main-headers {   
+      font-size: var(--calcite-font-size--1);
+      font-weight: var(--calcite-font-weight-medium);
+    }
+
+    .main-headers calcite-label {
+      --calcite-label-margin-bottom: 0;
+      margin: 0;
+      padding: 4px 0 4px 0;
+    }
+
+    /* Draw mode toolbar */
+    .draw-toolbar {
+      display: flex;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+  
+    /* Custom cursor when in draw mode */
+    .draw-active .esri-view-surface {
+      cursor: crosshair !important;
+    }
+
+    .results-header {
+      display: flex;
+    }
+
+    .results-header-text {
+      flex: 1;
+      font-size: var(--calcite-font-size--1);
+      font-weight: var(--calcite-font-weight-medium);
+    }
+  
+    /* Analysis result block (one per analysis) */
+    .analysis-block {
+      border: 1px solid var(--calcite-color-border-3);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+  
+    .analysis-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--calcite-color-foreground-2);
+      cursor: pointer;
+      gap: 8px;
+    }
+  
+    .analysis-header:hover {
+      background: var(--calcite-color-foreground-3);
+    }
+  
+    .analysis-header-text {
+      flex: 1;
+      min-width: 0;
+    }
+  
+    .analysis-title {
+      font-size: var(--calcite-font-size--1);
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-text-1);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    .analysis-subtitle {
+      font-size: var(--calcite-font-size--2);
+      color: var(--calcite-color-text-3);
+      margin: 2px 0 0 0;
+    }
+  
+    .analysis-band-value {
+      font-size: var(--calcite-font-size-0);
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-brand);
+      white-space: nowrap;
+    }
+  
+    .analysis-body {
+      padding: 8px 12px 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid var(--calcite-color-border-3);
+    }
+  
+    .analysis-body.open {
+      display: flex;
+    }
+  
+    .analysis-detail {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--calcite-font-size--1);
+    }
+  
+    .analysis-detail-label {
+      color: var(--calcite-color-text-3);
+    }
+  
+    .analysis-detail-value {
+      font-weight: var(--calcite-font-weight-bold);
+      color: var(--calcite-color-text-1);
+    }
+  
+    .analysis-actions {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+  
+    #clearAllBtn {
+      width: 100%;
+      padding-top: 4px;
+    }
+
+    div[slot="header"] calcite-action {
+      --calcite-action-background-color: var(--calcite-color-brand);
+      --calcite-action-background-color-hover: var(--calcite-color-brand-hover);
+      --calcite-action-background-color-press: rgb(0, 57, 92);
+      --calcite-action-text-color: white;
+      --calcite-action-text-color-hover: white;
+      --calcite-action-text-color-press: white;
+    }
+
+    #legend {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+    }
+
+    #maplayers {
+      position: absolute;
+      top: 3.375rem;
+      left: 0.75rem;
+    }
+
+    #basemap {
+      position: absolute;
+      top: 6rem;
+      left: 0.75rem;
+    }
+
+    #scalebar {
+      position: absolute;
+      bottom: 1.625rem;
+      left: 0.75rem;
+    }
+
+    #compass {
+      position: absolute;
+      bottom: 6.425rem;
+      right: 0.75rem;
+    }
+
+    #zoom {
+      position: absolute;
+      bottom: 1.75rem;
+      right: 0.75rem;
+    }
+
+    #measureToolbar arcgis-distance-measurement-2d,
+    #measureToolbar arcgis-area-measurement-2d {
+      margin-top: 8px;
+      padding: 4px;
+    }
+    
+    /* #togglePanel {
+      flex-direction: column;
+      gap: 2px;
+    } */
+
+    /* .toolbar {
+      position: absolute;
+      top: 3.5rem;
+      right: 10px;
+      border-radius: 6px;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 1px 6px;
+      background: var(--calcite-color-foreground-1);
+    } */
+  
+    /* Scrollable results area */
+    .results-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+        
+  </style>
+  
+  <!-- Load the ArcGIS Maps SDK for JavaScript 5.0 from the CDN -->
+  <script type="module" src="https://js.arcgis.com/5.0/"></script>
+  
+  <!-- Configure OAuth before components load -->
+  <script type="module">
+    const [config, idMgr, OAuthInfo] = await $arcgis.import([
+      "@arcgis/core/config.js",
+      "@arcgis/core/identity/IdentityManager.js",
+      "@arcgis/core/identity/OAuthInfo.js",
+    ]);
+  
+    const oAuthInfo = new OAuthInfo({
+      appId: "dY1uuKoXcEBt44zy",
+    });
+    idMgr.registerOAuthInfos([oAuthInfo]);
+  </script>
+
+</head>
+  <body>
+    <calcite-shell>
+      <div slot="header" style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgb(5, 81, 140);
+        height: 3.5rem;
+        padding: 0 12px;
+      ">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Seal_of_the_United_States_Environmental_Protection_Agency.svg"
+            alt="EPA Seal" style="height: 2.67rem; width: 2.67rem;" />
+          <span style="color: white; font-size: 1.2rem; font-weight: bold; font-family: var(--calcite-font-family);">
+            EPA Region 6 Explorer
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <calcite-action
+            id="search"
+            text="Search"
+            icon="search"
+            scale="m"
+            text-enabled
+          ></calcite-action>
+          <calcite-action
+            id="measure"
+            text="Measure"
+            icon="measure"
+            scale="m" 
+            text-enabled
+          ></calcite-action>
+          <calcite-action
+            id="togglePanel"
+            text="Create Buffers"
+            icon="template-group-point-buffer"
+            scale="m"
+            text-enabled
+          ></calcite-action>
+          <calcite-action
+            id="printAction"
+            text="Print"
+            icon="print"
+            scale="m"
+            text-enabled
+          ></calcite-action>
+        </div>
+      </div>
+
+    <!-- Search toolbar — floats below header, hidden by default -->
+    <div id="searchToolbar" style="
+      display: none;
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      z-index: 10;
+      background: var(--calcite-color-foreground-1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      width: fit-content;
+    ">
+      <arcgis-search
+        id="searchWidget"
+        reference-element="arcgis-map"
+        include-default-sources-disabled
+      ></arcgis-search>
+    </div>
+    <!-- Measurement toolbar — floats below header, hidden by default -->
+    <div id="measureToolbar" style="
+      display: none;
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      z-index: 10;
+      background: var(--calcite-color-foreground-1);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      max-width: 14.32225rem;
+    ">
+      <div style="display: flex; gap: 4px; margin-bottom: 0;">
+        <calcite-button id="measureDistance" appearance="outline-fill" kind="brand"
+          icon-start="measure-line" scale="s">Distance</calcite-button>
+        <calcite-button id="measureArea" appearance="outline-fill" kind="brand"
+          icon-start="measure-area" scale="s">Area</calcite-button>
+        <calcite-button id="measureClear" appearance="outline-fill" kind="danger"
+          icon-start="trash" scale="s">Clear</calcite-button>
+      </div>
+      <arcgis-distance-measurement-2d
+        id="distanceTool"
+        reference-element="arcgis-map"
+        unit="miles"
+        hidden
+        hide-new-measurement-button
+      ></arcgis-distance-measurement-2d>
+      <arcgis-area-measurement-2d
+        id="areaTool"
+        reference-element="arcgis-map"
+        unit="square-miles"
+        hidden
+        hide-new-measurement-button
+      ></arcgis-area-measurement-2d>
+    </div>
+    <!-- Shell panel for the analysis controls -->
+    <calcite-shell-panel id="bufferShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
+      <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
+        
+        <!-- Status -->
+        <div id="status" class="status-message ready">
+          <calcite-notice icon="information" kind="info" scale="s" width="full" open>
+            <div id="notice-message" slot="message">Click a draw button to begin</div>
+          </calcite-notice>
+        </div>
+        
+        <div class="panel-content">
+          
+          <!-- Step 1: Draw mode selection -->
+           <div class="main-headers">
+            <calcite-label>
+              Step 1: Draw a shape on the map
+            </calcite-label>
+           </div>
+          <div class="draw-toolbar">
+            <calcite-button
+              id="drawPoint"
+              appearance="outline-fill"
+              kind="brand"
+              icon-start="pin"
+              scale="s"
+              title="Place a point"
+            >Point</calcite-button>
+            <calcite-button
+              id="drawLine"
+              appearance="outline-fill"
+              kind="brand"
+              icon-start="line"
+              scale="s"
+              title="Draw a line"
+            >Line</calcite-button>
+            <calcite-button
+              id="drawPolygon"
+              appearance="outline-fill"
+              kind="brand"
+              icon-start="polygon"
+              scale="s"
+              title="Draw a polygon"
+            >Polygon</calcite-button>
+            <calcite-button
+              id="drawCancel"
+              appearance="outline-fill"
+              kind="danger"
+              icon-start="x"
+              scale="s"
+              title="Cancel drawing"
+              disabled
+            ></calcite-button>
+          </div>
+  
+        <!-- Step 2: Buffer parameters -->
+        <div class="main-headers">
+          <calcite-label scale="m">
+            Step 2: Set buffer distances
+          </calcite-label>
+        </div>
+        <!-- Outer distance -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Outer Distance
+            <div class="input-row">
+              <calcite-input-number
+                id="outerDistance"
+                placeholder="e.g. 3"
+                value="3"
+                min="0.1"
+                step="0.1"
+                scale="s"
+              ></calcite-input-number>
+              <calcite-select id="units" scale="s">
+                <calcite-option value="miles" selected>Miles</calcite-option>
+                <calcite-option value="kilometers">Kilometers</calcite-option>
+                <calcite-option value="feet">Feet</calcite-option>
+                <calcite-option value="meters">Meters</calcite-option>
+              </calcite-select>
+            </div>
+          </calcite-label>
+        </div>
+  
+        <!-- Inner distance -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Inner Distance (0 for full circle)
+            <calcite-input-number
+              id="innerDistance"
+              placeholder="e.g. 2"
+              value="2"
+              min="0"
+              step="0.1"
+              scale="s"
+            ></calcite-input-number>
+          </calcite-label>
+        </div>
+  
+        <!-- Data source toggle -->
+        <div class="input-group">
+          <calcite-label scale="s">
+            Data Source
+            <calcite-select id="dataSource" scale="s">
+              <calcite-option value="blocks" selected>2020 Census Blocks (precise, slower)</calcite-option>
+              <calcite-option value="blockgroups">2024 Block Groups (faster, less precise)</calcite-option>
+            </calcite-select>
+          </calcite-label>
+        </div>
+  
+        <!-- Clear all -->
+        <calcite-button
+          id="clearAllBtn"
+          appearance="outline-fill"
+          kind="danger"
+          icon-start="trash"
+          scale="s"
+          disabled
+        >Clear All Results</calcite-button>
+  
+        <!-- Results list -->
+        <div id="resultsList" class="results-scroll"></div>
+
+      </div>
+    </calcite-panel>
+  </calcite-shell-panel>
+  <!-- Print -->
+  <calcite-shell-panel id="printShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
+    <calcite-panel id="printPanel" heading="Print" scale="s">
+      <div class="panel-content">
+        <arcgis-print
+          id="printWidget"
+          reference-element="arcgis-map"
+          allowed-formats="all"
+          allowed-layouts="all"
+          hide-header
+        ></arcgis-print>
+      </div>
+    </calcite-panel>
+  </calcite-shell-panel>
+  
+    <!-- Map -->
+    <arcgis-map item-id="2f2c70104bf546318fd749f00a047b8c" scale="5000000">
+      <!--<arcgis-expand slot="top-right" expand-tooltip="Search">
+        <arcgis-search></arcgis-search>
+      </arcgis-expand>-->
+      <arcgis-expand id="legend" expand-tooltip="Legend" placement="trailing-start">
+        <arcgis-legend heading-level="6"></arcgis-legend>
+      </arcgis-expand>
+      <arcgis-expand id="maplayers" expand-tooltip="Map Layers" placement="trailing-start">
+        <arcgis-layer-list visibility-appearance="checkbox"></arcgis-layer-list>
+      </arcgis-expand>
+      <arcgis-expand id="basemap" expand-tooltip="Basemaps" placement="trailing-start">
+        <arcgis-basemap-layer-list visibility-appearance="checkbox" icon="basemap" selection-mode="single-persist" hide-reference-layers hide-heading></arcgis-basemap-layer-list>
+      </arcgis-expand>
+      <arcgis-zoom id="zoom"></arcgis-zoom>
+      <arcgis-compass id="compass"></arcgis-compass>
+      <arcgis-scale-bar id="scalebar"></arcgis-scale-bar>
+    </arcgis-map>
+  </calcite-shell>
+
+ </body>
+
+<script type="module">
+    // ================================================================
+    // IMPORTS
+    // ================================================================
+    const [
+      Graphic,
+      Point,
+      FeatureLayer,
+      SimpleFillSymbol,
+      SimpleMarkerSymbol,
+      SimpleLineSymbol,
+      GraphicsLayer,
+      geodesicBufferOperator,
+      differenceOperator,
+      StatisticDefinition,
+      SketchViewModel,
+      locator,
+      reactiveUtils
+    ] = await $arcgis.import([
+      "@arcgis/core/Graphic.js",
+      "@arcgis/core/geometry/Point.js",
+      "@arcgis/core/layers/FeatureLayer.js",
+      "@arcgis/core/symbols/SimpleFillSymbol.js",
+      "@arcgis/core/symbols/SimpleMarkerSymbol.js",
+      "@arcgis/core/symbols/SimpleLineSymbol.js",
+      "@arcgis/core/layers/GraphicsLayer.js",
+      "@arcgis/core/geometry/operators/geodesicBufferOperator.js",
+      "@arcgis/core/geometry/operators/differenceOperator.js",
+      "@arcgis/core/rest/support/StatisticDefinition.js",
+      "@arcgis/core/widgets/Sketch/SketchViewModel.js",
+      "@arcgis/core/rest/locator.js",
+      "@arcgis/core/core/reactiveUtils.js"
+    ]);
+
+    // ================================================================
+    // CONFIGURATION
+    // ================================================================
+    const BLOCK_LAYER_URL =
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
+    const BG_LAYER_URL =
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
+    const PARCEL_LAYER_URL =
+      "https://utility.arcgis.com/usrsvcs/servers/75da303642e74f4b8b25caa6c1bbfad0/rest/services/premium/FeatureServer/0?f=pjson";
+    const NPL_SITE_LAYER_URL =
+      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/Superfund_National_Priorities_List_(NPL)_Sites_with_Status_Information/FeatureServer/0";
+    const POP_FIELD = "POP20";
+    // ================================================================
+
+    // ================================================================
+    // LAYERS AND SYMBOLS
+    // ================================================================
+
+    const NPLlayer = new FeatureLayer({ 
+      url: NPL_SITE_LAYER_URL,
+      definitionExpression: "Region_ID = 6"
+    });
+  
+    // Query-only feature layers (not added to the map for drawing)
+    const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
+    const bgLayer = new FeatureLayer({ url: BG_LAYER_URL });
+
+    // Each analysis gets its own graphics layer so it can be removed independently.
+    // We also have a shared sketch layer for the SketchViewModel to draw on.
+    const sketchLayer = new GraphicsLayer({ title: "Sketches" });
+
+    // Symbols
+    const pointSymbol = new SimpleMarkerSymbol({
+      style: "circle",
+      size: 10,
+      color: [0, 121, 193, 0.9],
+      outline: new SimpleLineSymbol({ color: "white", width: 1.5 })
+    });
+
+    const drawnLineSymbol = new SimpleLineSymbol({
+      color: [0, 121, 193, 0.9],
+      width: 2.5
+    });
+
+    const drawnPolygonSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.15],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.9], width: 2 })
+    });
+
+    const outerBufferSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.15],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2.1 })
+    });
+
+    const innerBufferSymbol = new SimpleFillSymbol({
+      color: [255, 255, 255, 0.25],
+      outline: new SimpleLineSymbol({
+        color: [0, 121, 193, 0.8],
+        width: 2.1,
+        style: "dash"
+      })
+    });
+
+    const highlightSymbol = new SimpleFillSymbol({
+      color: [79, 79, 79, 0.1],
+      outline: new SimpleLineSymbol({ color: [79, 79, 79, 0.5], width: 0.5 })
+    });
+
+    // ================================================================
+    // DOM REFERENCES
+    // ================================================================
+    const viewElement = document.querySelector("arcgis-map");
+    // Buffer tool DOMs
+    const outerDistInput = document.getElementById("outerDistance");
+    const innerDistInput = document.getElementById("innerDistance");
+    const unitsSelect = document.getElementById("units");
+    const dataSourceSelect = document.getElementById("dataSource");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const statusEl = document.getElementById("status");
+    const resultsListEl = document.getElementById("resultsList");
+    const bufferShellPanel = document.getElementById("bufferShellPanel");
+    const bufferPanel = document.getElementById("bufferPanel");
+    const toggleAction = document.getElementById("togglePanel");
+    // Print tool DOMs
+    const printShellPanel = document.getElementById("printShellPanel");
+    const printPanel = document.getElementById("printPanel");
+    const printAction = document.getElementById("printAction");
+    // Measure tool DOMs
+    const measureToolbar = document.getElementById("measureToolbar");
+    const measureDistBtn = document.getElementById("measureDistance");
+    const measureAreaBtn = document.getElementById("measureArea");
+    const measureClearBtn = document.getElementById("measureClear");
+    const distanceTool = document.getElementById("distanceTool");
+    const areaTool = document.getElementById("areaTool");
+    const measureAction = document.getElementById("measure");
+    const drawPointBtn = document.getElementById("drawPoint");
+    const drawLineBtn = document.getElementById("drawLine");
+    const drawPolygonBtn = document.getElementById("drawPolygon");
+    const drawCancelBtn = document.getElementById("drawCancel");
+    // Search tool DOMs
+    const searchAction = document.getElementById("search");
+    const searchToolbar = document.getElementById("searchToolbar");
+    const searchWidget = document.getElementById("searchWidget");
+
+    // ================================================================
+    // STATE
+    // ================================================================
+
+    // Each completed analysis is stored here
+    // Structure: { id, graphicsLayer, outerPop, innerPop, bandPop, label, expanded }
+    let analyses = [];
+    let analysisCounter = 0;
+
+    // Reference to the SketchViewModel (created after the view is ready)
+    let sketchVM = null;
+
+    // ================================================================
+    // UTILITY FUNCTIONS
+    // ================================================================
+    const GEOCODE_URL = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
+
+    // Build the description string
+    async function getLocationName(geometry) {
+      
+      let pointToGeocode;
+    
+      switch (geometry.type) {
+        case "point":
+          pointToGeocode = geometry;
+          break;
+        case "polyline":
+          const path = geometry.paths[0];
+          const midIndex = Math.floor(path.length / 2);
+          pointToGeocode = new Point({
+            x: path[midIndex][0],
+            y: path[midIndex][1],
+            spatialReference: geometry.spatialReference
+          });
+          break;
+        case "polygon":
+          // centroid is a built-in property on Polygon geometries
+          pointToGeocode = geometry.centroid;
+          break;
+        default:
+          return "Shape";
+      }
+    
+      try {
+        const response = await locator.locationToAddress(GEOCODE_URL, {
+          location: pointToGeocode
+        });
+    
+        const attrs = response.attributes;
+        const city = attrs.City || attrs.Subregion || attrs.Region || "";
+        const state = attrs.RegionAbbr || attrs.Region || "";
+    
+        if (city && state) {
+          return `${city}, ${state}`;
+        } else if (city) {
+          return `${city}`;
+        } else {
+          return geometry.type === "point"
+            ? `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`
+            : geometry.type === "polyline" ? "Line" : "Polygon";
+        }
+
+      } catch (err) {
+        console.warn("Reverse geocode failed:", err);
+        return geometry.type === "point"
+          ? `Point (${geometry.longitude.toFixed(4)}, ${geometry.latitude.toFixed(4)})`
+          : geometry.type === "polyline" ? "Line" : "Polygon";
+      }
+    }
+    
+    function setStatus(message, type = "ready") {
+      const icons = {
+        ready: "information",
+        error: "exclamation-mark-triangle",
+        success: "check-circle"
+      };
+      const kinds = {
+        ready: "info",
+        loading: "warning",
+        error: "danger",
+        success: "success"
+      };
+      
+      statusEl.className = `status-message ${type}`;
+      if (type === "loading") {
+        statusEl.innerHTML = `
+          <div style="
+            display: flex;
+            width: stretch;
+            align-items: center;
+            background-color: rgb(253, 248, 243);
+            border: 0.8px solid rgba(218, 124, 11, 0.5);
+            border-radius: 4px;
+            gap: 10px;
+            padding: 7px 12px;
+          ">
+            <div id="load-color">
+              <calcite-loader label="Calculating population..." inline></calcite-loader>
+            </div>
+            <span style="font-size: 0.85rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
+              ${message}
+            </span>
+          </div>
+        `;
+      } else {
+        statusEl.innerHTML = `
+          <calcite-notice icon="${icons[type]}" kind="${kinds[type]}" scale="s" width="full" open>
+            <div id="notice-message" slot="message">${message}</div>
+          </calcite-notice>
+        `;
+      }
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString("en-US");
+    }
+
+    // ================================================================
+    // DRAW MODE MANAGEMENT
+    // ================================================================
+
+    /**
+     * Sets the visual state of the draw toolbar buttons.
+     * The active tool's button appears solid/filled; others appear outlined
+     */
+    function setActiveDrawButton(activeId) {
+      const buttons = [drawPointBtn, drawLineBtn, drawPolygonBtn];
+      buttons.forEach(btn => {
+        if (btn.id === activeId) {
+          btn.appearance = "solid";
+        } else {
+          btn.appearance = "outline-fill";
+        }
+      });
+      drawCancelBtn.disabled = !activeId;
+
+      // Toggle crosshair cursor class on the map container
+      const mapContainer = viewElement.closest("calcite-shell") || document.body;
+      if (activeId) {
+        mapContainer.classList.add("draw-active");
+      } else {
+        mapContainer.classList.remove("draw-active");
+      }
+    }
+
+    function startDraw(tool) {
+      if (!sketchVM) return;
+
+      // tool is "point", "polyline", or "polygon"
+      sketchVM.create(tool);
+      setActiveDrawButton({
+        point: "drawPoint",
+        polyline: "drawLine",
+        polygon: "drawPolygon"
+      }[tool]);
+      setStatus(`Click the map to draw a ${tool === "polyline" ? "line" : tool}. Double-click to finish.`, "ready");
+    }
+
+    function cancelDraw() {
+      if (!sketchVM) return;
+      sketchVM.cancel();
+      setActiveDrawButton(null);
+      setStatus("Drawing cancelled. Click a draw button to begin.", "ready");
+    }
+
+    // ================================================================
+    // QUERY FUNCTIONS
+    // ================================================================
+
+    /**
+     * Query population within a geometry using server-side outStatistics.
+     * Returns a single number — the sum of the population field.
+     */
+    async function queryPopulation(geometry, layer) {
+      const query = layer.createQuery();
+      query.geometry = geometry;
+      query.spatialRelationship = "intersects";
+      query.returnGeometry = false;
+      query.outStatistics = [
+        new StatisticDefinition({
+          statisticType: "sum",
+          onStatisticField: POP_FIELD,
+          outStatisticFieldName: "TotalPopulation"
+        })
+      ];
+
+      const result = await layer.queryFeatures(query);
+      if (!result.features || result.features.length === 0) {
+        return 0;
+      }
+      return result.features[0].attributes.TotalPopulation || 0;
+    }
+
+    /**
+     * Query the actual features that intersect the geometry and return
+     * their geometries for highlighting on the map.
+     * We only request the geometry and OID — no attributes needed.
+     */
+    async function queryFeaturesForHighlight(geometry, layer) {
+      const query = layer.createQuery();
+      query.geometry = geometry;
+      query.spatialRelationship = "intersects";
+      query.returnGeometry = true;
+      query.outFields = [layer.objectIdField || "OBJECTID"];
+      // Limit to prevent massive transfers on very large buffers
+      query.maxRecordCount = 10000;
+
+      const result = await layer.queryFeatures(query);
+      return result.features || [];
+    }
+
+    // ================================================================
+    // ANALYSIS EXECUTION
+    // ================================================================
+
+    /**
+     * Runs the full band population analysis for a given drawn geometry.
+     * Creates buffer(s), queries population, highlights features,
+     * stores the result, and updates the UI.
+     */
+    async function runAnalysis(drawnGeometry) {
+      const outerDist = parseFloat(outerDistInput.value);
+      const innerDist = parseFloat(innerDistInput.value);
+      const unit = unitsSelect.value;
+
+      // Validation
+      if (!outerDist || outerDist <= 0) {
+        setStatus("Enter a valid outer distance.", "error");
+        return;
+      }
+      if (innerDist < 0) {
+        setStatus("Inner distance cannot be negative.", "error");
+        return;
+      }
+      if (innerDist >= outerDist) {
+        setStatus("Inner distance must be less than outer distance.", "error");
+        return;
+      }
+
+      // Choose layer
+      const useBlocks = dataSourceSelect.value === "blocks";
+      const layer = useBlocks ? blockLayer : bgLayer;
+      const layerLabel = useBlocks ? "2020 Census Blocks" : "2024 Block Groups";
+
+      setStatus("Calculating", "loading");
+
+      // Create a dedicated graphics layer for this analysis
+      const analysisId = ++analysisCounter;
+      const gfxLayer = new GraphicsLayer({ title: `Analysis ${analysisId}` });
+      viewElement.map.add(gfxLayer);
+
+      try {
+        await geodesicBufferOperator.load();
+
+        // Draw the original geometry on the analysis layer
+        let sourceSymbol;
+        if (drawnGeometry.type === "point") {
+          sourceSymbol = pointSymbol;
+        } else if (drawnGeometry.type === "polyline") {
+          sourceSymbol = drawnLineSymbol;
+        } else {
+          sourceSymbol = drawnPolygonSymbol;
+        }
+        gfxLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
+
+        // Create outer buffer
+        const outerBuffer = geodesicBufferOperator.execute(drawnGeometry, outerDist, { unit });
+        gfxLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
+
+        // Query outer population
+        const outerPop = await queryPopulation(outerBuffer, layer);
+
+        // Handle inner buffer
+        let innerPop = 0;
+        let innerBuffer = null;
+        if (innerDist > 0) {
+          innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
+          gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
+          innerPop = await queryPopulation(innerBuffer, layer);
+        }
+
+        const bandPop = outerPop - innerPop;
+
+        // Create buffer band geometry and highlight intersecting features within the band
+        const highlightGeo = innerBuffer ? differenceOperator.execute(outerBuffer, innerBuffer) : outerBuffer;
+        const features = await queryFeaturesForHighlight(highlightGeo, layer);
+        features.forEach(f => {
+          gfxLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
+        });
+
+        // Zoom to the outer buffer
+        const view = viewElement.view;
+        if (view) {
+          view.goTo(outerBuffer.extent.expand(1.4));
+        }
+        
+        const geoLabel = await getLocationName(drawnGeometry);
+        const bandDesc = geoLabel;
+        const subDesc = innerDist > 0
+          ? `Buffer Band: ${innerDist}–${outerDist} ${unit}`
+          : `Buffer: ${outerDist} ${unit}`;
+
+        // Store the result
+        const analysisResult = {
+          id: analysisId,
+          graphicsLayer: gfxLayer,
+          outerPop,
+          innerPop,
+          bandPop,
+          bandDesc,
+          subDesc,
+          layerLabel,
+          geoLabel,
+          outerDist,
+          innerDist,
+          unit,
+          featureCount: features.length,
+          expanded: true // newest result starts expanded
+        };
+
+        // Collapse all previous results
+        analyses.forEach(a => a.expanded = false);
+
+        analyses.push(analysisResult);
+        renderResults();
+
+        clearAllBtn.disabled = false;
+
+        if (innerDist > 0) {
+          setStatus(`Done: ${formatNumber(bandPop)} people in band`, "success");
+        } else {
+          setStatus(`Done: ${formatNumber(bandPop)} people in buffer`, "success");
+        }
+
+      } catch (err) {
+        console.error("Analysis error:", err);
+        // Clean up the graphics layer if the analysis failed
+        viewElement.map.remove(gfxLayer);
+        setStatus(`Error: ${err.message}`, "error");
+      }
+    }
+
+    // ================================================================
+    // RESULTS RENDERING
+    // ================================================================
+
+    /**
+     * Renders the full results list from the analyses array.
+     * Each analysis becomes a collapsible block showing the band population
+     * prominently, with details expandable inside.
+     */
+    function renderResults() {
+      resultsListEl.innerHTML = "";
+
+      if (analyses.length > 0) {
+        const resultshead = document.createElement("div");
+        resultshead.className = "results-header";
+        resultshead.innerHTML = `<div class="results-header-text">Results</div>`;
+        resultsListEl.appendChild(resultshead);
+      }
+
+      // Render newest first
+      const sorted = [...analyses].reverse();
+      
+      sorted.forEach(a => {
+        const block = document.createElement("div");
+        block.className = "analysis-block";
+        block.dataset.id = a.id;
+
+        // Header (always visible) — shows band pop and a brief description
+        const header = document.createElement("div");
+        header.className = "analysis-header";
+        header.innerHTML = `
+          <div class="analysis-header-text">
+            <p class="analysis-title">#${a.id}: ${a.bandDesc}</p>
+            <p class="analysis-subtitle">${a.subDesc}</p>
+          </div>
+          <span class="analysis-band-value">${formatNumber(a.bandPop)}</span>
+          <calcite-icon icon="${a.expanded ? "chevron-up" : "chevron-down"}" scale="s"></calcite-icon>
+        `;
+
+        // Click header to toggle expand/collapse
+        header.addEventListener("click", () => {
+          a.expanded = !a.expanded;
+          renderResults();
+        });
+
+        // Body (collapsible details)
+        const body = document.createElement("div");
+        body.className = `analysis-body ${a.expanded ? "open" : ""}`;
+        body.innerHTML = `
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Band Population</span>
+            <span class="analysis-detail-value">${formatNumber(a.bandPop)}</span>
+          </div>
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
+            <span class="analysis-detail-value">${formatNumber(a.outerPop)}</span>
+          </div>
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
+            <span class="analysis-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
+          </div>
+          <div class="analysis-detail">
+            <span class="analysis-detail-label">Blocks/Block Groups</span>
+            <span class="analysis-detail-value">${formatNumber(a.featureCount)}</span>
+          </div>
+          <div class="analysis-actions">
+            <calcite-button
+              class="zoom-btn"
+              appearance="outline-fill"
+              kind="neutral"
+              icon-start="zoom-to-object"
+              scale="s"
+              width="half"
+            >Zoom To</calcite-button>
+            <calcite-button
+              class="remove-btn"
+              appearance="outline-fill"
+              kind="danger"
+              icon-start="x"
+              scale="s"
+              width="half"
+            >Remove</calcite-button>
+          </div>
+        `;
+
+        // Zoom to button
+        body.querySelector(".zoom-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const view = viewElement.view;
+          if (view && a.graphicsLayer.graphics.length > 0) {
+            // Find the buffer graphic (largest extent) to zoom to
+            let maxExtent = null;
+            a.graphicsLayer.graphics.forEach(g => {
+              if (g.geometry && g.geometry.extent) {
+                if (!maxExtent || g.geometry.extent.width > maxExtent.width) {
+                  maxExtent = g.geometry.extent;
+                }
+              }
+            });
+            if (maxExtent) {
+              view.goTo(maxExtent.expand(1.4));
+            }
+          }
+        });
+
+        // Remove button
+        body.querySelector(".remove-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          removeAnalysis(a.id);
+        });
+
+        block.appendChild(header);
+        block.appendChild(body);
+        resultsListEl.appendChild(block);
+      });
+    }
+
+    /**
+     * Removes a single analysis by ID — clears its graphics and removes
+     * it from the results list.
+     */
+    function removeAnalysis(id) {
+      const index = analyses.findIndex(a => a.id === id);
+      if (index === -1) return;
+
+      const analysis = analyses[index];
+      viewElement.map.remove(analysis.graphicsLayer);
+      analyses.splice(index, 1);
+      --analysisCounter;
+      renderResults();
+
+      if (analyses.length === 0) {
+        clearAllBtn.disabled = true;
+      }
+    }
+
+    /**
+     * Removes all analyses.
+     */
+    function clearAll() {
+      analyses.forEach(a => {
+        viewElement.map.remove(a.graphicsLayer);
+      });
+      analyses = [];
+      analysisCounter = 0;
+      renderResults();
+      clearAllBtn.disabled = true;
+      setStatus("Click a draw button to begin", "ready");
+    }
+
+    // ================================================================
+    // INITIALIZATION — runs when the map view is ready
+    // ================================================================
+    await searchWidget.componentOnReady();
+  
+    searchWidget.sources = [
+      {
+        layer: NPLlayer,
+        searchFields: ["Site_Name", "Site_Score", "Site_EPA_ID", "SEMS_ID", "SITS_ID", "Longitude", "Latitude"],
+        displayField: "Site_Name",
+        popupEnabled: false,
+        exactMatch: false,
+        name: "NPL Sites",
+        placeholder: "Search Site Name or ID",
+        zoomScale: 5000,
+        
+      },
+      {
+        name: "ArcGIS World Geocoding Service",
+        placeholder: "Search Address",
+        singleLineFieldName: "SingleLine",
+        url: "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer",
+      },
+    ];
+  
+    viewElement.addEventListener("arcgisViewReadyChange", () => {
+      const view = viewElement.view;
+
+      // Add the sketch layer to the map
+      viewElement.map.add(sketchLayer);
+
+      // Create the SketchViewModel
+      // This is the engine that handles all drawing interaction on the map.
+      // It manages the cursor, click handling, vertex placement, and
+      // fires events when the user finishes drawing.
+      sketchVM = new SketchViewModel({
+        view: view,
+        layer: sketchLayer,
+        // These symbols control how the shape looks WHILE the user is drawing
+        pointSymbol: pointSymbol,
+        polylineSymbol: drawnLineSymbol,
+        polygonSymbol: drawnPolygonSymbol
+      });
+
+      // When the user finishes drawing a shape, this event fires.
+      // The event object contains the completed geometry.
+      sketchVM.on("create", (event) => {
+        if (event.state === "complete") {
+          // Reset the draw toolbar UI
+          setActiveDrawButton(null);
+
+          // Remove the sketch graphic — we'll re-draw it on the
+          // analysis-specific graphics layer inside runAnalysis()
+          sketchLayer.removeAll();
+
+          // Run the analysis with the drawn geometry
+          runAnalysis(event.graphic.geometry);
+        }
+      });
+    });
+
+    // ================================================================
+    // EVENT HANDLERS — draw toolbar buttons
+    // ================================================================
+
+    drawPointBtn.addEventListener("click", () => startDraw("point"));
+    drawLineBtn.addEventListener("click", () => startDraw("polyline"));
+    drawPolygonBtn.addEventListener("click", () => startDraw("polygon"));
+    drawCancelBtn.addEventListener("click", () => cancelDraw());
+    
+    // ================================================================
+    // PANEL/TOOLBAR MANAGEMENT — only one open at a time
+    // ================================================================
+    
+    function closeAllTools() {
+      // Close buffer panel
+      bufferShellPanel.collapsed = true;
+      toggleAction.active = false;
+    
+      // Close print panel
+      printShellPanel.collapsed = true;
+      printAction.active = false;
+    
+      // Close measure toolbar
+      measureToolbar.style.display = "none";
+      showMeasureTool(null);
+      measureAction.active = false;
+
+      searchToolbar.style.display = "none";
+      searchAction.active = false;
+    }
+    
+    // Buffer panel toggle
+    toggleAction.addEventListener("click", () => {
+      const isOpening = bufferShellPanel.collapsed; // if currently collapsed, we're about to open it
+      closeAllTools();
+      if (isOpening) {
+        bufferShellPanel.collapsed = false;
+        toggleAction.active = true;
+      }
+    });
+    
+    // Print panel toggle
+    printAction.addEventListener("click", () => {
+      const isOpening = printShellPanel.collapsed;
+      closeAllTools();
+      if (isOpening) {
+        printShellPanel.collapsed = false;
+        printAction.active = true;
+      }
+    });
+    
+    // Measure toolbar toggle
+    measureAction.addEventListener("click", () => {
+      const isOpening = measureToolbar.style.display === "none";
+      closeAllTools();
+      if (isOpening) {
+        measureToolbar.style.display = "block";
+        measureAction.active = true;
+      }
+    });
+
+    let activeMeasureTool = null; // "distance", "area", or null
+
+    function showMeasureTool(tool) {
+      // Hide both first
+      distanceTool.hidden = true;
+      areaTool.hidden = true;
+      distanceTool.clear();
+      areaTool.clear();
+    
+      // Reset button styles
+      measureDistBtn.appearance = "outline-fill";
+      measureAreaBtn.appearance = "outline-fill";
+    
+      if (tool === "distance") {
+        distanceTool.hidden = false;
+        distanceTool.start();
+        measureDistBtn.appearance = "solid";
+        activeMeasureTool = "distance";
+      } else if (tool === "area") {
+        areaTool.hidden = false;
+        areaTool.start();
+        measureAreaBtn.appearance = "solid";
+        activeMeasureTool = "area";
+      } else {
+        activeMeasureTool = null;
+      }
+    }
+
+    searchAction.addEventListener("click", () => {
+      const isOpening = searchToolbar.style.display === "none";
+      closeAllTools();
+      if (isOpening) {
+        searchToolbar.style.display = "block";
+        searchAction.active = true;
+      }
+    });
+  
+    // Tool buttons
+    measureDistBtn.addEventListener("click", () => showMeasureTool("distance"));
+    measureAreaBtn.addEventListener("click", () => showMeasureTool("area"));
+    measureClearBtn.addEventListener("click", () => showMeasureTool(null));
+            // Clear all button
+    clearAllBtn.addEventListener("click", () => clearAll());
+  </script>
+
+</html>
