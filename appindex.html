@@ -158,9 +158,9 @@
       padding: 4px 0;
     }
 
-    .results-header-text {
+    #results-header-text {
       flex: 1;
-      font-size: var(--calcite-font-size--2);
+      font-size: 1rem;
       font-weight: var(--calcite-font-weight-medium);
     }
   
@@ -1059,8 +1059,6 @@
         analyses.push(analysisResult);
         renderResults();
 
-        clearAllBtn.disabled = false;
-
         if (innerDist > 0) {
           setStatus(`Done: ${formatNumber(bandPop)} people in band`, "success");
         } else {
@@ -1092,7 +1090,7 @@
         resultshead.className = "results-header";
         resultshead.innerHTML =
         `
-          <span class="results-header-text">Results</span>
+          <span id="results-header-text">Results</span>
           <calcite-button
             id="clearAllBtn"
             appearance="outline-fill"
