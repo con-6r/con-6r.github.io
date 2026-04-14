@@ -1085,26 +1085,38 @@
     function renderResults() {
       resultsListEl.innerHTML = "";
 
-      if (analyses.length > 1) {
-        const resultshead = document.createElement("div");
+      while (analyses.length > 0) {
+        
+        let resultshead = document.createElement("div");
         resultshead.className = "results-header";
-        resultshead.innerHTML =
-        `
-          <span id="results-header-text">Results</span>
-          <calcite-button
-            id="clearAllBtn"
-            appearance="outline-fill"
-            kind="danger"
-            icon-start="trash"
-            scale="s"
-          >Clear All</calcite-button>
-        `;
         
-        resultshead.querySelector("#clearAllBtn").addEventListener("click", () => clearAll());
-        
+        if (analyses.length = 1) {
+          resultshead.innerHTML = `<span id="results-header-text">Results</span>`;
+        } else if (analyses.length > 1) {
+          resultshead.innerHTML =
+          `
+            <span id="results-header-text">Results</span>
+            <calcite-button
+              id="clearAllBtn"
+              appearance="outline-fill"
+              kind="danger"
+              icon-start="trash"
+              scale="s"
+            >Clear All</calcite-button>
+          `;
+          resultshead1.querySelector("#clearAllBtn").addEventListener("click", () => clearAll());
+        }
         resultsListEl.appendChild(resultshead);
       }
 
+      if (analyses.length > 1) {
+        const resultshead1 = document.createElement("div");
+        resultshead.className = "results-header";
+        
+        
+        resultsListEl.appendChild(resultshead1);
+      }
+      
       // Render newest first
       const sorted = [...analyses].reverse();
       
