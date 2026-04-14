@@ -160,7 +160,7 @@
 
     .results-header-text {
       flex: 1;
-      font-size: var(--calcite-font-size--1);
+      font-size: var(--calcite-font-size--2);
       font-weight: var(--calcite-font-weight-medium);
     }
   
@@ -1087,7 +1087,7 @@
     function renderResults() {
       resultsListEl.innerHTML = "";
 
-      if (analyses.length > 0) {
+      if (analyses.length > 1) {
         const resultshead = document.createElement("div");
         resultshead.className = "results-header";
         resultshead.innerHTML =
