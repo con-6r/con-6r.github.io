@@ -154,6 +154,8 @@
 
     .results-header {
       display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
     }
 
     .results-header-text {
@@ -243,11 +245,6 @@
       display: flex;
       gap: 4px;
       margin-top: 4px;
-    }
-  
-    #clearAllBtn {
-      width: 100%;
-      padding-top: 4px;
     }
 
     div[slot="header"] calcite-action {
@@ -497,7 +494,7 @@
               icon-start="x"
               scale="s"
               title="Cancel drawing"
-              disabled
+              hidden
             ></calcite-button>
           </div>
   
@@ -555,16 +552,6 @@
             </calcite-select>
           </calcite-label>
         </div>
-  
-        <!-- Clear all -->
-        <calcite-button
-          id="clearAllBtn"
-          appearance="outline-fill"
-          kind="danger"
-          icon-start="trash"
-          scale="s"
-          disabled
-        >Clear All Results</calcite-button>
   
         <!-- Results list -->
         <div id="resultsList" class="results-scroll"></div>
@@ -720,7 +707,6 @@
     const innerDistInput = document.getElementById("innerDistance");
     const unitsSelect = document.getElementById("units");
     const dataSourceSelect = document.getElementById("dataSource");
-    const clearAllBtn = document.getElementById("clearAllBtn");
     const statusEl = document.getElementById("status");
     const resultsListEl = document.getElementById("resultsList");
     const bufferShellPanel = document.getElementById("bufferShellPanel");
@@ -881,7 +867,7 @@
           btn.appearance = "outline-fill";
         }
       });
-      drawCancelBtn.disabled = !activeId;
+      drawCancelBtn.hidden = !activeId;
 
       // Toggle crosshair cursor class on the map container
       const mapContainer = viewElement.closest("calcite-shell") || document.body;
@@ -1104,7 +1090,20 @@
       if (analyses.length > 0) {
         const resultshead = document.createElement("div");
         resultshead.className = "results-header";
-        resultshead.innerHTML = `<div class="results-header-text">Results</div>`;
+        resultshead.innerHTML =
+        `
+          <span class="results-header-text">Results</span>
+          <calcite-button
+            id="clearAllBtn"
+            appearance="outline-fill"
+            kind="danger"
+            icon-start="trash"
+            scale="s"
+          >Clear All</calcite-button>
+        `;
+        
+        resultshead.querySelector("#clearAllBtn").addEventListener("click", () => clearAll());
+        
         resultsListEl.appendChild(resultshead);
       }
 
@@ -1219,10 +1218,6 @@
       analyses.splice(index, 1);
       --analysisCounter;
       renderResults();
-
-      if (analyses.length === 0) {
-        clearAllBtn.disabled = true;
-      }
     }
 
     /**
@@ -1235,7 +1230,6 @@
       analyses = [];
       analysisCounter = 0;
       renderResults();
-      clearAllBtn.disabled = true;
       setStatus("Click a draw button to begin", "ready");
     }
 
@@ -1402,8 +1396,6 @@
     measureDistBtn.addEventListener("click", () => showMeasureTool("distance"));
     measureAreaBtn.addEventListener("click", () => showMeasureTool("area"));
     measureClearBtn.addEventListener("click", () => showMeasureTool(null));
-            // Clear all button
-    clearAllBtn.addEventListener("click", () => clearAll());
   </script>
 
 </html>
