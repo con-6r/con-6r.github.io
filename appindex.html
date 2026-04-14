@@ -1108,14 +1108,6 @@
         }
         resultsListEl.appendChild(resultshead);
       }
-
-      if (analyses.length > 1) {
-        const resultshead1 = document.createElement("div");
-        resultshead.className = "results-header";
-        
-        
-        resultsListEl.appendChild(resultshead1);
-      }
       
       // Render newest first
       const sorted = [...analyses].reverse();
