@@ -1085,7 +1085,7 @@
     function renderResults() {
       resultsListEl.innerHTML = "";
 
-      while (analyses.length > 0) {
+      if (analyses.length > 0) {
         
         let resultshead = document.createElement("div");
         resultshead.className = "results-header";
