@@ -1084,16 +1084,16 @@
      */
     function renderResults() {
       resultsListEl.innerHTML = "";
-
+      
       if (analyses.length > 0) {
         
         let resultshead = document.createElement("div");
         resultshead.className = "results-header";
-        
+        let resultsheadHTML = "";
         if (analyses.length = 1) {
-          resultshead.innerHTML = `<span id="results-header-text">Results</span>`;
+          resultsheadHTML = `<span id="results-header-text">Results</span>`;
         } else if (analyses.length > 1) {
-          resultshead.innerHTML =
+          resultsheadHTML =
           `
             <span id="results-header-text">Results</span>
             <calcite-button
@@ -1106,6 +1106,7 @@
           `;
           resultshead.querySelector("#clearAllBtn").addEventListener("click", () => clearAll());
         }
+        resultshead.innerHTML = resultsheadHTML;
         resultsListEl.appendChild(resultshead);
       }
       
