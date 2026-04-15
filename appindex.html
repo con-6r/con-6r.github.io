@@ -94,6 +94,7 @@
     }
     
     .status-message {
+      --calcite-notice-corner-radius: 0;
       display: flex;
       height: fit-content;
       padding-top: 4px;
@@ -445,13 +446,13 @@
     </div>
     <!-- Shell panel for the analysis controls -->
     <calcite-shell-panel id="bufferShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
-      <!-- Status -->
-      <div id="status" class="status-message ready">
-        <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-          <div id="notice-message" slot="message">Click a draw button to begin</div>
-        </calcite-notice>
-      </div>
       <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
+        <!-- Status -->
+        <div id="status" class="status-message ready">
+          <calcite-notice icon="information" kind="info" scale="s" width="full" open>
+            <div id="notice-message" slot="message">Click a draw button to begin</div>
+          </calcite-notice>
+        </div>
         <div class="panel-content">
           
           <!-- Step 1: Draw mode selection -->
@@ -823,7 +824,7 @@
             align-items: center;
             background-color: rgb(253, 248, 243);
             border: 0.8px solid rgba(218, 124, 11, 0.5);
-            border-radius: 4px;
+            border-radius: 0;
             gap: 10px;
             padding: 7px 12px;
           ">
