@@ -160,7 +160,7 @@
 
     #results-header-text {
       flex: 1;
-      font-size: 1rem;
+      font-size: 0.8rem;
       font-weight: var(--calcite-font-weight-medium);
     }
   
@@ -1090,11 +1090,10 @@
         let resultshead = document.createElement("div");
         resultshead.className = "results-header";
         let resultsheadHTML = "";
-        if (analyses.length = 1) {
+        if (analyses.length === 1) {
           resultsheadHTML = `<span id="results-header-text">Results</span>`;
         } else if (analyses.length > 1) {
-          resultsheadHTML =
-          `
+          resultsheadHTML = `
             <span id="results-header-text">Results</span>
             <calcite-button
               id="clearAllBtn"
@@ -1104,9 +1103,14 @@
               scale="s"
             >Clear All</calcite-button>
           `;
+        }
+        
+        resultshead.innerHTML = resultsheadHTML;
+        
+        if (analyses.length > 1) {
           resultshead.querySelector("#clearAllBtn").addEventListener("click", () => clearAll());
         }
-        resultshead.innerHTML = resultsheadHTML;
+    
         resultsListEl.appendChild(resultshead);
       }
       
