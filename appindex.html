@@ -888,14 +888,18 @@
         polyline: "drawLine",
         polygon: "drawPolygon"
       }[tool]);
-      setStatus(`Click the map to draw a ${tool === "polyline" ? "line" : tool}. Double-click to finish.`, "ready");
+      if (tool === "point") {
+        setStatus(`Click the map to place a point.`, "ready");
+      } else {
+        setStatus(`Click the map to draw a ${tool === "polyline" ? "line" : "polygon"}. Double-click to finish.`, "ready");
+      }
     }
 
     function cancelDraw() {
       if (!sketchVM) return;
       sketchVM.cancel();
       setActiveDrawButton(null);
-      setStatus("Drawing cancelled. Click a draw button to begin.", "ready");
+      setStatus("Drawing canceled. Click a draw button to begin.", "ready");
     }
 
     // ================================================================
