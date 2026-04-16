@@ -94,15 +94,16 @@
     }
     
     .status-message {
+      --calcite-notice-corner-radius: 0;
       display: flex;
       height: fit-content;
-      padding-top: 4px;
-      padding-bottom: 4px;
+      padding-top: 0px;
+      padding-bottom: 0px;
       white-space: wrap;
     }
 
     #notice-message {
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: var(--calcite-font-weight-medium);
     }
 
@@ -154,12 +155,15 @@
 
     .results-header {
       display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
     }
 
-    .results-header-text {
+    #results-header-text {
       flex: 1;
-      font-size: var(--calcite-font-size--1);
+      font-size: 0.875rem;
       font-weight: var(--calcite-font-weight-medium);
+      font-color: black;
     }
   
     /* Analysis result block (one per analysis) */
@@ -244,11 +248,6 @@
       gap: 4px;
       margin-top: 4px;
     }
-  
-    #clearAllBtn {
-      width: 100%;
-      padding-top: 4px;
-    }
 
     div[slot="header"] calcite-action {
       --calcite-action-background-color: var(--calcite-color-brand);
@@ -329,17 +328,17 @@
   
   <!-- Configure OAuth before components load -->
   <script type="module">
-  const [config, idMgr, OAuthInfo] = await $arcgis.import([
-    "@arcgis/core/config.js",
-    "@arcgis/core/identity/IdentityManager.js",
-    "@arcgis/core/identity/OAuthInfo.js",
-  ]);
-
-  const oAuthInfo = new OAuthInfo({
-    appId: "30bmTwF1AOcdEsBp",
-  });
-  idMgr.registerOAuthInfos([oAuthInfo]);
-</script>
+    const [config, idMgr, OAuthInfo] = await $arcgis.import([
+      "@arcgis/core/config.js",
+      "@arcgis/core/identity/IdentityManager.js",
+      "@arcgis/core/identity/OAuthInfo.js",
+    ]);
+  
+    const oAuthInfo = new OAuthInfo({
+      appId: "30bmTwF1AOcdEsBp",
+    });
+    idMgr.registerOAuthInfos([oAuthInfo]);
+  </script>
 
 </head>
   <body>
@@ -449,14 +448,12 @@
     <!-- Shell panel for the analysis controls -->
     <calcite-shell-panel id="bufferShellPanel" slot="panel-end" position="end" display-mode="float" collapsed>
       <calcite-panel id="bufferPanel" heading="Create Buffers" scale="s">
-        
         <!-- Status -->
         <div id="status" class="status-message ready">
           <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-            <div id="notice-message" slot="message">Click a draw button to begin</div>
+            <div id="notice-message" slot="message">Click a draw button to begin.</div>
           </calcite-notice>
         </div>
-        
         <div class="panel-content">
           
           <!-- Step 1: Draw mode selection -->
@@ -497,7 +494,7 @@
               icon-start="x"
               scale="s"
               title="Cancel drawing"
-              disabled
+              hidden
             ></calcite-button>
           </div>
   
@@ -555,16 +552,6 @@
             </calcite-select>
           </calcite-label>
         </div>
-  
-        <!-- Clear all -->
-        <calcite-button
-          id="clearAllBtn"
-          appearance="outline-fill"
-          kind="danger"
-          icon-start="trash"
-          scale="s"
-          disabled
-        >Clear All Results</calcite-button>
   
         <!-- Results list -->
         <div id="resultsList" class="results-scroll"></div>
@@ -720,7 +707,6 @@
     const innerDistInput = document.getElementById("innerDistance");
     const unitsSelect = document.getElementById("units");
     const dataSourceSelect = document.getElementById("dataSource");
-    const clearAllBtn = document.getElementById("clearAllBtn");
     const statusEl = document.getElementById("status");
     const resultsListEl = document.getElementById("resultsList");
     const bufferShellPanel = document.getElementById("bufferShellPanel");
@@ -839,14 +825,14 @@
             align-items: center;
             background-color: rgb(253, 248, 243);
             border: 0.8px solid rgba(218, 124, 11, 0.5);
-            border-radius: 4px;
+            border-radius: 0;
             gap: 10px;
             padding: 7px 12px;
           ">
             <div id="load-color">
               <calcite-loader label="Calculating population..." inline></calcite-loader>
             </div>
-            <span style="font-size: 0.85rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
+            <span style="font-size: 0.75rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
               ${message}
             </span>
           </div>
@@ -881,7 +867,7 @@
           btn.appearance = "outline-fill";
         }
       });
-      drawCancelBtn.disabled = !activeId;
+      drawCancelBtn.hidden = !activeId;
 
       // Toggle crosshair cursor class on the map container
       const mapContainer = viewElement.closest("calcite-shell") || document.body;
@@ -902,14 +888,18 @@
         polyline: "drawLine",
         polygon: "drawPolygon"
       }[tool]);
-      setStatus(`Click the map to draw a ${tool === "polyline" ? "line" : tool}. Double-click to finish.`, "ready");
+      if (tool === "point") {
+        setStatus(`Click the map to place a point.`, "ready");
+      } else {
+        setStatus(`Click the map to draw a ${tool === "polyline" ? "line" : "polygon"}. Double-click to finish.`, "ready");
+      }
     }
 
     function cancelDraw() {
       if (!sketchVM) return;
       sketchVM.cancel();
       setActiveDrawButton(null);
-      setStatus("Drawing cancelled. Click a draw button to begin.", "ready");
+      setStatus("Drawing canceled. Click a draw button to begin.", "ready");
     }
 
     // ================================================================
@@ -1073,8 +1063,6 @@
         analyses.push(analysisResult);
         renderResults();
 
-        clearAllBtn.disabled = false;
-
         if (innerDist > 0) {
           setStatus(`Done: ${formatNumber(bandPop)} people in band`, "success");
         } else {
@@ -1100,14 +1088,36 @@
      */
     function renderResults() {
       resultsListEl.innerHTML = "";
-
+      
       if (analyses.length > 0) {
-        const resultshead = document.createElement("div");
+        
+        let resultshead = document.createElement("div");
         resultshead.className = "results-header";
-        resultshead.innerHTML = `<div class="results-header-text">Results</div>`;
+        let resultsheadHTML = "";
+        if (analyses.length === 1) {
+          resultsheadHTML = `<span id="results-header-text">Results</span>`;
+        } else if (analyses.length > 1) {
+          resultsheadHTML = `
+            <span id="results-header-text">Results</span>
+            <calcite-button
+              id="clearAllBtn"
+              appearance="outline-fill"
+              kind="danger"
+              icon-start="trash"
+              scale="s"
+            >Remove All</calcite-button>
+          `;
+        }
+        
+        resultshead.innerHTML = resultsheadHTML;
+        
+        if (analyses.length > 1) {
+          resultshead.querySelector("#clearAllBtn").addEventListener("click", () => clearAll());
+        }
+    
         resultsListEl.appendChild(resultshead);
       }
-
+      
       // Render newest first
       const sorted = [...analyses].reverse();
       
@@ -1219,9 +1229,8 @@
       analyses.splice(index, 1);
       --analysisCounter;
       renderResults();
-
       if (analyses.length === 0) {
-        clearAllBtn.disabled = true;
+        setStatus("Click a draw button to begin.", "ready");
       }
     }
 
@@ -1235,8 +1244,7 @@
       analyses = [];
       analysisCounter = 0;
       renderResults();
-      clearAllBtn.disabled = true;
-      setStatus("Click a draw button to begin", "ready");
+      setStatus("Click a draw button to begin.", "ready");
     }
 
     // ================================================================
@@ -1402,8 +1410,6 @@
     measureDistBtn.addEventListener("click", () => showMeasureTool("distance"));
     measureAreaBtn.addEventListener("click", () => showMeasureTool("area"));
     measureClearBtn.addEventListener("click", () => showMeasureTool(null));
-            // Clear all button
-    clearAllBtn.addEventListener("click", () => clearAll());
   </script>
 
 </html>
