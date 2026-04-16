@@ -1225,6 +1225,9 @@
       analyses.splice(index, 1);
       --analysisCounter;
       renderResults();
+      if (analyses.length === 0) {
+        setStatus("Click a draw button to begin", "ready");
+      }
     }
 
     /**
