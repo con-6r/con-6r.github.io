@@ -451,7 +451,7 @@
         <!-- Status -->
         <div id="status" class="status-message ready">
           <calcite-notice icon="information" kind="info" scale="s" width="full" open>
-            <div id="notice-message" slot="message">Click a draw button to begin</div>
+            <div id="notice-message" slot="message">Click a draw button to begin.</div>
           </calcite-notice>
         </div>
         <div class="panel-content">
@@ -1230,7 +1230,7 @@
       --analysisCounter;
       renderResults();
       if (analyses.length === 0) {
-        setStatus("Click a draw button to begin", "ready");
+        setStatus("Click a draw button to begin.", "ready");
       }
     }
 
@@ -1244,7 +1244,7 @@
       analyses = [];
       analysisCounter = 0;
       renderResults();
-      setStatus("Click a draw button to begin", "ready");
+      setStatus("Click a draw button to begin.", "ready");
     }
 
     // ================================================================
