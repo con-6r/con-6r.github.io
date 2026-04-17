@@ -1034,7 +1034,7 @@
         const highlightGeo = innerBuffer ? differenceOperator.execute(outerBuffer, innerBuffer) : outerBuffer;
         const features = await queryFeaturesForHighlight(highlightGeo, layer);
         features.forEach(f => {
-          gfxLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
+          highlightLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
         });
 
         // Zoom to the outer buffer
@@ -1083,7 +1083,7 @@
       } catch (err) {
         console.error("Analysis error:", err);
         // Clean up the graphics layer if the analysis failed
-        viewElement.map.remove(gfxLayer);
+        viewElement.map.removeMany([originLayer, outerBufferLayer, innerBufferLayer, highlightLayer]);
         setStatus(`Error: ${err.message}`, "error");
       }
     }
