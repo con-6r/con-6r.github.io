@@ -985,8 +985,15 @@
 
       // Create a dedicated graphics layer for this analysis
       const analysisId = ++analysisCounter;
-      const gfxLayer = new GraphicsLayer({ title: `Analysis ${analysisId}` });
-      viewElement.map.add(gfxLayer);
+      // const gfxLayer = new GraphicsLayer({ title: `Analysis ${analysisId}` });
+      // viewElement.map.add(gfxLayer);
+
+      const originLayer = new GraphicsLayer({ title: "Buffer Origin" });
+      const outerBufferLayer = new GraphicsLayer({ title: "Outer Buffer" });
+      const innerBufferLayer = new GraphicsLayer({ title: "Inner Buffer", legendEnabled: innerDist > 0 });
+      const highlightLayer = new GraphicsLayer({ title: "Census Block/Block Group" });
+      
+      viewElement.map.addMany([originLayer, outerBufferLayer, innerBufferLayer, highlightLayer]);
 
       try {
         await geodesicBufferOperator.load();
@@ -1000,12 +1007,14 @@
         } else {
           sourceSymbol = drawnPolygonSymbol;
         }
-        gfxLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
-
+        // gfxLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
+        originLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
+        
         // Create outer buffer
         const outerBuffer = geodesicBufferOperator.execute(drawnGeometry, outerDist, { unit });
-        gfxLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
-
+        // gfxLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
+        outerBufferLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
+        
         // Query outer population
         const outerPop = await queryPopulation(outerBuffer, layer);
 
@@ -1014,7 +1023,8 @@
         let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
-          gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
+          // gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
+          innerBufferLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
           innerPop = await queryPopulation(innerBuffer, layer);
         }
 
@@ -1042,7 +1052,8 @@
         // Store the result
         const analysisResult = {
           id: analysisId,
-          graphicsLayer: gfxLayer,
+          // graphicsLayer: gfxLayer,
+          graphicsLayers: [originLayer, outerBufferLayer, innerBufferLayer, highlightLayer],
           outerPop,
           innerPop,
           bandPop,
@@ -1191,12 +1202,15 @@
           if (view && a.graphicsLayer.graphics.length > 0) {
             // Find the buffer graphic (largest extent) to zoom to
             let maxExtent = null;
-            a.graphicsLayer.graphics.forEach(g => {
-              if (g.geometry && g.geometry.extent) {
-                if (!maxExtent || g.geometry.extent.width > maxExtent.width) {
-                  maxExtent = g.geometry.extent;
+            a.graphicsLayers.forEach(graphicsLayer => {
+              graphicsLayer.graphics.forEach(g =>{
+            // a.graphicsLayer.graphics.forEach(g => {
+                if (g.geometry && g.geometry.extent) {
+                  if (!maxExtent || g.geometry.extent.width > maxExtent.width) {
+                    maxExtent = g.geometry.extent;
+                  }
                 }
-              }
+              });
             });
             if (maxExtent) {
               view.goTo(maxExtent.expand(1.4));
@@ -1225,7 +1239,7 @@
       if (index === -1) return;
 
       const analysis = analyses[index];
-      viewElement.map.remove(analysis.graphicsLayer);
+      viewElement.map.removeMany(analysis.graphicsLayers);
       analyses.splice(index, 1);
       --analysisCounter;
       renderResults();
@@ -1239,7 +1253,7 @@
      */
     function clearAll() {
       analyses.forEach(a => {
-        viewElement.map.remove(a.graphicsLayer);
+        viewElement.map.removeMany(a.graphicsLayers);
       });
       analyses = [];
       analysisCounter = 0;
