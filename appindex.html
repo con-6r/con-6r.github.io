@@ -1199,7 +1199,7 @@
         body.querySelector(".zoom-btn").addEventListener("click", (e) => {
           e.stopPropagation();
           const view = viewElement.view;
-          if (view && a.graphicsLayer.graphics.length > 0) {
+          if (view && a.graphicsLayers.graphics.length > 0) {
             // Find the buffer graphic (largest extent) to zoom to
             let maxExtent = null;
             a.graphicsLayers.forEach(graphicsLayer => {
