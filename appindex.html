@@ -1108,22 +1108,22 @@
         //originLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
         
         // Create outer buffer
-        //const outerBuffer = geodesicBufferOperator.execute(drawnGeometry, outerDist, { unit });
+        const outerBuffer = geodesicBufferOperator.execute(drawnGeometry, outerDist, { unit });
         // gfxLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
         //outerBufferLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
         
         // Query outer population
-        //const outerPop = await queryPopulation(outerBuffer, layer);
+        const outerPop = await queryPopulation(outerBuffer, layer);
 
         // Handle inner buffer
-        //let innerPop = 0;
-        //let innerBuffer = null;
-        //if (innerDist > 0) {
-        //  innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
+        let innerPop = 0;
+        let innerBuffer = null;
+        if (innerDist > 0) {
+          innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
           // gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
         //  innerBufferLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
-        //  innerPop = await queryPopulation(innerBuffer, layer);
-        //}
+          innerPop = await queryPopulation(innerBuffer, layer);
+        }
 
         if (drawnGeometry.type === "point") {
           await originPointLayer.applyEdits({
