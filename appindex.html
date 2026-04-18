@@ -648,6 +648,47 @@
     // LAYERS AND SYMBOLS
     // ================================================================
 
+        // Each analysis gets its own graphics layer so it can be removed independently.
+    // We also have a shared sketch layer for the SketchViewModel to draw on.
+    const sketchLayer = new GraphicsLayer({ title: "Sketches" });
+
+    // Symbols
+    const pointSymbol = new SimpleMarkerSymbol({
+      style: "circle",
+      size: 10,
+      color: [0, 121, 193, 0.9],
+      outline: new SimpleLineSymbol({ color: "white", width: 1.5 })
+    });
+
+    const drawnLineSymbol = new SimpleLineSymbol({
+      color: [0, 121, 193, 0.9],
+      width: 2.5
+    });
+
+    const drawnPolygonSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.15],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.9], width: 2 })
+    });
+
+    const outerBufferSymbol = new SimpleFillSymbol({
+      color: [0, 121, 193, 0.15],
+      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2.1 })
+    });
+
+    const innerBufferSymbol = new SimpleFillSymbol({
+      color: [255, 255, 255, 0.25],
+      outline: new SimpleLineSymbol({
+        color: [0, 121, 193, 0.8],
+        width: 2.1,
+        style: "dash"
+      })
+    });
+
+    const highlightSymbol = new SimpleFillSymbol({
+      color: [79, 79, 79, 0.1],
+      outline: new SimpleLineSymbol({ color: [79, 79, 79, 0.5], width: 0.5 })
+    });
+  
     const NPLlayer = new FeatureLayer({ 
       url: NPL_SITE_LAYER_URL,
       definitionExpression: "Region_ID = 6"
@@ -753,47 +794,6 @@
     // Query-only feature layers (not added to the map for drawing)
     const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
     const bgLayer = new FeatureLayer({ url: BG_LAYER_URL });
-
-    // Each analysis gets its own graphics layer so it can be removed independently.
-    // We also have a shared sketch layer for the SketchViewModel to draw on.
-    const sketchLayer = new GraphicsLayer({ title: "Sketches" });
-
-    // Symbols
-    const pointSymbol = new SimpleMarkerSymbol({
-      style: "circle",
-      size: 10,
-      color: [0, 121, 193, 0.9],
-      outline: new SimpleLineSymbol({ color: "white", width: 1.5 })
-    });
-
-    const drawnLineSymbol = new SimpleLineSymbol({
-      color: [0, 121, 193, 0.9],
-      width: 2.5
-    });
-
-    const drawnPolygonSymbol = new SimpleFillSymbol({
-      color: [0, 121, 193, 0.15],
-      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.9], width: 2 })
-    });
-
-    const outerBufferSymbol = new SimpleFillSymbol({
-      color: [0, 121, 193, 0.15],
-      outline: new SimpleLineSymbol({ color: [0, 121, 193, 0.8], width: 2.1 })
-    });
-
-    const innerBufferSymbol = new SimpleFillSymbol({
-      color: [255, 255, 255, 0.25],
-      outline: new SimpleLineSymbol({
-        color: [0, 121, 193, 0.8],
-        width: 2.1,
-        style: "dash"
-      })
-    });
-
-    const highlightSymbol = new SimpleFillSymbol({
-      color: [79, 79, 79, 0.1],
-      outline: new SimpleLineSymbol({ color: [79, 79, 79, 0.5], width: 0.5 })
-    });
 
     // ================================================================
     // DOM REFERENCES
