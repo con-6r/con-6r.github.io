@@ -1125,6 +1125,13 @@
           innerPop = await queryPopulation(innerBuffer, layer);
         }
 
+        // Create buffer band geometry and highlight intersecting features within the band
+        const highlightGeo = innerBuffer ? differenceOperator.execute(outerBuffer, innerBuffer) : outerBuffer;
+        const features = await queryFeaturesForHighlight(highlightGeo, layer);
+        features.forEach(f => {
+          highlightLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
+        });
+
         if (drawnGeometry.type === "point") {
           await originPointLayer.applyEdits({
             addFeatures: [new Graphic({
@@ -1173,13 +1180,6 @@
         });
 
         const bandPop = outerPop - innerPop;
-
-        // Create buffer band geometry and highlight intersecting features within the band
-        const highlightGeo = innerBuffer ? differenceOperator.execute(outerBuffer, innerBuffer) : outerBuffer;
-        const features = await queryFeaturesForHighlight(highlightGeo, layer);
-        features.forEach(f => {
-          highlightLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
-        });
 
         // Zoom to the outer buffer
         const view = viewElement.view;
