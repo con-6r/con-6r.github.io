@@ -648,7 +648,7 @@
     // LAYERS AND SYMBOLS
     // ================================================================
 
-        // Each analysis gets its own graphics layer so it can be removed independently.
+    // Each analysis gets its own graphics layer so it can be removed independently.
     // We also have a shared sketch layer for the SketchViewModel to draw on.
     const sketchLayer = new GraphicsLayer({ title: "Sketches" });
 
@@ -773,23 +773,6 @@
         symbol: innerBufferSymbol
       }
     });
-    
-    const highlightFeatureLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polygon",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Census Geometries",
-      legendEnabled: false,
-      renderer: {
-        type: "simple",
-        symbol: highlightSymbol
-      }
-    });
   
     // Query-only feature layers (not added to the map for drawing)
     const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
@@ -829,7 +812,36 @@
     const searchAction = document.getElementById("search");
     const searchToolbar = document.getElementById("searchToolbar");
     const searchWidget = document.getElementById("searchWidget");
-
+    // ================================================================
+    
+    let highTitle = "";
+    if (dataSourceSelect.value === "blocks" && innerDistInput.value === 0) {
+      highTitle = "Census Blocks in Buffer";
+    } else if (dataSourceSelect.value === "blockgroups" && innerDistInput.value === 0) {
+      highTitle = "Census Block Groups in Buffer";
+    } else if (dataSourceSelect.value === "blocks" && innerDistInput.value > 0) {
+      highTitle = "Census Blocks in Buffer Band";
+    } else if (dataSourceSelect.value === "blockgroups" && innerDistInput.value > 0) {
+      highTitle = "Census Block Groups in Buffer Band";
+    }
+  
+    const highlightFeatureLayer = new FeatureLayer({
+      source: [],
+      objectIdField: "OBJECTID",
+      geometryType: "polygon",
+      spatialReference: { wkid: 4326 },
+      fields: [
+        { name: "OBJECTID", type: "oid" },
+        { name: "analysisId", type: "integer" }
+      ],
+      title: highTitle,
+      legendEnabled: false,
+      renderer: {
+        type: "simple",
+        symbol: highlightSymbol
+      }
+    });
+  
     // ================================================================
     // STATE
     // ================================================================
@@ -1146,8 +1158,8 @@
               attributes: { analysisId: analysisId }
             })]
           });
-        } else {
-          await originPolygonLayer.applyEdits({
+        } else if (drawnGeometry.type === "polygon") {
+          await originPolyLayer.applyEdits({
             addFeatures: [new Graphic({
               geometry: drawnGeometry,
               attributes: { analysisId: analysisId }
