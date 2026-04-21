@@ -1388,7 +1388,7 @@
      */
 
     async function removeAnalysisFeatures(analysisId) {
-      const layers = [originPointLayer, outerBufferFeatureLayer, innerBufferFeatureLayer, highlightFeatureLayer];
+      const layers = [originPointLayer, originLineLayer, originPolyLayer, outerBufferFeatureLayer, innerBufferFeatureLayer, highlightFeatureLayer];
     
       for (const layer of layers) {
         const result = await layer.queryFeatures({
@@ -1508,12 +1508,6 @@
       });
       
       viewElement.map.addMany([
-        highlightFeatureLayer,
-        innerBufferFeatureLayer,
-        outerBufferFeatureLayer,
-        originPointLayer,
-        originLineLayer,
-        originPolyLayer,
         bufferGroupLayer
       ]);
     });
