@@ -652,7 +652,7 @@
 
     // Each analysis gets its own graphics layer so it can be removed independently.
     // We also have a shared sketch layer for the SketchViewModel to draw on.
-    //const sketchLayer = new GraphicsLayer({ title: "Sketches" });
+    const sketchLayer = new GraphicsLayer({ title: "Sketches" });
 
     // Symbols
     const pointSymbol = new SimpleMarkerSymbol({
@@ -1473,41 +1473,40 @@
     ];
   
     viewElement.addEventListener("arcgisViewReadyChange", () => {
-      //const view = viewElement.view;
+      const view = viewElement.view;
 
       // Add the sketch layer to the map
-      //viewElement.map.add(sketchLayer);
+      viewElement.map.add(sketchLayer);
 
       // Create the SketchViewModel
       // This is the engine that handles all drawing interaction on the map.
       // It manages the cursor, click handling, vertex placement, and
       // fires events when the user finishes drawing.
-      //sketchVM = new SketchViewModel({
-        //view: view,
-        //layer: sketchLayer,
+      sketchVM = new SketchViewModel({
+        view: view,
+        layer: sketchLayer,
         // These symbols control how the shape looks WHILE the user is drawing
-        //pointSymbol: pointSymbol,
-        //polylineSymbol: drawnLineSymbol,
-        //polygonSymbol: drawnPolygonSymbol
-      //});
+        pointSymbol: pointSymbol,
+        polylineSymbol: drawnLineSymbol,
+        polygonSymbol: drawnPolygonSymbol
+      });
 
       // When the user finishes drawing a shape, this event fires.
       // The event object contains the completed geometry.
-      //sketchVM.on("create", (event) => {
-        //if (event.state === "complete") {
+      sketchVM.on("create", (event) => {
+        if (event.state === "complete") {
           // Reset the draw toolbar UI
-          //setActiveDrawButton(null);
+          setActiveDrawButton(null);
 
           // Remove the sketch graphic — we'll re-draw it on the
           // analysis-specific graphics layer inside runAnalysis()
-          //sketchLayer.removeAll();
+          sketchLayer.removeAll();
 
           // Run the analysis with the drawn geometry
-          //runAnalysis(event.graphic.geometry);
-        //}
-      //});
-    //});
-
+          runAnalysis(event.graphic.geometry);
+        }
+      });
+      
       viewElement.map.addMany([
         highlightFeatureLayer,
         innerBufferFeatureLayer,
