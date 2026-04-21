@@ -652,7 +652,10 @@
 
     // Each analysis gets its own graphics layer so it can be removed independently.
     // We also have a shared sketch layer for the SketchViewModel to draw on.
-    const sketchLayer = new GraphicsLayer({ title: "Sketches" });
+    const sketchLayer = new GraphicsLayer({ 
+      title: "Sketches",
+      listMode: "hide"
+    });
 
     // Symbols
     const pointSymbol = new SimpleMarkerSymbol({
