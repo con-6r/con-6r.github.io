@@ -604,6 +604,7 @@
       Graphic,
       Point,
       FeatureLayer,
+      GroupLayer,
       SimpleFillSymbol,
       SimpleMarkerSymbol,
       SimpleLineSymbol,
@@ -618,6 +619,7 @@
       "@arcgis/core/Graphic.js",
       "@arcgis/core/geometry/Point.js",
       "@arcgis/core/layers/FeatureLayer.js",
+      "@arcgis/core/layers/GroupLayer.js",
       "@arcgis/core/symbols/SimpleFillSymbol.js",
       "@arcgis/core/symbols/SimpleMarkerSymbol.js",
       "@arcgis/core/symbols/SimpleLineSymbol.js",
@@ -773,6 +775,30 @@
         symbol: innerBufferSymbol
       }
     });
+
+    const highlightFeatureLayer = new FeatureLayer({
+      source: [],
+      objectIdField: "OBJECTID",
+      geometryType: "polygon",
+      spatialReference: { wkid: 4326 },
+      fields: [
+        { name: "OBJECTID", type: "oid" },
+        { name: "analysisId", type: "integer" }
+      ],
+      title: "Census Blocks/Block Groups in Buffer",
+      legendEnabled: false,
+      renderer: {
+        type: "simple",
+        symbol: highlightSymbol
+      }
+    });
+
+    const bufferGroupLayer = new GroupLayer({
+      title: "Buffers",
+      visible: true,
+      visibilityMode: "independent",
+      layers: [originPointLayer, originLineLayer, originPolyLayer, outerBufferFeatureLayer, innerBufferFeatureLayer, highlightFeatureLayer],
+    });
   
     // Query-only feature layers (not added to the map for drawing)
     const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
@@ -812,36 +838,6 @@
     const searchAction = document.getElementById("search");
     const searchToolbar = document.getElementById("searchToolbar");
     const searchWidget = document.getElementById("searchWidget");
-    // ================================================================
-    
-    let highTitle = "";
-    if (dataSourceSelect.value === "blocks" && innerDistInput.value === 0) {
-      highTitle = "Census Blocks in Buffer";
-    } else if (dataSourceSelect.value === "blockgroups" && innerDistInput.value === 0) {
-      highTitle = "Census Block Groups in Buffer";
-    } else if (dataSourceSelect.value === "blocks" && innerDistInput.value > 0) {
-      highTitle = "Census Blocks in Buffer Band";
-    } else if (dataSourceSelect.value === "blockgroups" && innerDistInput.value > 0) {
-      highTitle = "Census Block Groups in Buffer Band";
-    }
-  
-    const highlightFeatureLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polygon",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: highTitle,
-      legendEnabled: false,
-      renderer: {
-        type: "simple",
-        symbol: highlightSymbol
-      }
-    });
-  
     // ================================================================
     // STATE
     // ================================================================
