@@ -698,110 +698,6 @@
       url: NPL_SITE_LAYER_URL,
       definitionExpression: "Region_ID = 6"
     });
-
-    const originPointLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "point",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Buffer Origin Point",
-      renderer: {
-        type: "simple",
-        symbol: pointSymbol
-      }
-    });
-
-    const originLineLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polyline",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Buffer Origin Line",
-      renderer: {
-        type: "simple",
-        symbol: drawnLineSymbol
-      }
-    });
-
-    const originPolyLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polygon",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Buffer Origin Polygon",
-      renderer: {
-        type: "simple",
-        symbol: drawnPolygonSymbol
-      }
-    });
-  
-    const outerBufferFeatureLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polygon",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Outer Buffer",
-      renderer: {
-        type: "simple",
-        symbol: outerBufferSymbol
-      }
-    });
-    
-    const innerBufferFeatureLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polygon",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Inner Buffer",
-      renderer: {
-        type: "simple",
-        symbol: innerBufferSymbol
-      }
-    });
-
-    const highlightFeatureLayer = new FeatureLayer({
-      source: [],
-      objectIdField: "OBJECTID",
-      geometryType: "polygon",
-      spatialReference: { wkid: 4326 },
-      fields: [
-        { name: "OBJECTID", type: "oid" },
-        { name: "analysisId", type: "integer" }
-      ],
-      title: "Census Blocks/Block Groups in Buffer",
-      legendEnabled: false,
-      renderer: {
-        type: "simple",
-        symbol: highlightSymbol
-      }
-    });
-
-    const bufferGroupLayer = new GroupLayer({
-      title: "Buffers",
-      visible: true,
-      visibilityMode: "independent",
-      layers: [originPointLayer, originLineLayer, originPolyLayer, outerBufferFeatureLayer, innerBufferFeatureLayer, highlightFeatureLayer],
-    });
   
     // Query-only feature layers (not added to the map for drawing)
     const blockLayer = new FeatureLayer({ url: BLOCK_LAYER_URL });
@@ -1096,27 +992,66 @@
       // const gfxLayer = new GraphicsLayer({ title: `Analysis ${analysisId}` });
       // viewElement.map.add(gfxLayer);
 
-      const originLayer = new GraphicsLayer({ title: "Buffer Origin" });
-      const outerBufferLayer = new GraphicsLayer({ title: "Outer Buffer" });
-      const innerBufferLayer = new GraphicsLayer({ title: "Inner Buffer", legendEnabled: innerDist > 0 });
-      const highlightLayer = new GraphicsLayer({ title: layerLabel });
-      
-      //viewElement.map.addMany([originLayer, outerBufferLayer, innerBufferLayer, highlightLayer]);
+      const originGeomType = drawnGeometry.type;
+      const originSymbol = originGeomType === "point" ? pointSymbol
+                         : originGeomType === "polyline" ? drawnLineSymbol
+                         : drawnPolygonSymbol;
 
+      const originLayer = new FeatureLayer({
+        source: [],
+        objectIdField: "OBJECTID",
+        geometryType: originGeomType,
+        spatialReference: { wkid: 4326 },
+        fields: [{ name: "OBJECTID", type: "oid" }],
+        title: "Buffer Origin",
+        renderer: { type: "simple", symbol: originSymbol }
+      });
+    
+      const outerBufferLayer = new FeatureLayer({
+        source: [],
+        objectIdField: "OBJECTID",
+        geometryType: "polygon",
+        spatialReference: { wkid: 4326 },
+        fields: [{ name: "OBJECTID", type: "oid" }],
+        title: "Outer Buffer",
+        renderer: { type: "simple", symbol: outerBufferSymbol }
+      });
+    
+      const innerBufferLayer = (innerDist > 0) ? new FeatureLayer({
+        source: [],
+        objectIdField: "OBJECTID",
+        geometryType: "polygon",
+        spatialReference: { wkid: 4326 },
+        fields: [{ name: "OBJECTID", type: "oid" }],
+        title: "Inner Buffer",
+        renderer: { type: "simple", symbol: innerBufferSymbol }
+      }) : null;
+    
+      const highlightLayer = new FeatureLayer({
+        source: [],
+        objectIdField: "OBJECTID",
+        geometryType: "polygon",
+        spatialReference: { wkid: 4326 },
+        fields: [{ name: "OBJECTID", type: "oid" }],
+        title: layerLabel,
+        legendEnabled: false,
+        renderer: { type: "simple", symbol: highlightSymbol }
+      });
+
+      const subLayers = [highlightLayer, outerBufferLayer];
+      if (innerBufferLayer) subLayers.push(innerBufferLayer);
+      subLayers.push(originLayer);
+
+      const analysisGroupLayer = new GroupLayer({
+        title: `Analysis #${analysisId}`,  // will be updated with location below
+        visibilityMode: "independent",
+        layers: subLayers
+      });
+
+      viewElement.map.add(analysisGroupLayer);
+      
       try {
         await geodesicBufferOperator.load();
-
-        // Draw the original geometry on the analysis layer
-        //let sourceSymbol;
-        //if (drawnGeometry.type === "point") {
-        //  sourceSymbol = pointSymbol;
-        //} else if (drawnGeometry.type === "polyline") {
-        //  sourceSymbol = drawnLineSymbol;
-        //} else {
-        //  sourceSymbol = drawnPolygonSymbol;
-        //}
-        // gfxLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
-        //originLayer.add(new Graphic({ geometry: drawnGeometry, symbol: sourceSymbol }));
         
         // Create outer buffer
         const outerBuffer = geodesicBufferOperator.execute(drawnGeometry, outerDist, { unit });
@@ -1131,8 +1066,6 @@
         let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
-          // gfxLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
-        //  innerBufferLayer.add(new Graphic({ geometry: innerBuffer, symbol: innerBufferSymbol }));
           innerPop = await queryPopulation(innerBuffer, layer);
         }
 
@@ -1142,63 +1075,34 @@
         features.forEach(f => {
           highlightLayer.add(new Graphic({ geometry: f.geometry, symbol: highlightSymbol }));
         });
-
-        if (drawnGeometry.type === "point") {
-          await originPointLayer.applyEdits({
-            addFeatures: [new Graphic({
-              geometry: drawnGeometry,
-              attributes: { analysisId: analysisId }
-            })]
-          });
-        } else if (drawnGeometry.type === "polyline") {
-          await originLineLayer.applyEdits({
-            addFeatures: [new Graphic({
-              geometry: drawnGeometry,
-              attributes: { analysisId: analysisId }
-            })]
-          });
-        } else if (drawnGeometry.type === "polygon") {
-          await originPolyLayer.applyEdits({
-            addFeatures: [new Graphic({
-              geometry: drawnGeometry,
-              attributes: { analysisId: analysisId }
-            })]
+        
+        await originLayer.applyEdits({
+          addFeatures: [new Graphic({ geometry: drawnGeometry, attributes: {} })]
+        });
+    
+        await outerBufferLayer.applyEdits({
+          addFeatures: [new Graphic({ geometry: outerBuffer, attributes: {} })]
+        });
+    
+        if (innerBufferLayer) {
+          await innerBufferLayer.applyEdits({
+            addFeatures: [new Graphic({ geometry: innerBuffer, attributes: {} })]
           });
         }
-
-        await outerBufferFeatureLayer.applyEdits({
-          addFeatures: [new Graphic({
-            geometry: outerBuffer,
-            attributes: { analysisId: analysisId }
-          })]
+    
+        await highlightLayer.applyEdits({
+          addFeatures: features.map(f => new Graphic({ geometry: f.geometry, attributes: {} }))
         });
-
-        if (innerDist > 0) {
-          await innerBufferFeatureLayer.applyEdits({
-            addFeatures: [new Graphic({
-              geometry: innerBuffer,
-              attributes: { analysisId: analysisId }
-            })]
-          });
-        }
-
-        const highlightGraphics = features.map(f => new Graphic({
-          geometry: f.geometry,
-          attributes: { analysisId: analysisId }
-        }));
-        await highlightFeatureLayer.applyEdits({
-          addFeatures: highlightGraphics
-        });
-
+    
         const bandPop = outerPop - innerPop;
-
-        // Zoom to the outer buffer
+    
         const view = viewElement.view;
         if (view) {
           view.goTo(outerBuffer.extent.expand(1.4));
         }
-        
+
         const geoLabel = await getLocationName(drawnGeometry);
+        analysisGroupLayer.title = `#${analysisId}: ${geoLabel}`;
         const bandDesc = geoLabel;
         const subDesc = innerDist > 0
           ? `Buffer Band: ${innerDist}–${outerDist} ${unit}`
@@ -1207,8 +1111,8 @@
         // Store the result
         const analysisResult = {
           id: analysisId,
-          // graphicsLayer: gfxLayer,
-          graphicsLayers: [originLayer, outerBufferLayer, innerBufferLayer, highlightLayer],
+          groupLayer: analysisGroupLayer,
+          outerBufferGeometry: outerBuffer,
           outerPop,
           innerPop,
           bandPop,
@@ -1225,7 +1129,6 @@
 
         // Collapse all previous results
         analyses.forEach(a => a.expanded = false);
-
         analyses.push(analysisResult);
         renderResults();
 
@@ -1354,22 +1257,8 @@
         body.querySelector(".zoom-btn").addEventListener("click", (e) => {
           e.stopPropagation();
           const view = viewElement.view;
-          if (view && a.graphicsLayers.graphics.length > 0) {
-            // Find the buffer graphic (largest extent) to zoom to
-            let maxExtent = null;
-            a.graphicsLayers.forEach(graphicsLayer => {
-              graphicsLayer.graphics.forEach(g =>{
-            // a.graphicsLayer.graphics.forEach(g => {
-                if (g.geometry && g.geometry.extent) {
-                  if (!maxExtent || g.geometry.extent.width > maxExtent.width) {
-                    maxExtent = g.geometry.extent;
-                  }
-                }
-              });
-            });
-            if (maxExtent) {
-              view.goTo(maxExtent.expand(1.4));
-            }
+          if (view && a.outerBufferGeometry) {
+            view.goTo(a.outerBufferGeometry.extent.expand(1.4));
           }
         });
 
@@ -1406,13 +1295,12 @@
       }
     }
   
-    async function removeAnalysis(id) {
+    function removeAnalysis(id) {
       const index = analyses.findIndex(a => a.id === id);
       if (index === -1) return;
-
-      //const analysis = analyses[index];
-      //viewElement.map.removeMany(analysis.graphicsLayers);
-      await removeAnalysisFeatures(id);
+    
+      const analysis = analyses[index];
+      viewElement.map.remove(analysis.groupLayer);
       analyses.splice(index, 1);
       --analysisCounter;
       renderResults();
@@ -1421,35 +1309,15 @@
       }
     }
 
-    /**
-     * Removes all analyses.
-     */
-    //async function clearAll() {
-    //  analyses.forEach(a => {
-    //    viewElement.map.removeMany(a.graphicsLayers);
-    //  });
-    //  analyses = [];
-    //  analysisCounter = 0;
-    //  renderResults();
-    //  setStatus("Click a draw button to begin.", "ready");
-    //}
-
-    async function clearAll() {
-      const layers = [originPointLayer, outerBufferFeatureLayer, innerBufferFeatureLayer, highlightFeatureLayer];
-    
-      for (const layer of layers) {
-        const result = await layer.queryFeatures({ where: "1=1", returnGeometry: false });
-        if (result.features.length > 0) {
-          await layer.applyEdits({ deleteFeatures: result.features });
-        }
-      }
-    
+    function clearAll() {
+      analyses.forEach(a => {
+        viewElement.map.remove(a.groupLayer);
+      });
       analyses = [];
       analysisCounter = 0;
       renderResults();
       setStatus("Click a draw button to begin", "ready");
     }
-
     // ================================================================
     // INITIALIZATION — runs when the map view is ready
     // ================================================================
@@ -1509,10 +1377,6 @@
           runAnalysis(event.graphic.geometry);
         }
       });
-      
-      viewElement.map.addMany([
-        bufferGroupLayer
-      ]);
     });
     // ================================================================
     // EVENT HANDLERS — draw toolbar buttons
