@@ -1070,6 +1070,7 @@
         const outerFeatCt = (await queryPopulation(outerBuffer, layer)).featureCount;
         // Handle inner buffer
         let innerPop = 0;
+        let innerFeatCt = 0;
         let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
