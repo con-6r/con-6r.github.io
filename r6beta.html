@@ -925,13 +925,20 @@
           onStatisticField: POP_FIELD,
           outStatisticFieldName: "TotalPopulation"
         })
+         new StatisticDefinition({
+          statisticType: "count",
+          onStatisticField: layer.objectIdField,
+          outStatisticFieldName: "FeatureCount"
+        })
       ];
 
-      const result = await layer.queryFeatures(query);
-      if (!result.features || result.features.length === 0) {
-        return 0;
-      }
-      return result.features[0].attributes.TotalPopulation || 0;
+      const response = await layer.queryFeatures(query);
+      const stats = response.features[0]?.attributes || {};
+
+      return {
+        totalPopulation: stats.TotalPopulation ?? 0,
+        featureCount: stats.FeatureCount ?? 0
+      };
     }
 
     /**
@@ -1059,14 +1066,15 @@
         //outerBufferLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
         
         // Query outer population
-        const outerPop = await queryPopulation(outerBuffer, layer);
-
+        const outerPop = (await queryPopulation(outerBuffer, layer)).totalPopulation;
+        const outerFeatCt = (await queryPopulation(outerBuffer, layer)).featureCount;
         // Handle inner buffer
         let innerPop = 0;
         let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
-          innerPop = await queryPopulation(innerBuffer, layer);
+          innerPop = (await queryPopulation(innerBuffer, layer)).totalPopulation;
+          innerFeatCt = (await queryPopulation(innerBuffer, layer)).featureCount;
         }
 
         // Create buffer band geometry and highlight intersecting features within the band
@@ -1092,6 +1100,8 @@
         });
     
         const bandPop = outerPop - innerPop;
+
+        const bandFeatCt = outerFeatCt - innerFeatCt;
     
         const view = viewElement.view;
         if (view) {
@@ -1120,7 +1130,7 @@
           outerDist,
           innerDist,
           unit,
-          featureCount: features.length,
+          bandFeatCt,
           expanded: true // newest result starts expanded
         };
 
@@ -1228,7 +1238,7 @@
           </div>
           <div class="analysis-detail">
             <span class="analysis-detail-label">Blocks/Block Groups</span>
-            <span class="analysis-detail-value">${formatNumber(a.featureCount)}</span>
+            <span class="analysis-detail-value">${formatNumber(a.bandFeatCt)}</span>
           </div>
           <div class="analysis-actions">
             <calcite-button
