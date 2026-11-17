@@ -982,7 +982,7 @@
         setStatus("Inner distance cannot be negative.", "error");
         return;
       }
-      if (innerDist >= outerDist) {
+      if (innerDist > outerDist) {
         setStatus("Inner distance must be less than outer distance.", "error");
         return;
       }
