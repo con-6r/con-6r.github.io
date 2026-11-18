@@ -235,10 +235,14 @@
       font-size: var(--calcite-font-size--1);
     }
   
-    .analysis-detail-label {
+    .analysis-primary-detail-label {
+      color: var(--calcite-color-text-1);
+    }
+
+    .analysis-secondary-detail-label {
       color: var(--calcite-color-text-3);
     }
-  
+      
     .analysis-primary-detail-value {
       font-weight: var(--calcite-font-weight-semibold);
       color: var(--calcite-color-text-1);
@@ -1232,19 +1236,19 @@
         body.className = `analysis-body ${a.expanded ? "open" : ""}`;
         body.innerHTML = `
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Total Band Population</span>
+            <span class="analysis-primary-detail-label">Total Band Population</span>
             <span class="analysis-primary-detail-value">${formatNumber(a.bandPop)}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
+            <span class="analysis-secondary-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
             <span class="analysis-secondary-detail-value">${formatNumber(a.outerPop)}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
+            <span class="analysis-secondary-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
             <span class="analysis-secondary-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Blocks/Block Groups</span>
+            <span class="analysis-secondary-detail-label">Blocks/Block Groups</span>
             <span class="analysis-secondary-detail-value">${formatNumber(a.bandFeatCt)}</span>
           </div>
           <div class="analysis-actions">
