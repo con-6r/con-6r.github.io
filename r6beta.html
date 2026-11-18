@@ -238,11 +238,16 @@
       color: var(--calcite-color-text-3);
     }
   
-    .analysis-detail-value {
-      font-weight: var(--calcite-font-weight-bold);
+    .analysis-primary-detail-value {
+      font-weight: var(--calcite-font-weight-semibold);
       color: var(--calcite-color-text-1);
     }
-  
+
+     .analysis-secondary-detail-value {
+      font-weight: var(--calcite-font-weight-medium);
+      color: var(--calcite-color-text-1);
+    }
+      
     .analysis-actions {
       display: flex;
       gap: 4px;
@@ -836,7 +841,7 @@
             <div id="load-color">
               <calcite-loader label="Calculating population..." inline></calcite-loader>
             </div>
-            <span style="font-size: 0.75rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
+            <span style="font-size: 0.75rem; font-weight: var(--calcite-font-weight-semibold); color: var(--calcite-color-status-warning);">
               ${message}
             </span>
           </div>
@@ -1227,19 +1232,19 @@
         body.innerHTML = `
           <div class="analysis-detail">
             <span class="analysis-detail-label">Band Population</span>
-            <span class="analysis-detail-value">${formatNumber(a.bandPop)}</span>
+            <span class="analysis-primary-detail-value">${formatNumber(a.bandPop)}</span>
           </div>
           <div class="analysis-detail">
             <span class="analysis-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
-            <span class="analysis-detail-value">${formatNumber(a.outerPop)}</span>
+            <span class="analysis-secondary-detail-value">${formatNumber(a.outerPop)}</span>
           </div>
           <div class="analysis-detail">
             <span class="analysis-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
-            <span class="analysis-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
+            <span class="analysis-secondary-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
           </div>
           <div class="analysis-detail">
             <span class="analysis-detail-label">Blocks/Block Groups</span>
-            <span class="analysis-detail-value">${formatNumber(a.bandFeatCt)}</span>
+            <span class="analysis-secondary-detail-value">${formatNumber(a.bandFeatCt)}</span>
           </div>
           <div class="analysis-actions">
             <calcite-button
