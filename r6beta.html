@@ -22,6 +22,11 @@
       gap: 6px;
     }
 
+    #bufferShellPanel {
+      --calcite-shell-panel-shadow: none;
+      --calcite-shell-panel-border-color: transparent;
+    }
+      
     #bufferPanel {
       --calcite-panel-corner-radius: 0px;
       --calcite-panel-border-color: transparent;
@@ -29,6 +34,11 @@
       --calcite-panel-header-background-color: var(--calcite-color-surface-2);
     }
 
+    #printShellPanel {
+      --calcite-shell-panel-shadow: none;
+      --calcite-shell-panel-border-color: transparent;
+    }
+      
     #printPanel {
       --calcite-panel-corner-radius: 0px;
       --calcite-panel-border-color: transparent;
@@ -183,8 +193,7 @@
     /* Analysis result block (one per analysis) */
     .analysis-block {
       border: 0px solid var(--calcite-color-border-2);
-      border-radius: var(--calcite-corner-radius-sm, 4px);
-      box-shadow: var(--calcite-shadow-md, 0 1px 2px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08));
+      border-radius: 4px;
       background: var(--calcite-color-surface-1);
       overflow: hidden;
       margin-bottom: 4px;
