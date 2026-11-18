@@ -1277,7 +1277,12 @@
           e.stopPropagation();
           const view = viewElement.view;
           if (view && a.outerBufferGeometry) {
-            view.goTo(a.outerBufferGeometry.extent.expand(1.4));
+            const targetExtent = a.outerBufferGeometry.extent.clone().expand(1.4);
+        
+            // Only animate if the target isn't already completely within the current view
+            if (!view.extent.contains(targetExtent)) {
+              view.goTo(targetExtent);
+            }
           }
         });
 
