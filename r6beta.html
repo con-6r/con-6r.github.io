@@ -21,6 +21,11 @@
       flex-direction: column;
       gap: 6px;
     }
+
+    #bufferPanel {
+      --calcite-panel-background-color: #ffffff;
+      --calcite-panel-header-background-color: #ffffff;
+    }
   
     .input-group {
       display: flex;
@@ -168,10 +173,10 @@
   
     /* Analysis result block (one per analysis) */
     .analysis-block {
-      border: solid var(--calcite-color-border-3);
+      border: solid var(--calcite-color-border-2);
       --calcite-border-width-sm: 1.5px;
       border-radius: 8px;
-      background: var(--calcite-color-surface-3);
+      background: var(--calcite-color-surface-2);
       overflow: hidden;
       margin-bottom: 4px;
     }
@@ -181,7 +186,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 8px 12px;
-      background: var(--calcite-color-surface-4);
+      background: var(--calcite-color-surface-3);
       cursor: pointer;
       gap: 8px;
     }
