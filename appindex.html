@@ -21,7 +21,29 @@
       flex-direction: column;
       gap: 6px;
     }
-  
+
+    /*#bufferShellPanel {
+      --calcite-shell-panel-shadow: none;
+      border: 1px solid var(--calcite-color-border-3);
+    }*/
+      
+    #bufferPanel {
+      --calcite-panel-corner-radius: 4px;
+      --calcite-panel-background-color: var(--calcite-color-surface-2);
+      --calcite-panel-header-background-color: var(--calcite-color-surface-2);
+    }
+
+    /*#printShellPanel {
+      --calcite-shell-panel-shadow: none;
+      border: 1px solid var(--calcite-color-border-3);
+    }*/
+      
+    #printPanel {
+      --calcite-panel-corner-radius: 4px;
+      --calcite-panel-background-color: var(--calcite-color-surface-2);
+      --calcite-panel-header-background-color: var(--calcite-color-surface-2);
+    }
+      
     .input-group {
       display: flex;
       flex-direction: column;
@@ -104,7 +126,7 @@
 
     #notice-message {
       font-size: 0.75rem;
-      font-weight: var(--calcite-font-weight-medium);
+      font-weight: var(--calcite-font-weight-semibold);
     }
 
     #load-color {
@@ -156,7 +178,7 @@
     .results-header {
       display: flex;
       justify-content: space-between;
-      padding: 4px 0;
+      padding: 4px 0 6px;
     }
 
     #results-header-text {
@@ -168,10 +190,12 @@
   
     /* Analysis result block (one per analysis) */
     .analysis-block {
-      border: 1px solid var(--calcite-color-border-3);
-      border-radius: 8px;
+      border: 1.5px solid var(--calcite-color-border-3);
+      border-radius: 4px;
+      background: var(--calcite-color-surface-1);
+      /*box-shadow: 0 1.75px 2.5px rgba(0, 0, 0, 0.1);*/
       overflow: hidden;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
   
     .analysis-header {
@@ -179,13 +203,13 @@
       align-items: center;
       justify-content: space-between;
       padding: 8px 12px;
-      background: var(--calcite-color-foreground-2);
+      background: var(--calcite-color-surface-3);
       cursor: pointer;
       gap: 8px;
     }
   
     .analysis-header:hover {
-      background: var(--calcite-color-foreground-3);
+      background: var(--calcite-color-surface-highlight);
     }
   
     .analysis-header-text {
@@ -205,6 +229,7 @@
   
     .analysis-subtitle {
       font-size: var(--calcite-font-size--2);
+      font-weight: var(--calcite-font-weight-semibold);
       color: var(--calcite-color-text-3);
       margin: 2px 0 0 0;
     }
@@ -234,15 +259,25 @@
       font-size: var(--calcite-font-size--1);
     }
   
-    .analysis-detail-label {
+    .analysis-primary-detail-label {
+      font-weight: var(--calcite-font-weight-medium);
+      color: var(--calcite-color-text-2);
+    }
+
+    .analysis-secondary-detail-label {
       color: var(--calcite-color-text-3);
     }
-  
-    .analysis-detail-value {
-      font-weight: var(--calcite-font-weight-bold);
+      
+    .analysis-primary-detail-value {
+      font-weight: var(--calcite-font-weight-semibold);
       color: var(--calcite-color-text-1);
     }
-  
+
+     .analysis-secondary-detail-value {
+      font-weight: var(--calcite-font-weight-regular);
+      color: var(--calcite-color-text-1);
+    }
+      
     .analysis-actions {
       display: flex;
       gap: 4px;
@@ -335,7 +370,7 @@
     ]);
   
     const oAuthInfo = new OAuthInfo({
-      appId: "dY1uuKoXcEBt44zy",
+      appId: "30bmTwF1AOcdEsBp",
     });
     idMgr.registerOAuthInfos([oAuthInfo]);
   </script>
@@ -636,14 +671,14 @@
     // CONFIGURATION
     // ================================================================
     const BLOCK_LAYER_URL =
-      "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2020_Census_Blocks_in_Region_6/FeatureServer/0";
+      "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Census_2020_Redistricting_Blocks/FeatureServer/0";
     const BG_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/2024_Census_Block_Groups_in_Region_6/FeatureServer/0";
     const PARCEL_LAYER_URL =
       "https://utility.arcgis.com/usrsvcs/servers/75da303642e74f4b8b25caa6c1bbfad0/rest/services/premium/FeatureServer/0?f=pjson";
     const NPL_SITE_LAYER_URL =
       "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/Superfund_National_Priorities_List_(NPL)_Sites_with_Status_Information/FeatureServer/0";
-    const POP_FIELD = "POP20";
+    const POP_FIELD = "P0010001";
     // ================================================================
 
     // ================================================================
@@ -836,7 +871,7 @@
             <div id="load-color">
               <calcite-loader label="Calculating population..." inline></calcite-loader>
             </div>
-            <span style="font-size: 0.75rem; font-weight: var(--calcite-font-weight-medium); color: var(--calcite-color-status-warning);">
+            <span style="font-size: 0.75rem; font-weight: var(--calcite-font-weight-semibold); color: var(--calcite-color-status-warning);">
               ${message}
             </span>
           </div>
@@ -924,14 +959,21 @@
           statisticType: "sum",
           onStatisticField: POP_FIELD,
           outStatisticFieldName: "TotalPopulation"
+        }),
+         new StatisticDefinition({
+          statisticType: "count",
+          onStatisticField: POP_FIELD,
+          outStatisticFieldName: "FeatureCount"
         })
       ];
 
-      const result = await layer.queryFeatures(query);
-      if (!result.features || result.features.length === 0) {
-        return 0;
-      }
-      return result.features[0].attributes.TotalPopulation || 0;
+      const response = await layer.queryFeatures(query);
+      const stats = response.features[0]?.attributes || {};
+
+      return {
+        totalPopulation: stats.TotalPopulation ?? 0,
+        featureCount: stats.FeatureCount ?? 0
+      };
     }
 
     /**
@@ -975,7 +1017,7 @@
         setStatus("Inner distance cannot be negative.", "error");
         return;
       }
-      if (innerDist >= outerDist) {
+      if (innerDist > outerDist) {
         setStatus("Inner distance must be less than outer distance.", "error");
         return;
       }
@@ -1059,14 +1101,16 @@
         //outerBufferLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
         
         // Query outer population
-        const outerPop = await queryPopulation(outerBuffer, layer);
-
+        const outerPop = (await queryPopulation(outerBuffer, layer)).totalPopulation;
+        const outerFeatCt = (await queryPopulation(outerBuffer, layer)).featureCount;
         // Handle inner buffer
         let innerPop = 0;
+        let innerFeatCt = 0;
         let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
-          innerPop = await queryPopulation(innerBuffer, layer);
+          innerPop = (await queryPopulation(innerBuffer, layer)).totalPopulation;
+          innerFeatCt = (await queryPopulation(innerBuffer, layer)).featureCount;
         }
 
         // Create buffer band geometry and highlight intersecting features within the band
@@ -1092,6 +1136,8 @@
         });
     
         const bandPop = outerPop - innerPop;
+
+        const bandFeatCt = outerFeatCt - innerFeatCt;
     
         const view = viewElement.view;
         if (view) {
@@ -1120,7 +1166,7 @@
           outerDist,
           innerDist,
           unit,
-          featureCount: features.length,
+          bandFeatCt,
           expanded: true // newest result starts expanded
         };
 
@@ -1130,9 +1176,9 @@
         renderResults();
 
         if (innerDist > 0) {
-          setStatus(`Done: ${formatNumber(bandPop)} people in band`, "success");
+          setStatus(`Done: ${formatNumber(bandPop)} people in this band`, "success");
         } else {
-          setStatus(`Done: ${formatNumber(bandPop)} people in buffer`, "success");
+          setStatus(`Done: ${formatNumber(bandPop)} people in this buffer`, "success");
         }
 
       } catch (err) {
@@ -1215,20 +1261,20 @@
         body.className = `analysis-body ${a.expanded ? "open" : ""}`;
         body.innerHTML = `
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Band Population</span>
-            <span class="analysis-detail-value">${formatNumber(a.bandPop)}</span>
+            <span class="analysis-primary-detail-label">Total Band Population</span>
+            <span class="analysis-primary-detail-value">${formatNumber(a.bandPop)}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
-            <span class="analysis-detail-value">${formatNumber(a.outerPop)}</span>
+            <span class="analysis-secondary-detail-label">Outer Buffer (${a.outerDist} ${a.unit})</span>
+            <span class="analysis-secondary-detail-value">${formatNumber(a.outerPop)}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
-            <span class="analysis-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
+            <span class="analysis-secondary-detail-label">Inner Buffer (${a.innerDist > 0 ? a.innerDist + " " + a.unit : "none"})</span>
+            <span class="analysis-secondary-detail-value">${a.innerDist > 0 ? formatNumber(a.innerPop) : "N/A"}</span>
           </div>
           <div class="analysis-detail">
-            <span class="analysis-detail-label">Blocks/Block Groups</span>
-            <span class="analysis-detail-value">${formatNumber(a.featureCount)}</span>
+            <span class="analysis-secondary-detail-label">Blocks/Block Groups</span>
+            <span class="analysis-secondary-detail-value">${formatNumber(a.bandFeatCt)}</span>
           </div>
           <div class="analysis-actions">
             <calcite-button
@@ -1255,7 +1301,12 @@
           e.stopPropagation();
           const view = viewElement.view;
           if (view && a.outerBufferGeometry) {
-            view.goTo(a.outerBufferGeometry.extent.expand(1.4));
+            const targetExtent = a.outerBufferGeometry.extent.clone().expand(1.4);
+        
+            // Only animate if the target isn't already completely within the current view
+            if (!view.extent.contains(targetExtent)) {
+              view.goTo(targetExtent);
+            }
           }
         });
 
