@@ -1100,17 +1100,18 @@
         // gfxLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
         //outerBufferLayer.add(new Graphic({ geometry: outerBuffer, symbol: outerBufferSymbol }));
         
-        // Query outer population
-        const outerPop = (await queryPopulation(outerBuffer, layer)).totalPopulation;
-        const outerFeatCt = (await queryPopulation(outerBuffer, layer)).featureCount;
-        // Handle inner buffer
+        // Query outer population (single request)
+        const { totalPopulation: outerPop, featureCount: outerFeatCt } = await queryPopulation(outerBuffer, layer);
+        
+        // Handle inner buffer (single request)
         let innerPop = 0;
         let innerFeatCt = 0;
         let innerBuffer = null;
         if (innerDist > 0) {
           innerBuffer = geodesicBufferOperator.execute(drawnGeometry, innerDist, { unit });
-          innerPop = (await queryPopulation(innerBuffer, layer)).totalPopulation;
-          innerFeatCt = (await queryPopulation(innerBuffer, layer)).featureCount;
+          const innerStats = await queryPopulation(innerBuffer, layer);
+          innerPop = innerStats.totalPopulation;
+          innerFeatCt = innerStats.featureCount;
         }
 
         // Create buffer band geometry and highlight intersecting features within the band
@@ -1184,7 +1185,7 @@
       } catch (err) {
         console.error("Analysis error:", err);
         // Clean up the graphics layer if the analysis failed
-        //viewElement.map.removeMany([originLayer, outerBufferLayer, innerBufferLayer, highlightLayer]);
+        viewElement.map.remove(analysisGroupLayer);
         setStatus(`Error: ${err.message}`, "error");
       }
     }
@@ -1326,22 +1327,6 @@
      * Removes a single analysis by ID — clears its graphics and removes
      * it from the results list.
      */
-
-    async function removeAnalysisFeatures(analysisId) {
-      const layers = [originPointLayer, originLineLayer, originPolyLayer, outerBufferFeatureLayer, innerBufferFeatureLayer, highlightFeatureLayer];
-    
-      for (const layer of layers) {
-        const result = await layer.queryFeatures({
-          where: `analysisId = ${analysisId}`,
-          returnGeometry: false
-        });
-        if (result.features.length > 0) {
-          await layer.applyEdits({
-            deleteFeatures: result.features
-          });
-        }
-      }
-    }
   
     function removeAnalysis(id) {
       const index = analyses.findIndex(a => a.id === id);
@@ -1350,11 +1335,13 @@
       const analysis = analyses[index];
       viewElement.map.remove(analysis.groupLayer);
       analyses.splice(index, 1);
-      --analysisCounter;
-      renderResults();
+      //--analysisCounter;
+      //renderResults();
       if (analyses.length === 0) {
+        analysisCounter = 0;
         setStatus("Click a draw button to begin.", "ready");
       }
+      renderResults();
     }
 
     function clearAll() {
